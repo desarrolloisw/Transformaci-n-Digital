@@ -1,0 +1,24 @@
+# General
+.DS_Store
+*.log
+*.env
+
+# VSCode
+.vscode/
+
+# Node.js
+node_modules/
+
+# Build directories
+dist/
+build/
+
+# Temporary files
+tmp/
+
+# Environment files
+.env.local
+.env.development
+.env.production
+.env.test
+.env
