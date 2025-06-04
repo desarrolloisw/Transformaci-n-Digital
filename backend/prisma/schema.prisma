@@ -32,8 +32,8 @@ model User {
   name      String   @db.VarChar(50)
   lastName String    @db.VarChar(50)
   secondLastName String? @db.VarChar(50)
-  email     String   @unique
-  password  String  @db.VarChar(255)
+  email     String   @unique @db.VarChar(100)
+  password  String  @db.VarChar(72) // 72 es lo recomendado para bcrypt
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

@@ -22,3 +22,30 @@ export function generateToken(user) {
 
     return jwt.sign(payload, secretKey, options);
 }
+
+/**
+ * Verifies a JWT token and returns the decoded payload if valid.
+ * Throws a custom error with clear message if invalid or expired.
+ * @param {string} token - The JWT token to verify.
+ * @returns {Promise<Object>} The decoded payload.
+ */
+export async function verifyToken(token) {
+    if (!token || typeof token !== 'string') {
+        throw new Error('Token no proporcionado o inválido.');
+    }
+
+    return new Promise((resolve, reject) => {
+        jwt.verify(token, secretKey, { algorithms: [algorithm] }, (err, decoded) => {
+            if (err) {
+                if (err.name === 'TokenExpiredError') {
+                    return reject(new Error('El token ha expirado.'));
+                }
+                if (err.name === 'JsonWebTokenError') {
+                    return reject(new Error('Token inválido.'));
+                }
+                return reject(new Error('Error al verificar el token.'));
+            }
+            resolve(decoded);
+        });
+    });
+}

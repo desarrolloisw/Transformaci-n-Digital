@@ -51,4 +51,20 @@ const decrypt = (encryptedText) => {
     }
 }
 
-export { encrypt, decrypt, ENCRYPTION_KEY };
+// Encriptación determinista: siempre produce el mismo resultado para el mismo texto y clave
+const deterministicEncrypt = (text) => {
+    try {
+        // IV fijo de 16 bytes en cero
+        const iv = Buffer.alloc(IV_LENGTH, 0);
+        const cipher = crypto.createCipheriv(ALGORITHM, Buffer.from(ENCRYPTION_KEY, 'utf8'), iv);
+        let encrypted = cipher.update(text, 'utf8', 'hex');
+        encrypted += cipher.final('hex');
+        // Retornar el IV (fijo) y el texto encriptado concatenados
+        return iv.toString('hex') + ':' + encrypted;
+    } catch (error) {
+        console.error('Error al encriptar (determinista):', error);
+        throw new Error('Error al encriptar el texto (determinista)');
+    }
+}
+
+export { encrypt, deterministicEncrypt, decrypt, ENCRYPTION_KEY };

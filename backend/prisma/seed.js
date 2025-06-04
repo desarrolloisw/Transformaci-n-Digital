@@ -1,5 +1,5 @@
 import { hashPassword } from '../src/config/bcrypt.config.js';
-import { encrypt } from '../src/config/crypto.config.js';
+import { deterministicEncrypt } from '../src/config/crypto.config.js';
 import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
@@ -28,7 +28,7 @@ async function main() {
                 name: 'Administrador',
                 lastName: 'del',
                 secondLastName: 'Sistema',
-                email: encrypt('admin@unison.mx'),
+                email: deterministicEncrypt('admin@unison.mx'),
                 password: await hashPassword('admin123'),
                 userTypeId: patType.id,
             }
