@@ -3,7 +3,7 @@ import { z } from 'zod';
 export const registerSchema = z.object({
   username: z.string({ required_error: 'Nombre de Usuario es requerido.' })
     .min(5, "El nombre de usuario debe tener al menos 5 caracteres.")
-    .max(25, "El nombre de usuario debe tener máxmio 25 caracteres")
+    .max(25, "El nombre de usuario debe tener máximo 25 caracteres")
     .regex(/^[a-z0-9_]+$/, "El nombre de usuario solo puede contener letras minúsculas, números y guiones bajos.")
     .transform(val => val.toLowerCase()),
   name: z.string({ required_error: 'Nombre es requerido.' })
@@ -41,7 +41,6 @@ export const registerSchema = z.object({
 export const loginSchema = z.object({
   identifier: z.string({ required_error: 'Email o username es requerido.' })
     .min(3, "El email o username debe tener al menos 3 caracteres.")
-    .max(100, "El email o username no debe sobrepasar los 100 caracteres.")
     .transform(val => val.toLowerCase()),
   password: z.string({ required_error: 'Contraseña es requerida.' })
     .min(8, "La contraseña debe tener al menos 8 caracteres.")
