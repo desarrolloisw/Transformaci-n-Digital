@@ -4,6 +4,7 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
 import path from 'path';
+import authRoutes from './routes/auth.routes.js';
 
 // Configuración del servidor Express
 const app = new Express();
@@ -32,6 +33,8 @@ app.use(bodyParser.json());
 // Middleware para manejar datos URL-encoded
 app.use(bodyParser.urlencoded({ extended: true }));
 
+// Configurando las rutas de autenticación
+app.use('/api/auth', authRoutes);
 
 // Configurando la carpeta estática para servir archivos estáticos
 app.use(Express.static(path.join(__dirname, 'public')));
