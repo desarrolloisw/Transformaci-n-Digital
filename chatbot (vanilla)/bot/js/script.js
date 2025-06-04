@@ -92,7 +92,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     .chatbot-message {
         opacity: 0;
-        animation: chatbot-msg-in 0.5s forwards;
+        animation: chatbot-msg-in 0.3s forwards;
     }
     @keyframes chatbot-msg-in {
         from { opacity: 0; transform: translateY(10px);}
@@ -115,8 +115,8 @@ document.addEventListener("DOMContentLoaded", function () {
         opacity: 0.6;
         animation: chatbot-typing-bounce 1s infinite alternate;
     }
-    .chatbot-typing span:nth-child(2) { animation-delay: 0.2s;}
-    .chatbot-typing span:nth-child(3) { animation-delay: 0.4s;}
+    .chatbot-typing span:nth-child(2) { animation-delay: 0.1s;}
+    .chatbot-typing span:nth-child(3) { animation-delay: 0.2s;}
     @keyframes chatbot-typing-bounce {
         to { opacity: 1; transform: translateY(-0.2em);}
     }
@@ -157,7 +157,7 @@ document.addEventListener("DOMContentLoaded", function () {
     container.appendChild(chatWindow);
 
     // Animación de escritura simulada
-    function typeMessage(text, delay = 30) {
+    function typeMessage(text, delay = 20) {
         return new Promise(resolve => {
             const msgDiv = document.createElement('div');
             msgDiv.className = 'chatbot-message';
@@ -178,7 +178,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // Animación de "escribiendo..."
-    function showTyping(duration = 900) {
+    function showTyping(duration = 300) {
         return new Promise(resolve => {
             const typingDiv = document.createElement('div');
             typingDiv.className = 'chatbot-message';
