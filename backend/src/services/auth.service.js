@@ -1,10 +1,10 @@
 import { prisma } from "../libs/prisma.lib.js";
 import { hashPassword, comparePassword } from "../config/bcrypt.config.js";
 import { encrypt, decrypt } from "../config/crypto.config.js";
-import { jwtConfig } from "../config/jwt.config.js";
 import { registerSchema } from "../schemas/auth.schema.js";
+import { generateToken } from "../libs/jwt.lib.js";
 
-async function registerUserService(userData) {
+export async function registerUserService(userData) {
     return await prisma.$transaction(async (tx) => {
         const { username, name, lastname, secondlastname, email, password, userTypeId, confirmPassword } = userData;
 
@@ -62,7 +62,48 @@ async function registerUserService(userData) {
     );
 }
 
+export async function loginUserService({ identifier, password }) {
+    try{
+        if (!identifier || !password) {
+            throw new Error("El identificador y la contraseña son obligatorios.");
+        }
+        // Convertir el identificador a minúsculas
+        identifier = identifier.toLowerCase();
+        const user = await prisma.user.findFirst({
+            where: {
+                OR: [
+                    { email: encrypt(identifier) },
+                    { username: identifier.toLowerCase() }
+                ]
+            }
+        });
 
-export const authService = {
-    registerUserService,
+        if (!user) {
+            throw new Error("Usuario no encontrado.");
+        }
+
+
+    if(!user.isActive) {
+            throw new Error("Usuario inactivo.");
+        }
+
+        if (!await comparePassword(password, user.password)) {
+            throw new Error("Contraseña incorrecta.");
+        }
+
+        const token = generateToken({
+            id: user.id,
+            username: user.username,
+            email: decrypt(user.email),
+            userTypeId: user.userTypeId
+        });
+        const { password: _password, userTypeId: _userTypeId, ...userWithoutPassword } = user;
+
+        return {
+            user: userWithoutPassword,
+            token
+        };
+    }catch (error) {
+        throw new Error(`Error al encontrar el usuario: ${error.message}`);
+    }
 }

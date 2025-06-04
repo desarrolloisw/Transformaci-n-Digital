@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-const registerSchema = z.object({
+export const registerSchema = z.object({
   username: z.string({ required_error: 'Nombre de Usuario es requerido.' }).min(5, "El nombre de usuario debe tener al menos 5 caracteres.").regex(/^[a-z0-9_]+$/, "El nombre de usuario solo puede contener letras minúsculas, números y guiones bajos."),
   name: z.string({ required_error: 'Nombre es requerido.' }).min(1, "El nombre debe tener al menos 1 carácter."),
   lastname: z.string({ required_error: 'Primer apellido es requerido.' }).min(1, "El primer apellido debe tener al menos 1 carácter."),
@@ -19,7 +19,3 @@ const registerSchema = z.object({
   }),
   userTypeId: z.number({ required_error: 'Tipo de usuario es requerido.' }).int().positive("Tipo de usuario no válido"),
 });
-
-export const authSchemas = {
-    registerSchema,
-}

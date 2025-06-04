@@ -44,6 +44,9 @@ model User {
   processes Process[]
   categories Category[]
   processCategories ProcessCategory[]
+  processLogs ProcessLog[]
+  categoryLogs CategoryLog[]
+  processCategoryLogs ProcessCategoryLog[]
 
   @@index([name])
   @@index([email])
@@ -63,6 +66,7 @@ model Process {
   // Relationships
   user      User     @relation(fields: [userId], references: [id])
   processCategories ProcessCategory[]
+  processLogs ProcessLog[]
 
   @@index([name])
   @@map("process")
@@ -80,6 +84,7 @@ model Category {
   // Relationships
   user      User     @relation(fields: [userId], references: [id])
   processCategories ProcessCategory[]
+  categoryLogs CategoryLog[]
 
   @@index([name])
   @@map("category")
@@ -99,6 +104,7 @@ model ProcessCategory {
   user        User     @relation(fields: [userId], references: [id])
   process     Process  @relation(fields: [processId], references: [id])
   category    Category @relation(fields: [categoryId], references: [id])
+  processCategoryLogs ProcessCategoryLog[]
 
   @@unique([processId, categoryId])
   @@index([processId])
@@ -106,3 +112,51 @@ model ProcessCategory {
   @@map("faq")
 }
 
+
+model ProcessLog {
+  id        Int      @id @default(autoincrement())
+  processId Int
+  userId    Int?
+  action    String
+  createdAt DateTime @default(now())
+
+  // Relationships
+  process   Process  @relation(fields: [processId], references: [id])
+  user      User?     @relation(fields: [userId], references: [id])
+
+  @@index([processId])
+  @@index([userId])
+  @@map("process_log")
+}
+
+model CategoryLog {
+  id        Int      @id @default(autoincrement())
+  categoryId Int
+  userId    Int?
+  action    String
+  createdAt DateTime @default(now())
+
+  // Relationships
+  category  Category @relation(fields: [categoryId], references: [id])
+  user      User?     @relation(fields: [userId], references: [id])
+
+  @@index([categoryId])
+  @@index([userId])
+  @@map("category_log")
+}
+
+model ProcessCategoryLog {
+  id          Int      @id @default(autoincrement())
+  processCategoryId Int
+  userId      Int?
+  action      String
+  createdAt   DateTime @default(now())
+
+  // Relationships
+  processCategory ProcessCategory @relation(fields: [processCategoryId], references: [id])
+  user        User?    @relation(fields: [userId], references: [id])
+
+  @@index([processCategoryId])
+  @@index([userId])
+  @@map("faq_log")
+}

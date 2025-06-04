@@ -1,6 +1,6 @@
-import { registerSchema } from '../schemas/register.schema.js';
+import { registerSchema } from '../schemas/auth.schema.js';
 
-const validateRegister = (req, res, next) => {
+export const validateRegister = (req, res, next) => {
     const result = registerSchema.safeParse(req.body);
 
     if (!result.success) {
@@ -16,9 +16,3 @@ const validateRegister = (req, res, next) => {
     req.body.username = req.body.username.toLowerCase();
     next();
 };
-
-export const authMiddleware = {
-    validateRegister,
-};
-
-

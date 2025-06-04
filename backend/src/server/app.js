@@ -1,13 +1,14 @@
-import Express from 'express';
+import express from 'express';
 import morgan from 'morgan';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
 import path from 'path';
-import authRoutes from './routes/auth.routes.js';
+import authRoutes from '../routes/auth.routes.js';
+import { fileURLToPath } from 'url';
 
 // Configuración del servidor Express
-const app = new Express();
+const app = express();
 
 // Configurando Morgan para el logging de peticiones HTTP
 app.use(morgan('dev'));
@@ -33,20 +34,24 @@ app.use(bodyParser.json());
 // Middleware para manejar datos URL-encoded
 app.use(bodyParser.urlencoded({ extended: true }));
 
+// Sirve archivos estáticos desde el directorio 'public'
+app.use(express.static(path.resolve(import.meta.dirname, '..', '..', 'public')));
+
 // Configurando las rutas de autenticación
 app.use('/api/auth', authRoutes);
 
-// Configurando la carpeta estática para servir archivos estáticos
-app.use(Express.static(path.join(__dirname, 'public')));
+// Obtener el nombre del archivo actual
+const __filename = fileURLToPath(import.meta.url);
 
-// Configurando para cargar el archivo HTML principal
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
+// Obtener el directorio del archivo actual
+const __dirname = path.dirname(__filename);
+
+// Configurando la carpeta estática para servir archivos estáticos
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Configurando para que cualquier ruta redirija al archivo HTML principal
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+app.get(/.*/, (req, res) => {
+   return res.sendFile(path.join(path.resolve(), "public", "index.html"));
 });
 
 // Exportar la aplicación para su uso en otros módulos
