@@ -17,7 +17,6 @@ model UserType {
   id        Int      @id @default(autoincrement())
   name      String   @unique
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 
   // Relationships
   users     User[]
@@ -29,12 +28,12 @@ model UserType {
 model User {
   id        Int      @id @default(autoincrement())
   userTypeId Int
-  username  String   @unique
-  name      String
-  lastName String
-  secondLastName String?
+  username  String   @unique @db.VarChar(25)
+  name      String   @db.VarChar(50)
+  lastName String    @db.VarChar(50)
+  secondLastName String? @db.VarChar(50)
   email     String   @unique
-  password  String
+  password  String  @db.VarChar(255)
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -57,8 +56,8 @@ model User {
 model Process {
   id        Int      @id @default(autoincrement())
   userId    Int
-  name      String   @unique
-  description String?
+  name      String   @unique @db.VarChar(100)
+  description String? @db.Text
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -75,8 +74,8 @@ model Process {
 model Category {
   id        Int      @id @default(autoincrement())
   userId    Int
-  name      String   @unique
-  description String?
+  name      String   @unique @db.VarChar(100)
+  description String? @db.Text
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -95,7 +94,7 @@ model ProcessCategory {
   processId   Int
   categoryId  Int
   userId      Int
-  response      String
+  response      String @db.Text
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -117,12 +116,13 @@ model ProcessLog {
   id        Int      @id @default(autoincrement())
   processId Int
   userId    Int?
-  action    String
+  actionTypeId Int
   createdAt DateTime @default(now())
 
   // Relationships
   process   Process  @relation(fields: [processId], references: [id])
   user      User?     @relation(fields: [userId], references: [id])
+  actionType ActionType   @relation(fields: [actionTypeId], references: [id])
 
   @@index([processId])
   @@index([userId])
@@ -133,12 +133,13 @@ model CategoryLog {
   id        Int      @id @default(autoincrement())
   categoryId Int
   userId    Int?
-  action    String
+  actionTypeId Int
   createdAt DateTime @default(now())
 
   // Relationships
   category  Category @relation(fields: [categoryId], references: [id])
   user      User?     @relation(fields: [userId], references: [id])
+  actionType ActionType   @relation(fields: [actionTypeId], references: [id])
 
   @@index([categoryId])
   @@index([userId])
@@ -149,14 +150,30 @@ model ProcessCategoryLog {
   id          Int      @id @default(autoincrement())
   processCategoryId Int
   userId      Int?
-  action      String
+  actionTypeId Int
   createdAt   DateTime @default(now())
 
   // Relationships
   processCategory ProcessCategory @relation(fields: [processCategoryId], references: [id])
   user        User?    @relation(fields: [userId], references: [id])
+  actionType  ActionType   @relation(fields: [actionTypeId], references: [id])
 
   @@index([processCategoryId])
   @@index([userId])
   @@map("faq_log")
+}
+
+model ActionType {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  // Relationships
+  processLogs ProcessLog[]
+  categoryLogs CategoryLog[]
+  processCategoryLogs ProcessCategoryLog[]
+
+  @@index([name])
+  @@map("action_type")
 }

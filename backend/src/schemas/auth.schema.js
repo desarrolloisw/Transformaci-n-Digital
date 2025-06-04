@@ -1,12 +1,12 @@
 import { z } from 'zod';
 
 export const registerSchema = z.object({
-  username: z.string({ required_error: 'Nombre de Usuario es requerido.' }).min(5, "El nombre de usuario debe tener al menos 5 caracteres.").regex(/^[a-z0-9_]+$/, "El nombre de usuario solo puede contener letras minúsculas, números y guiones bajos."),
-  name: z.string({ required_error: 'Nombre es requerido.' }).min(1, "El nombre debe tener al menos 1 carácter."),
-  lastname: z.string({ required_error: 'Primer apellido es requerido.' }).min(1, "El primer apellido debe tener al menos 1 carácter."),
-  secondlastname: z.string().optional(),
+  username: z.string({ required_error: 'Nombre de Usuario es requerido.' }).min(5, "El nombre de usuario debe tener al menos 5 caracteres.").max(25, "El nombre de usuario debe tener máxmio 25 caracteres").regex(/^[a-z0-9_]+$/, "El nombre de usuario solo puede contener letras minúsculas, números y guiones bajos."),
+  name: z.string({ required_error: 'Nombre es requerido.' }).min(1, "El nombre debe tener al menos 1 carácter.").max(50, "El nombre no puede exceder los 50 caracteres."),
+  lastname: z.string({ required_error: 'Primer apellido es requerido.' }).min(1, "El primer apellido debe tener al menos 1 carácter.").max(50, "El primer apellido no puede exceder los 50 caracteres."),
+  secondlastname: z.string().min(1, "El segundo apellido debe tener al menos 1 carácter.").max(50, "El segundo apellido no puede exceder los 50 caracteres.").optional(),
   email: z.string({ required_error: 'Correo es requerido.' }).email("El correo electrónico no es válido.").regex(/@unison\.mx$/, "El correo debe ser de la UNISON."),
-  password: z.string({ required_error: 'Contraseña es requerido.' }).min(8, "La contraseña debe tener al menos 8 caracteres").regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/, "La contraseña debe contener al menos una letra mayúscula, una minúscula, un número y un carácter especial."),
+  password: z.string({ required_error: 'Contraseña es requerido.' }).min(8, "La contraseña debe tener al menos 8 caracteres").max(255, "La contraseña no debe sobrepasar los 255 caracteres").regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/, "La contraseña debe contener al menos una letra mayúscula, una minúscula, un número y un carácter especial."),
   confirmPassword: z.string({ required_error: 'Confirmación de contraseña es requerida.' }).min(8, "La confirmación de contraseña debe tener al menos 8 caracteres").refine((val, ctx) => {
     if (val !== ctx.parent.password) {
       ctx.addIssue({

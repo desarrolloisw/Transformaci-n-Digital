@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 
-const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || 'default-encryption-key';
+// Ajustar la clave a 32 bytes (utf8), rellenando con ceros si es necesario
+const ENCRYPTION_KEY = (process.env.ENCRYPTION_KEY || 'default-encryption-key').padEnd(32, '0').slice(0, 32);
 const ALGORITHM = 'aes-256-cbc';
 const IV_LENGTH = 16; // Para AES, el IV debe ser de 16 bytes
 
@@ -10,7 +11,7 @@ const encrypt = (text) => {
         const iv = crypto.randomBytes(IV_LENGTH);
 
         // Crear el cipher con la clave de cifrado y el IV
-        const cipher = crypto.createCipheriv(ALGORITHM, Buffer.from(ENCRYPTION_KEY, 'hex'), iv);
+        const cipher = crypto.createCipheriv(ALGORITHM, Buffer.from(ENCRYPTION_KEY, 'utf8'), iv);
 
         // Encriptar el texto
         let encrypted = cipher.update(text, 'utf8', 'hex');
@@ -37,7 +38,7 @@ const decrypt = (encryptedText) => {
         const encryptedBuffer = Buffer.from(encrypted, 'hex');
 
         // Crear el decipher con la clave de cifrado y el IV
-        const decipher = crypto.createDecipheriv(ALGORITHM, Buffer.from(ENCRYPTION_KEY, 'hex'), iv);
+        const decipher = crypto.createDecipheriv(ALGORITHM, Buffer.from(ENCRYPTION_KEY, 'utf8'), iv);
 
         // Desencriptar el texto
         let decrypted = decipher.update(encryptedBuffer, 'hex', 'utf8');
