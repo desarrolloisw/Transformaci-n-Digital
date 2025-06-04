@@ -62,7 +62,7 @@ export function isPAT(req, res, next) {
     if (req.user && req.user.userTypeId === 1) { // Asumiendo que el userTypeId 1 es para PAT
         return next();
     }
-    return res.status(403).json({ message: 'Acceso denegado. Requiere permisos de PAT.' });
+    return res.status(403).json({ message: 'Acceso denegado. Requiere permisos de Personal Académico Técnico.' });
 }
 
 export function isCoord(req, res, next) {
@@ -76,5 +76,5 @@ export function isAny(req, res, next) {
     if (req.user && (req.user.userTypeId === 1 || req.user.userTypeId === 2)) { // Asumiendo que el userTypeId 1 es para PAT y 2 para Coordinador
         return next();
     }
-    return res.status(403).json({ message: 'Acceso denegado. Requiere permisos de PAT o Coordinador.' });
+    return res.status(403).json({ message: 'Acceso denegado. Requiere permisos de Personal Académico Técnico o Coordinador.' });
 }
