@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const BACKEND_URL = 'http://localhost:3000';
-    const LOGO_URL = '../img/Escudo_Unison.png'; // Cambia por tu logo si lo deseas
+    const BACKEND_URL = 'http://localhost:3000'; // Cambia por la URL de tu backend
+    const LOGO_URL = '../img/Escudo_Unison.png'; // Cambia por tu logo
 
     // Crear estilos
     const style = document.createElement("style");
@@ -214,12 +214,12 @@ document.addEventListener("DOMContentLoaded", function () {
             height: 54px;
         }
         .chatbot-window {
-            width: 98vw;
+            width: 100dvw;
             min-width: 0;
-            max-width: 100vw;
-            height: 98vh;
+            max-width: 100dvw;
+            height: 100dvh; 
             min-height: 0;
-            max-height: 100vh;
+            max-height: 100dvh;
             bottom: 0;
             right: 0;
             left: 0;
@@ -253,8 +253,8 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     @media (max-width: 400px) {
         .chatbot-window {
-            width: 100vw;
-            height: 100vh;
+            width: 100dvw;
+            height: 100dvh;
             border-radius: 0;
         }
         .chatbot-header {
