@@ -205,6 +205,87 @@ document.addEventListener("DOMContentLoaded", function () {
         box-shadow: 0 -2px 10px #00c6fb11;
     }
     `;
+    style.textContent += `
+    @media (max-width: 600px) {
+        .chatbot-bubble {
+            bottom: 18px;
+            right: 18px;
+            width: 54px;
+            height: 54px;
+        }
+        .chatbot-window {
+            width: 98vw;
+            min-width: 0;
+            max-width: 100vw;
+            height: 98vh;
+            min-height: 0;
+            max-height: 100vh;
+            bottom: 0;
+            right: 0;
+            left: 0;
+            border-radius: 0 0 0 0;
+            border-width: 0 0 2.5px 0;
+        }
+        .chatbot-header {
+            font-size: 1.05rem;
+            padding: 13px 10px 11px 10px;
+        }
+        .chatbot-body {
+            padding: 12px 5px 8px 5px;
+            font-size: 0.98rem;
+        }
+        .chatbot-footer {
+            height: 48px;
+            font-size: 0.98rem;
+        }
+        .chatbot-message {
+            font-size: 0.98rem;
+            padding: 5px 7px;
+        }
+        .chatbot-options-group button {
+            font-size: 0.98rem;
+            padding: 8px 8px;
+        }
+        .chatbot-nav-group button {
+            font-size: 0.93rem;
+            padding: 6px 7px;
+        }
+    }
+    @media (max-width: 400px) {
+        .chatbot-window {
+            width: 100vw;
+            height: 100vh;
+            border-radius: 0;
+        }
+        .chatbot-header {
+            font-size: 0.98rem;
+        }
+        .chatbot-body {
+            font-size: 0.93rem;
+        }
+        .chatbot-footer {
+            font-size: 0.93rem;
+        }
+        .chatbot-message {
+            font-size: 0.93rem;
+        }
+        .chatbot-options-group button {
+            font-size: 0.93rem;
+        }
+        .chatbot-nav-group button {
+            font-size: 0.91rem;
+        }
+    }
+    @media (max-width: 350px) {
+        .chatbot-header, .chatbot-footer {
+            font-size: 0.89rem;
+        }
+        .chatbot-body, .chatbot-message, .chatbot-options-group button {
+            font-size: 0.89rem;
+        }
+    }
+    `;
+
     document.head.appendChild(style);
 
     // Obtener el contenedor
