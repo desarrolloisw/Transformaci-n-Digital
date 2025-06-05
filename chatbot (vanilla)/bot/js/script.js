@@ -347,6 +347,7 @@ document.addEventListener("DOMContentLoaded", function () {
             if (messageHistory.length > 0) {
                 renderHistory();
                 const lastMsg = messageHistory[messageHistory.length - 1];
+                // Solo mostrar opciones si el último mensaje tiene opciones
                 if (lastMsg && lastMsg.options && lastMsg.options.length > 0) {
                     const disabled = lastMsg.disabledOptions || [];
                     if (!disabled.length) {
@@ -369,7 +370,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         renderOptions(lastMsg.options, null, disabled, true);
                     }
                 }
-                // --- RESTAURAR NAVEGACIÓN SI EXISTE EN EL ÚLTIMO MENSAJE ---
+                // Mostrar navegación si existe
                 if (lastMsg && lastMsg.navigation && lastMsg.navigation.length > 0) {
                     renderNavigation(lastMsg.navigation);
                 }
@@ -423,7 +424,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function renderHistory() {
         clearChat();
-        // Solo la última opción debe estar habilitada, las anteriores deshabilitadas
+        // Encuentra el último mensaje con opciones
         let lastOptionsIdx = -1;
         for (let i = messageHistory.length - 1; i >= 0; i--) {
             if (messageHistory[i].options && messageHistory[i].options.length > 0) {
@@ -431,13 +432,21 @@ document.addEventListener("DOMContentLoaded", function () {
                 break;
             }
         }
-        for (let i = 0; i < messageHistory.length; i++) {
-            const msg = messageHistory[i];
-            // Si es un mensaje de opciones, solo la última debe estar habilitada
-            if (msg.options && msg.options.length > 0) {
-                const disabled = (i !== lastOptionsIdx) ? msg.options.map(opt => opt.id) : [];
-                renderMessage(msg.text, msg.isUser, msg.options, disabled, false);
-            } else {
+        // Si el último mensaje del historial tiene opciones, solo renderiza esas opciones
+        if (lastOptionsIdx === messageHistory.length - 1) {
+            for (let i = 0; i < messageHistory.length; i++) {
+                const msg = messageHistory[i];
+                if (i === lastOptionsIdx) {
+                    // Solo la última opción debe estar habilitada
+                    renderMessage(msg.text, msg.isUser, msg.options, [], false);
+                } else {
+                    renderMessage(msg.text, msg.isUser, null, [], false);
+                }
+            }
+        } else {
+            // Si el último mensaje NO tiene opciones, renderiza solo los mensajes (sin opciones)
+            for (let i = 0; i < messageHistory.length; i++) {
+                const msg = messageHistory[i];
                 renderMessage(msg.text, msg.isUser, null, [], false);
             }
         }
@@ -634,6 +643,11 @@ document.addEventListener("DOMContentLoaded", function () {
         renderMessage(welcome2, false);
         saveMessage({ text: welcome2, isUser: false });
         const data = await callChatbotAPI({ step: 'initial' });
+        if (!data.options || data.options.length === 0) {
+            renderMessage('No hay servicios disponibles en este momento. Por favor, intenta más tarde.', false);
+            saveMessage({ text: 'No hay servicios disponibles en este momento. Por favor, intenta más tarde.', isUser: false });
+            return;
+        }
         renderOptions(data.options, (opt, idx) => {
             renderMessage(`${idx + 1}. ${opt.label}`, true);
             saveMessage({ text: `${idx + 1}. ${opt.label}`, isUser: true });
@@ -652,6 +666,11 @@ document.addEventListener("DOMContentLoaded", function () {
         renderMessage(msg, false);
         saveMessage({ text: msg, isUser: false });
         const data = await callChatbotAPI({ step: 'process', processId });
+        if (!data.options || data.options.length === 0) {
+            renderMessage('No hay categorías disponibles en este momento para este proceso.', false);
+            saveMessage({ text: 'No hay categorías disponibles en este momento para este proceso.', isUser: false });
+            return;
+        }
         renderOptions(data.options, (opt, idx) => {
             renderMessage(`${idx + 1}. ${opt.label}`, true);
             saveMessage({ text: `${idx + 1}. ${opt.label}`, isUser: true });

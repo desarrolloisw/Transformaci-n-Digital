@@ -6,6 +6,7 @@ import bodyParser from 'body-parser';
 import path from 'path';
 import authRoutes from '../routes/auth.routes.js';
 import staticChatbotRoutes from '../routes/static-chatbot.routes.js';
+import userRoutes from '../routes/user.routes.js';
 import { fileURLToPath } from 'url';
 
 // Configuración del servidor Express
@@ -42,6 +43,8 @@ app.use(express.static(path.resolve(import.meta.dirname, '..', '..', 'public')))
 app.use('/api/auth', authRoutes);
 // Configurando las rutas del chatbot estático
 app.use('/api/chatbot', staticChatbotRoutes);
+// Configurando las rutas de usuario
+app.use('/api/users', userRoutes);
 
 // Obtener el nombre del archivo actual
 const __filename = fileURLToPath(import.meta.url);
