@@ -62,10 +62,7 @@ function extractEntities(msg, processes, categories) {
                 categoria = seguimientoCat;
             }
         }
-        // Puedes añadir más casos aquí si tienes otras categorías con nombres largos
-        // Ej: if (cleanMsg.includes('documentos')) { const docCat = categories.find(c => c.norm.includes(normalize('documentos necesarios'))); if (docCat) { categoria = docCat; } }
     }
-    // --------------------------------------------------------------------------------
 
     return { proceso, categoria };
 }
@@ -132,23 +129,12 @@ async function findBestResponse({ proceso, categoria, faqs, processes, categorie
         targetProceso = inferredProcesoFromHistory;
     }
 
-    // Las siguientes prioridades usan `targetProceso` y `targetCategoria` que ahora pueden provenir del historial
-    // si no se detectaron fuertemente en el mensaje actual.
-
-    // PRIORIDAD 2: Si la pregunta es directa y solo sobre un proceso (del mensaje actual)
-    // Se comenta porque la nueva heurística de "qué es/son" en extractEntities ya lo manejaría mejor
-    /*
-    if (proceso && isDirectEntityQuery(userMessage, proceso)) {
-        return { response: proceso.description || `Aquí tienes información general sobre ${proceso.name}.`, source: `Proceso: ${proceso.name}` };
-    }
-    */
-
-    // PRIORIDAD 3: Si la pregunta es directa y solo sobre una categoría (del mensaje actual)
+    // PRIORIDAD 2: Si la pregunta es directa y solo sobre una categoría (del mensaje actual)
     if (categoria && isDirectEntityQuery(userMessage, categoria)) {
         return { response: categoria.description || `Aquí tienes información general sobre la categoría: ${categoria.name}.`, source: `Categoría: ${categoria.name}` };
     }
 
-    // PRIORIDAD 4: Si se detecta un proceso (del mensaje o historial) pero NO una categoría específica, sugiere categorías.
+    // PRIORIDAD 3: Si se detecta un proceso (del mensaje o historial) pero NO una categoría específica, sugiere categorías.
     if (targetProceso && !targetCategoria) {
         const relatedFaqs = faqs.filter(f => f.processId === targetProceso.id);
         if (relatedFaqs.length > 0) {
@@ -169,7 +155,7 @@ async function findBestResponse({ proceso, categoria, faqs, processes, categorie
         }
     }
 
-    // PRIORIDAD 5: Si se detecta una categoría (del mensaje actual) pero NO un proceso específico, sugiere procesos.
+    // PRIORIDAD 4: Si se detecta una categoría (del mensaje actual) pero NO un proceso específico, sugiere procesos.
     if (targetCategoria && !targetProceso) { // Usamos targetCategoria aquí
         const relatedFaqs = faqs.filter(f => f.categoryId === targetCategoria.id);
         if (relatedFaqs.length > 0) {

@@ -70,8 +70,6 @@ export async function registerUserService(userData) {
 
 export async function loginUserService({ identifier, password }) {
     try {
-        
-        console.log("Datos de login:", { identifier, password });
         // Validar el esquema de login
         loginSchema.parse({ identifier, password });
         

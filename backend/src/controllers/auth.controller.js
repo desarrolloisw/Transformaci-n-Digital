@@ -20,8 +20,6 @@ export async function register(req, res) {
 export async function login(req, res) {
     try {
         const { identifier, password } = req.body;
-        console.log("Datos de login:", { identifier, password });
-        console.log("Datos de login:", req.body);
         const user = await loginUserService({identifier, password});
         res.status(200).json({
             message: "Inicio de sesión exitoso",

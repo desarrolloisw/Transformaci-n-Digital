@@ -20,8 +20,6 @@ export const validateRegister = (req, res, next) => {
 
 export const validateLogin = (req, res, next) => {
     const result = loginSchema.safeParse(req.body);
-    console.log('Login validation result:', result);
-    console.log('Login request body:', req.body);
 
     if (!result.success) {
         return res.status(400).json({
@@ -48,7 +46,6 @@ export async function authenticateToken(req, res, next) {
 
     try {
         const decoded = await verifyToken(token);
-        console.log('Token verificado:', decoded);
         req.user = decoded;
         next();
     } catch (error) {
