@@ -16,24 +16,57 @@ function extractEntities(msg, processes, categories) {
     const cleanMsg = normalize(msg);
     let proceso = null, categoria = null;
 
-    // Busca el proceso más largo primero para evitar coincidencias parciales
+    // Busca el proceso más largo primero para evitar coincidencias parciales (ej. "Servicio" en "Servicio Social")
     const sortedProcesses = [...processes].sort((a, b) => b.norm.length - a.norm.length);
     for (const p of sortedProcesses) {
-        if (cleanMsg.includes(p.norm)) {
+        // Mejorar la detección de procesos: si el mensaje CONTIENE el nombre normalizado del proceso
+        // O si el mensaje contiene "practicas" y el proceso es "Prácticas Profesionales"
+        if (cleanMsg.includes(p.norm) || (p.name === 'Prácticas Profesionales' && cleanMsg.includes('practicas'))) {
             proceso = p;
-            break;
+            break; // Una vez que encontramos un proceso, lo usamos.
         }
     }
 
-    // Busca la categoría más larga primero
-    // Considera "requisitos" como una palabra clave fuerte para la categoría
+    // Busca la categoría más larga primero y con coincidencia INCLUIDA
     const sortedCategories = [...categories].sort((a, b) => b.norm.length - a.norm.length);
     for (const c of sortedCategories) {
+        // Mejorar la detección de categorías: si el mensaje CONTIENE el nombre normalizado de la categoría
         if (cleanMsg.includes(c.norm)) {
             categoria = c;
             break;
         }
     }
+
+    // Heurística para "requisitos"
+    if (!categoria && (cleanMsg.includes('requisitos') || cleanMsg.includes('cuales son') || cleanMsg.includes('que pide'))) {
+        const requisitosCat = categories.find(c => c.norm === normalize('requisitos'));
+        if (requisitosCat) {
+            categoria = requisitosCat;
+        }
+    }
+
+    // Heurística para "qué es/son" o solo el nombre del proceso
+    if (proceso && !categoria && (cleanMsg.includes('que es') || cleanMsg.includes('que son') || cleanMsg === proceso.norm)) {
+        const infoGeneralCat = categories.find(c => c.norm === normalize('informacion general')); // Asume que tienes una categoría llamada "Información general"
+        if (infoGeneralCat) {
+            categoria = infoGeneralCat;
+        }
+    }
+
+    // --- NUEVA HEURÍSTICA: Detección de categorías por palabras clave o subcadenas ---
+    // Esto es para casos como "seguimiento" que deberían mapear a "Seguimiento y entrega de reporte"
+    if (!categoria && proceso) { // Solo si ya tenemos un proceso identificado
+        if (cleanMsg.includes('seguimiento') || cleanMsg.includes('reporte')) {
+            const seguimientoCat = categories.find(c => c.norm.includes(normalize('seguimiento y entrega de reporte')));
+            if (seguimientoCat) {
+                categoria = seguimientoCat;
+            }
+        }
+        // Puedes añadir más casos aquí si tienes otras categorías con nombres largos
+        // Ej: if (cleanMsg.includes('documentos')) { const docCat = categories.find(c => c.norm.includes(normalize('documentos necesarios'))); if (docCat) { categoria = docCat; } }
+    }
+    // --------------------------------------------------------------------------------
+
     return { proceso, categoria };
 }
 
@@ -56,7 +89,7 @@ function inferFromHistory(history, processes) {
     return null;
 }
 
-// Determina si el mensaje es una pregunta directa sobre la entidad
+// Determina si el mensaje es una pregunta directa sobre la entidad (ej. "servicio social" o "que es servicio social")
 function isDirectEntityQuery(msg, entity) {
     if (!entity) return false;
     const normMsg = normalize(msg);
@@ -66,38 +99,49 @@ function isDirectEntityQuery(msg, entity) {
            normMsg === `que es ${normEntity}` ||
            normMsg === `que son ${normEntity}` ||
            normMsg === `que requisitos ${normEntity}` ||
-           (normMsg.startsWith(normEntity) && normMsg.split(' ').length <= (normEntity.split(' ').length + 2)) ||
-           (normMsg.includes(normEntity) && (normMsg.includes('cuales') || normMsg.includes('son') || normMsg.includes('los'))); // Added more flexibility for "y cuales son los de las prácticas?"
+           (normMsg.includes(normEntity) && (normMsg.includes('cuales') || normMsg.includes('son') || normMsg.includes('los')));
 }
 
 // Busca la mejor respuesta posible de forma dinámica
 async function findBestResponse({ proceso, categoria, faqs, processes, categories, userMessage, inferredProcesoFromHistory }) {
-    // Si el mensaje actual detecta un proceso, ese proceso es el nuevo target.
-    // Si no, entonces usamos el inferido del historial.
-    const targetProceso = proceso || inferredProcesoFromHistory;
 
-    // PRIORIDAD 1: Buscar una FAQ específica si se detectan ambos (proceso y categoría)
-    // Se usa 'proceso' del mensaje actual aquí, no targetProceso, para dar prioridad al cambio de contexto
-    if (proceso && categoria) {
+    let targetProceso = proceso; // Siempre priorizamos el proceso del mensaje actual
+    let targetCategoria = categoria; // Siempre priorizamos la categoria del mensaje actual
+
+    // PRIORIDAD 1: Buscar una FAQ específica si se detectan ambos (proceso y categoría) en el MENSAJE ACTUAL.
+    // Esta es la prioridad MÁS ALTA para un cambio de contexto directo.
+    if (proceso && categoria) { // Usamos 'proceso' y 'categoria' directamente del mensaje actual
         const faq = faqs.find(f => f.processId === proceso.id && f.categoryId === categoria.id);
         if (faq && faq.response) {
             return { response: faq.response, source: `${proceso.name} / ${categoria.name}` };
         }
     }
-    // Si solo hay categoria en el mensaje actual, y el historial sugiere un proceso,
-    // intentamos buscar una FAQ con el proceso del historial y la categoria actual
-    if (!proceso && categoria && inferredProcesoFromHistory) {
-        const faq = faqs.find(f => f.processId === inferredProcesoFromHistory.id && f.categoryId === categoria.id);
-        if (faq && faq.response) {
-            return { response: faq.response, source: `${inferredProcesoFromHistory.name} / ${categoria.name}` };
+
+    // Si el mensaje actual no tiene un proceso claro, pero sí hay uno inferido del historial,
+    // y no hay una FAQ directa con la categoría actual y el proceso actual.
+    // Intentamos buscar una FAQ con el proceso del historial y la categoría actual.
+    if (!targetProceso && inferredProcesoFromHistory) {
+        // Primero, intentamos una combinación de la categoría del mensaje actual y el proceso del historial
+        if (targetCategoria) {
+            const faqWithInferredProcess = faqs.find(f => f.processId === inferredProcesoFromHistory.id && f.categoryId === targetCategoria.id);
+            if (faqWithInferredProcess && faqWithInferredProcess.response) {
+                return { response: faqWithInferredProcess.response, source: `${inferredProcesoFromHistory.name} / ${targetCategoria.name}` };
+            }
         }
+        // Si no hay categoría, o la combinación no funcionó, entonces el proceso del historial es el target
+        targetProceso = inferredProcesoFromHistory;
     }
 
+    // Las siguientes prioridades usan `targetProceso` y `targetCategoria` que ahora pueden provenir del historial
+    // si no se detectaron fuertemente en el mensaje actual.
 
     // PRIORIDAD 2: Si la pregunta es directa y solo sobre un proceso (del mensaje actual)
+    // Se comenta porque la nueva heurística de "qué es/son" en extractEntities ya lo manejaría mejor
+    /*
     if (proceso && isDirectEntityQuery(userMessage, proceso)) {
         return { response: proceso.description || `Aquí tienes información general sobre ${proceso.name}.`, source: `Proceso: ${proceso.name}` };
     }
+    */
 
     // PRIORIDAD 3: Si la pregunta es directa y solo sobre una categoría (del mensaje actual)
     if (categoria && isDirectEntityQuery(userMessage, categoria)) {
@@ -105,18 +149,16 @@ async function findBestResponse({ proceso, categoria, faqs, processes, categorie
     }
 
     // PRIORIDAD 4: Si se detecta un proceso (del mensaje o historial) pero NO una categoría específica, sugiere categorías.
-    // Usamos targetProceso aquí porque queremos considerar el contexto inferido si no hay un proceso nuevo.
-    if (targetProceso && !categoria) {
+    if (targetProceso && !targetCategoria) {
         const relatedFaqs = faqs.filter(f => f.processId === targetProceso.id);
         if (relatedFaqs.length > 0) {
             const uniqueCategories = [...new Set(relatedFaqs.map(f => f.categoryId))]
                 .map(catId => categories.find(c => c.id === catId))
                 .filter(Boolean);
-
             if (uniqueCategories.length > 0) {
-                const categoryNames = uniqueCategories.map(c => `"${c.name}"`).join(', '); // Mantengo las comillas para legibilidad
+                const categoryList = `<ul>${uniqueCategories.map(c => `<li>${c.name}</li>`).join('')}</ul>`;
                 return {
-                    response: `Sobre el proceso de ${targetProceso.name}, tengo información en las siguientes categorías: ${categoryNames}. ¿Cuál te interesa?`,
+                    response: `Sobre el proceso de <b>${targetProceso.name}</b>, tengo información en las siguientes categorías:${categoryList}<br>¿Cuál te interesa?`,
                     source: `Sugerencia de categorías para ${targetProceso.name}`
                 };
             }
@@ -128,46 +170,44 @@ async function findBestResponse({ proceso, categoria, faqs, processes, categorie
     }
 
     // PRIORIDAD 5: Si se detecta una categoría (del mensaje actual) pero NO un proceso específico, sugiere procesos.
-    if (categoria && !proceso) { // Solo si la categoría viene del mensaje actual, y no hay proceso en el mensaje
-        const relatedFaqs = faqs.filter(f => f.categoryId === categoria.id);
+    if (targetCategoria && !targetProceso) { // Usamos targetCategoria aquí
+        const relatedFaqs = faqs.filter(f => f.categoryId === targetCategoria.id);
         if (relatedFaqs.length > 0) {
             const uniqueProcesses = [...new Set(relatedFaqs.map(f => f.processId))]
                 .map(procId => processes.find(p => p.id === procId))
                 .filter(Boolean);
-
             if (uniqueProcesses.length > 0) {
-                const processNames = uniqueProcesses.map(p => `"${p.name}"`).join(', '); // Mantengo las comillas para legibilidad
+                const processList = `<ul>${uniqueProcesses.map(p => `<li>${p.name}</li>`).join('')}</ul>`;
                 return {
-                    response: `La categoría ${categoria.name} aplica a los siguientes procesos: ${processNames}. ¿De cuál te gustaría saber?`,
-                    source: `Sugerencia de procesos para ${categoria.name}`
+                    response: `La categoría <b>${targetCategoria.name}</b> aplica a los siguientes procesos:${processList}<br>¿De cuál te gustaría saber?`,
+                    source: `Sugerencia de procesos para ${targetCategoria.name}`
                 };
             }
         }
         // Si no hay FAQs relacionadas, pero sí descripción de la categoría
-        if (categoria.description) {
-            return { response: categoria.description, source: `Categoría: ${categoria.name}` };
+        if (targetCategoria.description) {
+            return { response: targetCategoria.description, source: `Categoría: ${categoria.name}` };
         }
     }
 
     // Si no se detecta nada relevante o la combinación no tiene FAQ
     if (proceso || categoria || inferredProcesoFromHistory) {
-        // Preferimos el proceso del mensaje actual para el mensaje de clarificación
-        const entityInQuestion = proceso?.name || inferredProcesoFromHistory?.name || categoria?.name;
+        const entityInQuestion = (proceso || inferredProcesoFromHistory)?.name || categoria?.name;
         return {
             response: `No encontré una respuesta específica para tu pregunta sobre "${entityInQuestion}". ¿Podrías ser más específico?`,
             source: null
         };
     }
 
-    // Si no se detecta ninguna entidad
     return null;
 }
 
 // Nueva función: responde a preguntas sobre múltiples procesos/categorías
 async function findBestMultiResponse({ processes, categories, faqs, userMessage }) {
     const { foundProcesses, foundCategories } = extractAllEntities(userMessage, processes, categories);
-
     const normUserMessage = normalize(userMessage);
+
+    // Si el usuario pregunta "ambas" o "ambos" y hay solo dos procesos en total, inferir ambos.
     if (/(ambas|ambos)/.test(normUserMessage) && foundProcesses.length === 0 && processes.length === 2) {
         foundProcesses.push(...processes);
     }
@@ -175,16 +215,14 @@ async function findBestMultiResponse({ processes, categories, faqs, userMessage 
     if (foundProcesses.length + foundCategories.length > 1) {
         const responses = [];
         for (const proc of foundProcesses) {
-            responses.push(`### ${proc.name}\n${proc.description || `Aquí tienes información general sobre ${proc.name}.`}`);
+            responses.push(`<h4>${proc.name}</h4><div>${proc.description || `Aquí tienes información general sobre ${proc.name}.`}</div>`);
         }
         for (const cat of foundCategories) {
-            responses.push(`### ${cat.name}\n${cat.description || `Aquí tienes información general sobre la categoría: ${cat.name}.`}`);
+            responses.push(`<h4>${cat.name}</h4><div>${cat.description || `Aquí tienes información general sobre la categoría: ${cat.name}.`}</div>`);
         }
-
         if (responses.length > 0) {
-            // Esto todavía genera Markdown para los títulos y separadores
             return {
-                response: responses.join('\n\n---\n\n'),
+                response: responses.join('<hr>'),
                 source: 'Múltiples entidades detectadas',
                 score: 10,
                 needsMoreContext: false
@@ -238,11 +276,7 @@ export class DinamicChatbotService {
         let { proceso, categoria } = extractEntities(message, processesNorm, categoriesNorm);
 
         // Intento 3: Si falta un proceso principal en el mensaje actual, buscarlo en el historial
-        // Pero solo si el mensaje actual no ya tiene un proceso
-        let inferredProcesoFromHistory = null;
-        if (!proceso) { // Solo inferir si el mensaje actual no tiene un proceso claro
-            inferredProcesoFromHistory = inferFromHistory(history, processesNorm);
-        }
+        let inferredProcesoFromHistory = inferFromHistory(history, processesNorm);
 
         // Intento 4: Buscar la mejor respuesta específica, pasando el proceso inferido del historial
         const best = await findBestResponse({
@@ -266,6 +300,7 @@ export class DinamicChatbotService {
 
         // Intento 5: Si no se encontró nada relevante pero se detectó una entidad (o se infirió un proceso), preguntar por más detalles.
         if (proceso || categoria || inferredProcesoFromHistory) {
+            // Priorizamos el proceso del mensaje actual, luego el inferido, luego la categoría del mensaje actual
             const detectedEntityName = proceso?.name || inferredProcesoFromHistory?.name || categoria?.name;
             return {
                 response: `Entiendo que tu pregunta está relacionada con "${detectedEntityName}". ¿Podrías ser más específico sobre lo que necesitas saber? Por ejemplo, ¿quieres información sobre requisitos, documentos, o el proceso de inscripción?`,

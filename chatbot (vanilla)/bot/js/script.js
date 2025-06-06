@@ -301,13 +301,48 @@ document.addEventListener("DOMContentLoaded", function () {
     chatWindow.className = 'chatbot-window';
     chatWindow.style.display = 'none';
 
+    // --- LOGO EN HEADER ---
+    // El logo ya está en la burbuja, solo se debe crear para el header una vez y antes de usarlo
+    const logoImg = document.createElement('img');
+    logoImg.src = LOGO_URL;
+    logoImg.alt = 'Logo';
+    logoImg.style.height = '32px';
+    logoImg.style.width = '32px';
+    logoImg.style.marginRight = '8px';
+
     // Header del chat
     const header = document.createElement('div');
     header.className = 'chatbot-header';
-    header.innerHTML = `
-        <span>Chatbot</span>
-        <button class="chatbot-close" title="Cerrar">&times;</button>
-    `;
+     // --- TÍTULO ---
+    const titleSpan = document.createElement('span');
+    titleSpan.textContent = 'Chatbot';
+    header.appendChild(logoImg); // Logo
+    header.appendChild(titleSpan); // Título
+    // --- BOTÓN DE SELECCIÓN DE BOT (ESTÁTICO/DINÁMICO) ---
+    const botSwitchBtn = document.createElement('button');
+    botSwitchBtn.className = 'chatbot-bot-switch';
+    botSwitchBtn.title = 'Cambiar tipo de bot';
+    botSwitchBtn.style.background = 'none';
+    botSwitchBtn.style.border = 'none';
+    botSwitchBtn.style.cursor = 'pointer';
+    botSwitchBtn.style.marginLeft = '10px';
+    botSwitchBtn.style.fontSize = '1.45rem';
+    botSwitchBtn.style.display = 'flex';
+    botSwitchBtn.style.alignItems = 'center';
+    // Iconos SVG
+    const staticIcon = document.createElement('span');
+    staticIcon.innerHTML = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="10" rx="4"/><circle cx="8" cy="12" r="1.5" fill="#fff"/><circle cx="16" cy="12" r="1.5" fill="#fff"/></svg>`;
+    const dinamicIcon = document.createElement('span');
+    dinamicIcon.innerHTML = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2Zm0 0v4m0 12v4m8-8h-4m-8 0H4"/><circle cx="12" cy="12" r="3" fill="#fff"/></svg>`;
+    let currentBot = 'static'; // 'static' o 'dinamic'
+    botSwitchBtn.appendChild(staticIcon);
+    header.appendChild(botSwitchBtn); // Botón switch después del título
+    // Botón de cerrar
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'chatbot-close';
+    closeBtn.title = 'Cerrar';
+    closeBtn.innerHTML = '&times;';
+    header.appendChild(closeBtn); // Botón cerrar
 
     // Cuerpo del chat (mock)
     const body = document.createElement('div');
@@ -358,7 +393,7 @@ document.addEventListener("DOMContentLoaded", function () {
     container.appendChild(chatWindow);
 
     // Animación de escritura simulada
-    function typeMessage(text, delay = 8) {
+    function typeMessage(text, delay = 8, sessionId = currentSessionId) {
         return new Promise(resolve => {
             const msgDiv = document.createElement('div');
             msgDiv.className = 'chatbot-message';
@@ -366,14 +401,24 @@ document.addEventListener("DOMContentLoaded", function () {
 
             let i = 0;
             function typeChar() {
+                // Si la sesión cambió, cancelar
+                if (sessionId !== currentSessionId) {
+                    msgDiv.remove();
+                    resolve();
+                    return;
+                }
                 msgDiv.textContent = text.slice(0, i);
                 i++;
                 if (i <= text.length) {
                     setTimeout(typeChar, delay);
                 } else {
                     requestAnimationFrame(() => {
-                        msgDiv.style.opacity = 1;
-                        body.scrollTop = body.scrollHeight;
+                        if (sessionId === currentSessionId) {
+                            msgDiv.style.opacity = 1;
+                            body.scrollTop = body.scrollHeight;
+                        } else {
+                            msgDiv.remove();
+                        }
                         resolve();
                     });
                 }
@@ -383,7 +428,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // Animación de "escribiendo..."
-    function showTyping(duration = 250) {
+    function showTyping(duration = 250, sessionId = currentSessionId) {
         return new Promise(resolve => {
             const typingDiv = document.createElement('div');
             typingDiv.className = 'chatbot-message';
@@ -392,6 +437,12 @@ document.addEventListener("DOMContentLoaded", function () {
             </span>`;
             body.appendChild(typingDiv);
             setTimeout(() => {
+                // Si la sesión cambió, cancelar
+                if (sessionId !== currentSessionId) {
+                    typingDiv.remove();
+                    resolve();
+                    return;
+                }
                 typingDiv.remove();
                 resolve();
             }, duration);
@@ -401,10 +452,11 @@ document.addEventListener("DOMContentLoaded", function () {
     // Mostrar mensajes de bienvenida con animación
     async function showWelcomeMessages() {
         body.innerHTML = ""; // Limpiar
-        await showTyping(900);
-        await typeMessage("¡Hola! 👋");
-        await showTyping(700);
-        await typeMessage("¿En qué puedo ayudarte hoy?");
+        const sessionId = currentSessionId;
+        await showTyping(900, sessionId);
+        await typeMessage("¡Hola! 👋", 8, sessionId);
+        await showTyping(700, sessionId);
+        await typeMessage("¿En qué puedo ayudarte hoy?", 8, sessionId);
     }
 
     // Animación de cierre de ventana
@@ -425,38 +477,26 @@ document.addEventListener("DOMContentLoaded", function () {
             bubble.style.display = 'none';
             chatWindow.style.display = 'flex';
             chatWindow.style.animation = "chatbot-fade-in 0.3s cubic-bezier(.68,-0.55,.27,1.55)";
-            if (messageHistory.length > 0) {
-                renderHistory();
-                const lastMsg = messageHistory[messageHistory.length - 1];
-                // Solo mostrar opciones si el último mensaje tiene opciones
-                if (lastMsg && lastMsg.options && lastMsg.options.length > 0) {
-                    const disabled = lastMsg.disabledOptions || [];
-                    if (!disabled.length) {
-                        renderOptions(lastMsg.options, (opt, idx) => {
-                            renderMessage(`${idx + 1}. ${opt.label}`, true);
-                            saveMessage({ text: `${idx + 1}. ${opt.label}`, isUser: true });
-                            if (currentStep === 'process') {
-                                currentStep = 'category';
-                                currentCategoryId = opt.id;
-                                historyStack.push({ step: 'process', processId: currentProcessId });
-                                fetchCategoryResponse(opt.id);
-                            } else if (currentStep === 'initial') {
-                                currentStep = 'process';
-                                currentProcessId = opt.id;
-                                historyStack.push({ step: 'initial' });
-                                fetchCategories(opt.id);
-                            }
-                        }, disabled, false);
-                    } else {
-                        renderOptions(lastMsg.options, null, disabled, true);
-                    }
+            if (currentBot === 'static') {
+                currentSessionId = staticSessionId;
+                if (staticHistory.length > 0) {
+                    messageHistory = [...staticHistory];
+                    renderHistory();
+                } else {
+                    startChatbotFlow();
                 }
-                // Mostrar navegación si existe
-                if (lastMsg && lastMsg.navigation && lastMsg.navigation.length > 0) {
-                    renderNavigation(lastMsg.navigation);
-                }
+                removeDinamicInput();
             } else {
-                startChatbotFlow();
+                currentSessionId = dinamicSessionId;
+                if (dinamicHistory.length > 0) {
+                    clearChat();
+                    for (const msg of dinamicHistory) {
+                        renderMessage(msg.message, msg.role === 'user');
+                    }
+                } else {
+                    startDinamicBot(true);
+                }
+                renderDinamicInput();
             }
         }, 250);
     }
@@ -479,6 +519,11 @@ document.addEventListener("DOMContentLoaded", function () {
     let messageHistory = [];
     const MAX_HISTORY = 15;
     let chatStarted = false;
+
+    // --- SESSION IDS PARA CONTROL DE ANIMACIONES ENTRE BOTS ---
+    let staticSessionId = 0;
+    let dinamicSessionId = 0;
+    let currentSessionId = 0;
 
     // --- UTILIDADES ---
     function clearChat() {
@@ -552,8 +597,11 @@ document.addEventListener("DOMContentLoaded", function () {
         if (options && options.length > 0) {
             renderOptions(options, null, disabledOptions, isHistory);
         }
+        // --- Scroll forzado para respuestas largas (con +5px extra) ---
         requestAnimationFrame(() => {
-            body.scrollTop = body.scrollHeight;
+            requestAnimationFrame(() => {
+                body.scrollTop = body.scrollHeight;
+            });
         });
         removeEmptyMessages();
     }
@@ -703,6 +751,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Flujo inicial: muestra procesos
     async function startChatbotFlow(forceRestart = false) {
+        const sessionId = currentSessionId;
         if (chatStarted && !forceRestart) {
             renderHistory();
             return;
@@ -715,21 +764,25 @@ document.addEventListener("DOMContentLoaded", function () {
         chatStarted = true;
         clearChat();
         // Solo mostrar bienvenida si es el primer mensaje
-        await showTyping(700);
+        await showTyping(700, sessionId);
+        if (sessionId !== currentSessionId) return;
         const welcome1 = '¡Hola! Bienvenido al chatbot del Departamento de Ciencias del Deporte de la UNISON.';
         const welcome2 = '¿Con qué proceso puedo ayudarte hoy?';
         renderMessage(welcome1, false);
         saveMessage({ text: welcome1, isUser: false });
-        await showTyping(600);
+        await showTyping(600, sessionId);
+        if (sessionId !== currentSessionId) return;
         renderMessage(welcome2, false);
         saveMessage({ text: welcome2, isUser: false });
         const data = await callChatbotAPI({ step: 'initial' });
+        if (sessionId !== currentSessionId) return;
         if (!data.options || data.options.length === 0) {
             renderMessage('No hay servicios disponibles en este momento. Por favor, intenta más tarde.', false);
             saveMessage({ text: 'No hay servicios disponibles en este momento. Por favor, intenta más tarde.', isUser: false });
             return;
         }
         renderOptions(data.options, (opt, idx) => {
+            if (sessionId !== currentSessionId) return;
             renderMessage(`${idx + 1}. ${opt.label}`, true);
             saveMessage({ text: `${idx + 1}. ${opt.label}`, isUser: true });
             currentStep = 'process';
@@ -741,18 +794,22 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     async function fetchCategories(processId, fromNav = false) {
+        const sessionId = currentSessionId;
         renderHistory();
-        await showTyping(600);
+        await showTyping(600, sessionId);
+        if (sessionId !== currentSessionId) return;
         const msg = '¿Con qué puedo ayudarte?';
         renderMessage(msg, false);
         saveMessage({ text: msg, isUser: false });
         const data = await callChatbotAPI({ step: 'process', processId });
+        if (sessionId !== currentSessionId) return;
         if (!data.options || data.options.length === 0) {
             renderMessage('No hay categorías disponibles en este momento para este proceso.', false);
             saveMessage({ text: 'No hay categorías disponibles en este momento para este proceso.', isUser: false });
             return;
         }
         renderOptions(data.options, (opt, idx) => {
+            if (sessionId !== currentSessionId) return;
             renderMessage(`${idx + 1}. ${opt.label}`, true);
             saveMessage({ text: `${idx + 1}. ${opt.label}`, isUser: true });
             currentStep = 'category';
@@ -766,11 +823,14 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     async function fetchCategoryResponse(categoryId) {
+        const sessionId = currentSessionId;
         renderHistory();
         // Elimina navegación previa y opciones previas
         clearOptionButtons();
-        await showTyping(600);
+        await showTyping(600, sessionId);
+        if (sessionId !== currentSessionId) return;
         const data = await callChatbotAPI({ step: 'category', categoryId, processId: currentProcessId });
+        if (sessionId !== currentSessionId) return;
         renderMessage(data.message, false);
         saveMessage({ text: data.message, isUser: false });
         // Solo renderiza navegación (volver al inicio o volver a categorías)
@@ -784,16 +844,245 @@ document.addEventListener("DOMContentLoaded", function () {
     bubble.addEventListener('click', openChatWindow);
     header.querySelector('.chatbot-close').addEventListener('click', closeChatWindow);
 
-    // --- LOGO EN HEADER ---
-    const logoImg = document.createElement('img');
-    logoImg.src = LOGO_URL;
-    logoImg.alt = 'Logo';
-    logoImg.style.height = '32px';
-    logoImg.style.width = '32px';
-    logoImg.style.marginRight = '8px';
-    header.insertBefore(logoImg, header.firstChild);
-
     // --- CIERRE CON ESCAPE ---
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && chatWindow.style.display === 'flex') {
+            closeChatWindow();
+        }
+    });
+
+    // --- INPUT PARA BOT DINÁMICO EN FOOTER ---
+    let dinamicInputDiv = null;
+    let dinamicHistory = [];
+    let staticHistory = [];
+    function renderDinamicInput() {
+        if (dinamicInputDiv) return;
+        dinamicInputDiv = document.createElement('div');
+        dinamicInputDiv.className = 'dinamic-input-footer';
+        dinamicInputDiv.style.display = 'flex';
+        dinamicInputDiv.style.flexDirection = 'column';
+        dinamicInputDiv.style.alignItems = 'stretch';
+        dinamicInputDiv.style.width = 'auto';
+        dinamicInputDiv.style.background = 'linear-gradient(90deg, #fafdff 80%, #e3f2fd 100%)';
+        dinamicInputDiv.style.borderTop = '1.5px solid #e3f2fd';
+        dinamicInputDiv.style.boxShadow = '0 -2px 10px #00c6fb11';
+        dinamicInputDiv.style.position = 'relative'; // Cambiado de absolute a relative
+        dinamicInputDiv.style.left = '';
+        dinamicInputDiv.style.right = '';
+        dinamicInputDiv.style.bottom = '';
+        dinamicInputDiv.style.padding = '0 12px 8px 12px';
+
+        // --- Input y botones en fila ---
+        const inputRow = document.createElement('div');
+        inputRow.style.display = 'flex';
+        inputRow.style.alignItems = 'center';
+        inputRow.style.gap = '8px';
+        inputRow.style.width = '100%';
+        inputRow.style.marginTop = '8px';
+
+        // Input
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.style.width = '90%';
+        input.placeholder = 'Escribe tu pregunta...';
+        input.style.flex = '1';
+        input.style.padding = '10px 14px';
+        input.style.borderRadius = '8px';
+        input.style.border = '1.5px solid #b3e0fc';
+        input.style.fontSize = '1.07rem';
+        input.style.outline = 'none';
+        input.style.background = '#fff';
+        input.style.boxShadow = '0 1px 4px #0078d41a';
+
+        // Botón enviar
+        const sendBtn = document.createElement('button');
+        sendBtn.title = 'Enviar';
+        sendBtn.innerHTML = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>`;
+        sendBtn.style.background = 'linear-gradient(90deg, #0078d4 70%, #00c6fb 100%)';
+        sendBtn.style.color = '#fff';
+        sendBtn.style.border = 'none';
+        sendBtn.style.borderRadius = '8px';
+        sendBtn.style.padding = '8px 14px';
+        sendBtn.style.cursor = 'pointer';
+        sendBtn.style.fontSize = '1.07rem';
+        sendBtn.style.display = 'flex';
+        sendBtn.style.alignItems = 'center';
+        sendBtn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.09)';
+        sendBtn.style.transition = 'background 0.16s, color 0.16s, transform 0.13s';
+        sendBtn.addEventListener('click', () => {
+            sendDinamicMessage(input.value);
+        });
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                sendDinamicMessage(input.value);
+            }
+        });
+
+
+        inputRow.appendChild(input);
+        inputRow.appendChild(sendBtn);
+
+        // --- Botón reiniciar chat debajo del input ---
+        const resetDinamicBtn = document.createElement('button');
+        resetDinamicBtn.textContent = 'Reiniciar chat';
+        resetDinamicBtn.style.background = 'linear-gradient(90deg, #0078d4 70%, #00c6fb 100%)';
+        resetDinamicBtn.style.color = '#fff';
+        resetDinamicBtn.style.border = 'none';
+        resetDinamicBtn.style.borderRadius = '7px';
+        resetDinamicBtn.style.padding = '10px 24px';
+        resetDinamicBtn.style.cursor = 'pointer';
+        resetDinamicBtn.style.fontSize = '1.05rem';
+        resetDinamicBtn.style.fontWeight = '500';
+        resetDinamicBtn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.07)';
+        resetDinamicBtn.style.margin = '10px auto 0 auto';
+        resetDinamicBtn.style.display = 'block';
+        resetDinamicBtn.addEventListener('click', () => {
+            // --- NUEVO: Cambia sessionId para cancelar animaciones previas ---
+            dinamicSessionId++;
+            currentSessionId = dinamicSessionId;
+            dinamicHistory = [];
+            clearChat();
+            renderMessage('¡Hola! Soy el bot dinámico. Escribe tu pregunta.', false);
+            dinamicHistory.push({ role: 'bot', message: '¡Hola! Soy el bot dinámico. Escribe tu pregunta.' });
+        });
+
+        dinamicInputDiv.appendChild(inputRow);
+        dinamicInputDiv.appendChild(resetDinamicBtn);
+        footer.style.display = 'none';
+        chatWindow.appendChild(dinamicInputDiv);
+        input.focus();
+        // --- Ajustar padding del body para que no tape el input ---
+        body.style.paddingBottom = '10px';
+    }
+    function removeDinamicInput() {
+        if (dinamicInputDiv) {
+            dinamicInputDiv.remove();
+            dinamicInputDiv = null;
+        }
+        footer.style.display = 'flex';
+        // --- Restaurar padding del body para el footer clásico ---
+        body.style.paddingBottom = '70px';
+    }
+    async function sendDinamicMessage(text) {
+        if (!text || !dinamicInputDiv) return;
+        const input = dinamicInputDiv.querySelector('input');
+        input.value = '';
+        renderMessage(text, true);
+        dinamicHistory.push({ role: 'user', message: text });
+        const sessionId = currentSessionId;
+        await showTyping(600, sessionId);
+        try {
+            const res = await fetch(`${BACKEND_URL}/api/chatbot/dinamic`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: text, history: dinamicHistory })
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                renderMessage(data.error || 'Error en el bot dinámico', false);
+                dinamicHistory.push({ role: 'bot', message: data.error || 'Error en el bot dinámico' });
+                return;
+            }
+            renderMessage(data.response, false);
+            dinamicHistory.push({ role: 'bot', message: data.response });
+        } catch (err) {
+            renderMessage('Error de conexión o formato de datos', false);
+            dinamicHistory.push({ role: 'bot', message: 'Error de conexión o formato de datos' });
+        }
+    }
+    function startDinamicBot(force = false) {
+        // --- NUEVO: Cambia sessionId para cancelar animaciones previas ---
+        dinamicSessionId++;
+        currentSessionId = dinamicSessionId;
+        if (!force && dinamicHistory.length > 0) {
+            clearChat();
+            for (const msg of dinamicHistory) {
+                renderMessage(msg.message, msg.role === 'user');
+            }
+            renderDinamicInput();
+            return;
+        }
+        dinamicHistory = [];
+        clearChat();
+        renderMessage('¡Hola! Soy el bot dinámico. Escribe tu pregunta.', false);
+        dinamicHistory.push({ role: 'bot', message: '¡Hola! Soy el bot dinámico. Escribe tu pregunta.' });
+        renderDinamicInput();
+    }
+    function startStaticBot(force = false) {
+        // --- NUEVO: Cambia sessionId para cancelar animaciones previas ---
+        staticSessionId++;
+        currentSessionId = staticSessionId;
+        if (!force && staticHistory.length > 0) {
+            messageHistory = [...staticHistory];
+            renderHistory();
+            return;
+        }
+        staticHistory = [];
+        startChatbotFlow(true);
+    }
+    // --- GUARDAR HISTORIAL AL CAMBIAR DE BOT ---
+    function saveCurrentHistory() {
+        if (currentBot === 'static') {
+            staticHistory = [...messageHistory];
+        } else {
+            // dinamicHistory ya se actualiza en sendDinamicMessage
+        }
+    }
+    // --- CAMBIO DE BOT ---
+    botSwitchBtn.addEventListener('click', () => {
+        saveCurrentHistory();
+        if (currentBot === 'static') {
+            // Cambiar a dinámico
+            botSwitchBtn.innerHTML = '';
+            botSwitchBtn.appendChild(dinamicIcon);
+            currentBot = 'dinamic';
+            dinamicSessionId++;
+            currentSessionId = dinamicSessionId;
+            removeDinamicInput();
+            startDinamicBot(true);
+        } else {
+            // Cambiar a estático
+            botSwitchBtn.innerHTML = '';
+            botSwitchBtn.appendChild(staticIcon);
+            currentBot = 'static';
+            staticSessionId++;
+            currentSessionId = staticSessionId;
+            removeDinamicInput();
+            startStaticBot(true);
+        }
+    });
+    // --- AL ABRIR/MINIMIZAR, RESTAURAR EL HISTORIAL DEL BOT ACTUAL ---
+    function openChatWindow() {
+        bubble.style.animation = "chatbot-bubble-out 0.3s cubic-bezier(.68,-0.55,.27,1.55)";
+        setTimeout(() => {
+            bubble.style.display = 'none';
+            chatWindow.style.display = 'flex';
+            chatWindow.style.animation = "chatbot-fade-in 0.3s cubic-bezier(.68,-0.55,.27,1.55)";
+            if (currentBot === 'static') {
+                currentSessionId = staticSessionId;
+                if (staticHistory.length > 0) {
+                    messageHistory = [...staticHistory];
+                    renderHistory();
+                } else {
+                    startChatbotFlow();
+                }
+                removeDinamicInput();
+            } else {
+                currentSessionId = dinamicSessionId;
+                if (dinamicHistory.length > 0) {
+                    clearChat();
+                    for (const msg of dinamicHistory) {
+                        renderMessage(msg.message, msg.role === 'user');
+                    }
+                } else {
+                    startDinamicBot(true);
+                }
+                renderDinamicInput();
+            }
+        }, 250);
+    }
+    // --- CIERRE CON ESCAPE Y BOTÓN ---
+    closeBtn.addEventListener('click', closeChatWindow);
     document.addEventListener('keydown', function (e) {
         if (e.key === 'Escape' && chatWindow.style.display === 'flex') {
             closeChatWindow();
