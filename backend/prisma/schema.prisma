@@ -43,8 +43,6 @@ model User {
   processes Process[]
   categories Category[]
   processCategories ProcessCategory[]
-  processLogs ProcessLog[]
-  categoryLogs CategoryLog[]
   processCategoryLogs ProcessCategoryLog[]
 
   @@index([name])
@@ -65,7 +63,6 @@ model Process {
   // Relationships
   user      User     @relation(fields: [userId], references: [id])
   processCategories ProcessCategory[]
-  processLogs ProcessLog[]
 
   @@index([name])
   @@map("process")
@@ -83,7 +80,6 @@ model Category {
   // Relationships
   user      User     @relation(fields: [userId], references: [id])
   processCategories ProcessCategory[]
-  categoryLogs CategoryLog[]
 
   @@index([name])
   @@map("category")
@@ -111,41 +107,6 @@ model ProcessCategory {
   @@map("faq")
 }
 
-
-model ProcessLog {
-  id        Int      @id @default(autoincrement())
-  processId Int
-  userId    Int?
-  actionTypeId Int
-  createdAt DateTime @default(now())
-
-  // Relationships
-  process   Process  @relation(fields: [processId], references: [id])
-  user      User?     @relation(fields: [userId], references: [id])
-  actionType ActionType   @relation(fields: [actionTypeId], references: [id])
-
-  @@index([processId])
-  @@index([userId])
-  @@map("process_log")
-}
-
-model CategoryLog {
-  id        Int      @id @default(autoincrement())
-  categoryId Int
-  userId    Int?
-  actionTypeId Int
-  createdAt DateTime @default(now())
-
-  // Relationships
-  category  Category @relation(fields: [categoryId], references: [id])
-  user      User?     @relation(fields: [userId], references: [id])
-  actionType ActionType   @relation(fields: [actionTypeId], references: [id])
-
-  @@index([categoryId])
-  @@index([userId])
-  @@map("category_log")
-}
-
 model ProcessCategoryLog {
   id          Int      @id @default(autoincrement())
   processCategoryId Int
@@ -170,8 +131,6 @@ model ActionType {
   createdAt DateTime @default(now())
 
   // Relationships
-  processLogs ProcessLog[]
-  categoryLogs CategoryLog[]
   processCategoryLogs ProcessCategoryLog[]
 
   @@index([name])

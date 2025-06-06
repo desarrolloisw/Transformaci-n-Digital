@@ -1,6 +1,5 @@
 import Router from 'express';
 import { getAllUsers, 
-    createUserController, 
     disabledEnabledUserController, 
     getUser,
     updateCompleteNameController, 
@@ -17,8 +16,6 @@ router.get('/user-types', getUserTypesController);
 router.get('/', getAllUsers);
 // Ruta para obtener un usuario por ID
 router.get('/:id', getUser);
-// Ruta para crear un nuevo usuario
-router.post('/', createUserController);
 // Ruta para actualizar el nombre completo de un usuario
 router.put('/complete-name', updateCompleteNameController);
 // Ruta para actualizar el email de un usuario

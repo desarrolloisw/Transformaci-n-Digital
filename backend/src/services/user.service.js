@@ -59,54 +59,6 @@ export async function getUserById(req, res) {
     }
 }
 
-export const createUser = async (req, res) => {
-    const parse = registerSchema.safeParse(req.body);
-    if (!parse.success) {
-        return res.status(400).json({ errors: parse.error.flatten().fieldErrors });
-    }
-    const { username, name, lastname, secondlastname, email, password, userTypeId } = parse.data;
-    try {
-        const result = await prisma.$transaction(async (tx) => {
-            // Verificar si el usuario ya existe
-            const existingUser = await tx.user.findUnique({ where: { username } });
-            if (existingUser) throw new Error('El nombre de usuario ya está en uso');
-            // Encriptar el email
-            const encryptedEmail = deterministicEncrypt(email);
-            // Verificar si el email ya está en uso
-            const existingEmailUser = await tx.user.findFirst({ where: { email: encryptedEmail } });
-            if (existingEmailUser) throw new Error('El email ya está en uso');
-            // Hashear la contraseña
-            const hashedPassword = await hashPassword(password);
-            // Crear el usuario
-            const newUser = await tx.user.create({
-                data: {
-                    username,
-                    name,
-                    lastName: lastname,
-                    secondLastName: secondlastname,
-                    email: encryptedEmail,
-                    password: hashedPassword,
-                    userTypeId
-                }
-            });
-            return newUser;
-        });
-        res.status(201).json({
-            id: result.id,
-            username: result.username,
-            name: result.name,
-            lastName: result.lastName,
-            secondLastName: result.secondLastName,
-            email: decrypt(result.email),
-            userTypeId: result.userTypeId,
-            createdAt: result.createdAt,
-            updatedAt: result.updatedAt
-        });
-    } catch (error) {
-        res.status(400).json({ message: error.message || 'Error al crear usuario' });
-    }
-}
-
 export const updateEmail = async (req, res) => {
     const { id } = req.params;
     const userId = parseInt(id, 10);

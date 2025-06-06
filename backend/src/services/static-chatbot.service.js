@@ -13,29 +13,17 @@ export class StaticChatbotService {
     };
   }
 
-  // Devuelve las categorías de un proceso y registra en process_log
+  // Devuelve las categorías de un proceso (NO loguea)
   static async getCategoriesByProcess(processId) {
-    return await prisma.$transaction(async (tx) => {
-      const actionType = await tx.actionType.findUnique({ where: { name: 'Consultar' } });
-      if (!actionType) throw new Error('Tipo de acción "Consultar" no encontrado');
-      // Loguea la selección del proceso
-      await tx.processLog.create({
-        data: {
-          processId: Number(processId),
-          userId: null,
-          actionTypeId: actionType.id
-        }
-      });
-      const categories = await tx.processCategory.findMany({
-        where: { processId: Number(processId) },
-        select: { id: true, category: { select: { name: true } } }
-      });
-      return {
-        type: 'options',
-        message: 'Selecciona una categoría:',
-        options: categories.map(c => ({ id: c.id, label: c.category.name }))
-      };
+    const categories = await prisma.processCategory.findMany({
+      where: { processId: Number(processId) },
+      select: { id: true, category: { select: { name: true } } }
     });
+    return {
+      type: 'options',
+      message: 'Selecciona una categoría:',
+      options: categories.map(c => ({ id: c.id, label: c.category.name }))
+    };
   }
 
   // Devuelve la respuesta de una categoría y registra en ProcessCategoryLog (faq_log)

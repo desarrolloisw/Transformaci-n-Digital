@@ -1,7 +1,6 @@
 import {
     getUsers,
     getUserById,
-    createUser,
     updateEmail,
     updateUsername,
     updateCompleteName,
@@ -31,19 +30,6 @@ export async function getUser(req, res) {
         console.error("Error al obtener usuario:", error);
         res.status(400).json({
             message: "Error al obtener usuario",
-            error: error.message
-        });
-    }
-}
-
-// Crear usuario
-export async function createUserController(req, res) {
-    try {
-        await createUser(req, res);
-    } catch (error) {
-        console.error("Error al crear usuario:", error);
-        res.status(400).json({
-            message: "Error al crear usuario",
             error: error.message
         });
     }
