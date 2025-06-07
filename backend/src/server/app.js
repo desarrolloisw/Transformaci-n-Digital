@@ -5,9 +5,12 @@ import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
 import path from 'path';
 import authRoutes from '../routes/auth.routes.js';
+import processRoutes from '../routes/chatbot-config/process.routes.js';
 import staticChatbotRoutes from '../routes/static-chatbot.routes.js';
 import dinamicChatbotRoutes from '../routes/dinamic-chatbot.routes.js';
 import userRoutes from '../routes/user.routes.js';
+import categoryRoutes from '../routes/chatbot-config/category.routes.js';
+import faqRoutes from '../routes/chatbot-config/faq.routes.js';
 import { fileURLToPath } from 'url';
 
 // Configuración del servidor Express
@@ -48,6 +51,12 @@ app.use('/api/chatbot', staticChatbotRoutes);
 app.use('/api/chatbot', dinamicChatbotRoutes);
 // Configurando las rutas de usuario
 app.use('/api/users', userRoutes);
+// Configurando las rutas de procesos del chatbot
+app.use('/api/processes', processRoutes);
+// Configurando las rutas de categorías
+app.use('/api/categories', categoryRoutes);
+// Configurando las rutas de FAQs
+app.use('/api/faqs', faqRoutes);
 
 // Obtener el nombre del archivo actual
 const __filename = fileURLToPath(import.meta.url);

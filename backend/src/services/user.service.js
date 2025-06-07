@@ -2,12 +2,7 @@ import { prisma } from '../libs/prisma.lib.js';
 import { hashPassword } from '../config/bcrypt.config.js';
 import { decrypt, deterministicEncrypt } from '../config/crypto.config.js';
 import { updateEmailSchema, updateUsernameSchema, updatePasswordSchema, updateCompleteNameSchema, disabledEnabledUserSchema } from '../schemas/user.schema.js';
-import { DateTime } from 'luxon';
-
-function toHermosillo(dt) {
-    if (!dt) return null;
-    return DateTime.fromJSDate(dt, { zone: 'utc' }).setZone('America/Hermosillo').toFormat('yyyy-MM-dd HH:mm:ss');
-}
+import { toHermosillo } from '../libs/date.lib.js';
 
 export const getUsers = async (req, res) => {
     try {
