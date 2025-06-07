@@ -45,7 +45,6 @@ export const updatePasswordSchema = z.object({
         ),
     confirmNewPassword: z
         .string()
-        .min(8, 'La confirmación de la nueva contraseña es obligatoria')
 }).superRefine((data, ctx) => {
     if (data.newPassword !== data.confirmNewPassword) {
         ctx.addIssue({

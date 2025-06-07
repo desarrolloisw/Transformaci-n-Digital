@@ -7,25 +7,26 @@ import { getAllUsers,
     updatePasswordController,
     updateUsernameController,
     getUserTypesController } from '../controllers/user.controller.js';
+import { authenticateToken, isPAT } from '../middlewares/auth.middleware.js';
 
 const router = Router();
 
 // Ruta para obtener los tipos de usuario
-router.get('/user-types', getUserTypesController);
+router.get('/user-types', authenticateToken, isPAT, getUserTypesController);
 // Rutas para obtener todos los usuarios
-router.get('/', getAllUsers);
+router.get('/', authenticateToken, isPAT, getAllUsers);
 // Ruta para obtener un usuario por ID
-router.get('/:id', getUser);
+router.get('/:id', authenticateToken, isPAT, getUser);
 // Ruta para actualizar el nombre completo de un usuario
-router.put('/complete-name', updateCompleteNameController);
+router.put('/:id/complete-name', authenticateToken, isPAT, updateCompleteNameController);
 // Ruta para actualizar el email de un usuario
-router.put('/email', updateEmailController);
+router.put('/:id/email', authenticateToken, isPAT, updateEmailController);
 // Ruta para actualizar el nombre de usuario de un usuario
-router.put('/username', updateUsernameController);
+router.put('/:id/username', authenticateToken, isPAT, updateUsernameController);
 // Ruta para actualizar la contraseña de un usuario
-router.put('/password', updatePasswordController);
+router.put('/:id/password', authenticateToken, isPAT, updatePasswordController);
 // Ruta para habilitar/deshabilitar un usuario
-router.put('/toggle-enabled', disabledEnabledUserController);
+router.put('/:id/toggle-enabled', authenticateToken, isPAT, disabledEnabledUserController);
 
 // Exportar el router
 export default router;

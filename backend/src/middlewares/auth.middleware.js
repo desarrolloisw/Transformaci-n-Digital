@@ -41,7 +41,7 @@ export async function authenticateToken(req, res, next) {
     }
 
     if (!token) {
-        return res.status(401).json({ message: 'Token no proporcionado' });
+        return res.status(401).json({ message: 'No tienes sesión activa' });
     }
 
     try {
@@ -51,7 +51,7 @@ export async function authenticateToken(req, res, next) {
     } catch (error) {
         console.error('Error al verificar el token:', error);
         // Mensaje más claro según el error
-        return res.status(401).json({ message: error.message || 'Token inválido' });
+        return res.status(401).json({ message: error.message || 'Token no generado' });
     }
 }
 
