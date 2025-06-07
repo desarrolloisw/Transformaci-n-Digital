@@ -11,6 +11,7 @@ import dinamicChatbotRoutes from '../routes/dinamic-chatbot.routes.js';
 import userRoutes from '../routes/user.routes.js';
 import categoryRoutes from '../routes/chatbot-config/category.routes.js';
 import faqRoutes from '../routes/chatbot-config/faq.routes.js';
+import dashboardRoutes from '../routes/dashboard/chatbot-dashboard.routes.js';
 import { fileURLToPath } from 'url';
 
 // Configuración del servidor Express
@@ -57,6 +58,8 @@ app.use('/api/processes', processRoutes);
 app.use('/api/categories', categoryRoutes);
 // Configurando las rutas de FAQs
 app.use('/api/faqs', faqRoutes);
+// Rutas del dashboard de logs de consultas
+app.use('/api/dashboard', dashboardRoutes);
 
 // Obtener el nombre del archivo actual
 const __filename = fileURLToPath(import.meta.url);
