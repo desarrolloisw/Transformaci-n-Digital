@@ -13,11 +13,11 @@ import { DashboardCategoriesByProcess } from '../components/dashboard/DashboardC
 export const MyRoutes = () => (
     <BrowserRouter>
         <Routes>
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
-            <Route path="/dashboard" element={<Dashboard />} >
-                <Route path="processes" element={<DashboardProcess />} />
-                <Route path="categories" element={<DashboardCategories />} />
-                <Route path="categoriesbyprocess" element={<DashboardCategoriesByProcess />} />
+            <Route path="/" element={<Dashboard />} >
+                <Route index element={<Navigate to="dashboard/processes"  replace />} />
+                <Route index path="dashboard/processes" element={<DashboardProcess />} />
+                <Route path="dashboard/categories" element={<DashboardCategories />} />
+                <Route path="dashboard/categoriesbyprocess" element={<DashboardCategoriesByProcess />} />
             </Route>
             <Route path="/login" element={<Login />} />
             <Route path='/processes' element={<Process />} />

@@ -21,7 +21,7 @@ export function Dashboard() {
             </h3>
             <nav className="flex flex-wrap justify-center gap-4 mb-10 w-full max-w-2xl">
               <NavLink
-                to="processes"
+                to="dashboard/processes"
                 className={({ isActive }) =>
                   `flex-1 min-w-[140px] px-6 py-3 rounded-xl font-semibold shadow transition-all duration-300 flex items-center justify-center text-center
                   ${isActive
@@ -32,7 +32,7 @@ export function Dashboard() {
                 <span className="w-full text-center">Procesos</span>
               </NavLink>
               <NavLink
-                to="categories"
+                to="dashboard/categories"
                 className={({ isActive }) =>
                   `flex-1 min-w-[140px] px-6 py-3 rounded-xl font-semibold shadow transition-all duration-300 flex items-center justify-center text-center
                   ${isActive
@@ -43,7 +43,7 @@ export function Dashboard() {
                 <span className="w-full text-center">Categorias</span>
               </NavLink>
               <NavLink
-                to="categoriesbyprocess"
+                to="dashboard/categoriesbyprocess"
                 className={({ isActive }) =>
                   `flex-1 min-w-[180px] px-6 py-3 rounded-xl font-semibold shadow transition-all duration-300 flex items-center justify-center text-center
                   ${isActive

@@ -69,7 +69,7 @@ export const DashboardCharts = ({
   return (
     <div
       ref={chartContainerRef}
-      className="w-11/12 bg-white rounded-lg shadow p-4 m-4 overflow-x-auto"
+      className="bg-white rounded-lg shadow p-4 overflow-x-auto"
     >
       <h2 className="text-lg font-bold mb-4">{title + (processName ? processName : "")}</h2>
       <div style={minWidth ? { minWidth: minWidth } : {}}>
