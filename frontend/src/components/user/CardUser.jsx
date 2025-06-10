@@ -1,34 +1,54 @@
-export const CardUser = ({user}) => {
+export const CardUser = ({ user }) => {
+  if (!user || !user.name) {
     return (
+      <div className="flex items-center justify-center h-48 bg-red-50 rounded-lg shadow text-red-500 font-semibold">
+        Usuario no encontrado
+      </div>
+    );
+  }
 
-    <div className="max-w-3xs min-w-3xs max-h-96 min-h-96 bg-white rounded-lg shadow-md overflow-hidden flex flex-col gap-2">
-        {
-            user && user.name ? null : <div className="text-red-500">Uusario no encontrado</div>
-        }
-        <div className="w-full h-48 flex items-center justify-center bg-gray-200">
-            <img
-                src="../src/assets/img/default_user.png"
-                alt={user.name + ' ' + user.lastName + ' ' + (user.secondLastName? user.secondLastName : '')}
-                className="w-fit h-48 object-cover"
-            />
+  return (
+    <div className="max-w-xs min-w-[260px] max-h-96 min-h-96 bg-white rounded-2xl shadow-lg overflow-hidden flex flex-col border border-blue-100 hover:shadow-2xl transition-shadow duration-200">
+      <div className="w-full h-40 flex items-center justify-center bg-gradient-to-b from-[#00478f]/80 to-blue-200">
+        <img
+          src="../src/assets/img/default_user.png"
+          alt={`${user.name} ${user.lastName || ""} ${user.secondLastName || ""}`}
+          className="h-28 object-contain drop-shadow-lg rounded-full bg-white border-4 border-white"
+          draggable={false}
+        />
+      </div>
+      <div className="flex-1 flex flex-col justify-between p-4">
+        <div>
+          <p className="text-sm text-[#00478f] font-semibold mb-1">{user.userType.name}</p>
+          <h2 className="text-xl font-bold text-[#00478f] mb-1 truncate">
+            {user.name} {user.lastName} {user.secondLastName || ""}
+          </h2>
+          <span
+            className={`inline-block px-3 py-1 rounded-full text-xs font-semibold mb-2
+              ${user.isActive
+                ? "bg-green-100 text-green-700"
+                : "bg-red-100 text-red-700"}
+            `}
+          >
+            {user.isActive ? "Activo" : "Inactivo"}
+          </span>
         </div>
-        <div className="px-4">
-            <p className="text-sm text-gray-500 mb-1">{user.userType.name}</p>
+        <div className="mb-2">
+          <p className="text-gray-500 text-xs">
+            Creado:{" "}
+            <span className="font-mono">
+              {new Date(user.createdAt).toLocaleDateString("es-MX", {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+              })}
+            </span>
+          </p>
         </div>
-        <div className="px-4 py-1">
-            <h2 className="text-lg font-semibold mb-2">{user.name + ' ' + user.lastName + ' ' + (user.secondLastName? user.secondLastName : '')}</h2>
-            <p className={`text-sm ${user.isActive ? 'text-green-600' : 'text-red-600'}`}>
-                {user.isActive ? 'Activo' : 'Inactivo'}
-            </p>
-        </div>
-        <div className="px-4 pb-2">
-            <p className="text-gray-700 text-sm">{user.createdAt}</p>
-        </div>
-        <div className="px-4 pb-4">
-            <button className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">
-                Ver Detalles
-            </button>
-        </div>
+        <button className="w-full mt-2 bg-[#00478f] text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-800 transition-colors shadow hover:cursor-pointer">
+          Ver Detalles
+        </button>
+      </div>
     </div>
-    )
-}
+  );
+};
