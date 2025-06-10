@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { CompactTiptap } from '../utils/RichTextEditor';
+import { CompactTiptap } from '../components/ui/RichTextEditor';
 
 export function ProcessDetails() {
       const [htmlContent, setHtmlContent] = useState('');

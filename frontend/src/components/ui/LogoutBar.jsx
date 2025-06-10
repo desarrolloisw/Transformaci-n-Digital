@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { HiChevronDown, HiLogout } from "react-icons/hi";
-import defaultUserImg from "../assets/img/default_user.png";
+import defaultUserImg from "../../assets/img/default_user.png";
 
 export const LogoutBar = ({ username = "Usuario" }) => {
   const [open, setOpen] = useState(false);

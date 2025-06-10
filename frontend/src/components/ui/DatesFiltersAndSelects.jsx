@@ -45,6 +45,7 @@ export function DatesFiltersAndSelects({
     setFromDate("");
     setToDate("");
     setSelectValues(selectsData.map(() => ""));
+    // eslint-disable-next-line
     selectsData.forEach((select, idx) => {
       if (typeof select.onChange === "function") {
         select.onChange("");
@@ -132,6 +133,7 @@ export function DatesFiltersAndSelects({
           setToDate("");
           const cleared = selectsData.map(() => "");
           setSelectValues(cleared);
+          // eslint-disable-next-line
           selectsData.forEach((select, idx) => {
             if (typeof select.onChange === "function") {
               select.onChange("");

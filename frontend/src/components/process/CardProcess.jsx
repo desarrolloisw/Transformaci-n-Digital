@@ -1,3 +1,4 @@
+import EscudoUnison from "../../assets/img/Escudo_Unison.png";
 export const CardProcess = ({ process }) => {
   if (!process || !process.name) {
     return (
@@ -11,7 +12,7 @@ export const CardProcess = ({ process }) => {
     <div className="max-w-xs min-w-[260px] max-h-96 min-h-96 bg-white rounded-2xl shadow-lg overflow-hidden flex flex-col border border-blue-100 hover:shadow-2xl transition-shadow duration-200">
       <div className="w-full h-40 flex items-center justify-center bg-gradient-to-b from-[#00478f]/80 to-blue-200">
         <img
-          src="../src/assets/img/Escudo_Unison.png"
+          src={EscudoUnison}
           alt={process.name}
           className="h-28 object-contain drop-shadow-lg"
           draggable={false}

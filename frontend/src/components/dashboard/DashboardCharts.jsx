@@ -1,5 +1,6 @@
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from "recharts";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
+
 /**
  * Componente Dashboard para mostrar una gráfica de barras reutilizable y responsiva.
  */
@@ -12,32 +13,52 @@ export const DashboardCharts = ({
   color = "#2563eb",
   emptyMessage = "No hay datos para mostrar.",
 }) => {
+  const chartContainerRef = useRef(null);
+
   // Altura responsiva: más grande en laptop, más pequeña en móvil/tablet
-  const getChartHeight = () => {
+  const getChartHeight = useCallback(() => {
     if (window.innerWidth < 640) return 260; // sm
     if (window.innerWidth < 1024) return 350; // md
     return 500; // laptop y más
-  };
+  }, []);
 
   // Ancho mínimo para evitar que las etiquetas se encimen en móvil
-  const getChartMinWidth = () => {
+  const getChartMinWidth = useCallback(() => {
     if (window.innerWidth < 640) return Math.max(data.length * 90, 320);
     if (window.innerWidth < 1024) return Math.max(data.length * 80, 500);
     return 0; // 0 = 100% del contenedor
-  };
+  }, [data.length]);
 
   const [chartHeight, setChartHeight] = useState(getChartHeight());
   const [minWidth, setMinWidth] = useState(getChartMinWidth());
 
+  // ResizeObserver para detectar cambios en el contenedor (ej. sidebar)
   useEffect(() => {
     const handleResize = () => {
       setChartHeight(getChartHeight());
       setMinWidth(getChartMinWidth());
     };
+
+    handleResize();
+
+    let observer;
+    const chartNode = chartContainerRef.current;
+    if (chartNode && "ResizeObserver" in window) {
+      observer = new window.ResizeObserver(() => {
+        handleResize();
+      });
+      observer.observe(chartNode);
+    }
+
     window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-    // eslint-disable-next-line
-  }, [data.length]);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      if (observer && chartNode) {
+        observer.unobserve(chartNode);
+      }
+    };
+  }, [data.length, getChartHeight, getChartMinWidth]);
 
   if (!data.length) {
     return (
@@ -46,7 +67,10 @@ export const DashboardCharts = ({
   }
 
   return (
-    <div className="w-11/12 bg-white rounded-lg shadow p-4 m-4 overflow-x-auto">
+    <div
+      ref={chartContainerRef}
+      className="w-11/12 bg-white rounded-lg shadow p-4 m-4 overflow-x-auto"
+    >
       <h2 className="text-lg font-bold mb-4">{title + (processName ? processName : "")}</h2>
       <div style={minWidth ? { minWidth: minWidth } : {}}>
         <ResponsiveContainer width="100%" height={chartHeight}>

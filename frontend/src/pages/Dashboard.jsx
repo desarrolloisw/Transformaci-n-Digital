@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { NotResults } from "../components/notFound/NotResults";
 import { DashboardCharts } from "../components/dashboard/DashboardCharts";
-import { DatesFiltersAndSelects } from "../utils/DatesFiltersAndSelects";
-import { Sidebar } from "../utils/Sidebar";
-import { LogoutBar } from "../utils/LogoutBar";
+import { DatesFiltersAndSelects } from "../components/ui/DatesFiltersAndSelects";
+import { Sidebar } from "../components/ui/Sidebar";
+import { LogoutBar } from "../components/ui/LogoutBar";
 
 export function Dashboard() {
+  // eslint-disable-next-line
   const [dates, setDates] = useState({ from: "", to: "" });
+  // eslint-disable-next-line
   const [resetCounter, setResetCounter] = useState(0);
 
   const handleDatesChange = (values) => {

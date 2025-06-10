@@ -1,3 +1,4 @@
+import DefaultUserImage from "../../assets/img/default_user.png";
 export const CardUser = ({ user }) => {
   if (!user || !user.name) {
     return (
@@ -11,9 +12,9 @@ export const CardUser = ({ user }) => {
     <div className="max-w-xs min-w-[260px] max-h-96 min-h-96 bg-white rounded-2xl shadow-lg overflow-hidden flex flex-col border border-blue-100 hover:shadow-2xl transition-shadow duration-200">
       <div className="w-full h-40 flex items-center justify-center bg-gradient-to-b from-[#00478f]/80 to-blue-200">
         <img
-          src="../src/assets/img/default_user.png"
+          src={DefaultUserImage}
           alt={`${user.name} ${user.lastName || ""} ${user.secondLastName || ""}`}
-          className="h-28 object-contain drop-shadow-lg rounded-full bg-white border-4 border-white"
+          className="h-28 object-contain drop-shadow-lg"
           draggable={false}
         />
       </div>

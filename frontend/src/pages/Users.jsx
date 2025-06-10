@@ -1,8 +1,8 @@
 import { NotResults } from "../components/notFound/NotResults";
 import { CardUser } from "../components/user/CardUser";
 import { getGridClass } from "../libs/functions.lib.js";
-import { Sidebar } from "../utils/Sidebar";
-import { LogoutBar } from "../utils/LogoutBar";
+import { Sidebar } from "../components/ui/Sidebar";
+import { LogoutBar } from "../components/ui/LogoutBar";
 import { useState } from "react";
 
 export function Users() {
