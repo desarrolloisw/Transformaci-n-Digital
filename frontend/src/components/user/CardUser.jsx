@@ -1,4 +1,6 @@
+import { Link } from "react-router-dom";
 import DefaultUserImage from "../../assets/img/default_user.png";
+
 export const CardUser = ({ user }) => {
   if (!user || !user.name) {
     return (
@@ -47,7 +49,9 @@ export const CardUser = ({ user }) => {
           </p>
         </div>
         <button className="w-full mt-2 bg-[#00478f] text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-800 transition-colors shadow hover:cursor-pointer">
-          Ver Detalles
+          <Link to={`/user/${user.id}`} className="w-full h-full flex items-center justify-center">
+            Ver Detalles
+          </Link>
         </button>
       </div>
     </div>

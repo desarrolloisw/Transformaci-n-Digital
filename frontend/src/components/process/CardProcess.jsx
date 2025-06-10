@@ -1,4 +1,6 @@
+import { Link } from "react-router-dom";
 import EscudoUnison from "../../assets/img/Escudo_Unison.png";
+
 export const CardProcess = ({ process }) => {
   if (!process || !process.name) {
     return (
@@ -44,7 +46,9 @@ export const CardProcess = ({ process }) => {
           </p>
         </div>
         <button className="w-full mt-2 bg-[#00478f] text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-800 transition-colors shadow hover:cursor-pointer">
-          Ver Detalles
+          <Link to={`/process/${process.id}`} className="w-full h-full flex items-center justify-center">
+            Ver Detalles
+          </Link>
         </button>
       </div>
     </div>
