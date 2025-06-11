@@ -1,9 +1,6 @@
 import { NotResults } from "../components/notFound/NotResults";
 import { CardUser } from "../components/user/CardUser";
 import { getGridClass } from "../libs/functions.lib.js";
-import { Sidebar } from "../components/ui/Sidebar";
-import { LogoutBar } from "../components/ui/LogoutBar";
-import { useState } from "react";
 
 export function Users() {
   const users = [
@@ -33,12 +30,8 @@ export function Users() {
     }
   ];
 
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-
   return (
     <div className="flex min-h-screen bg-white overflow-x-hidden">
-      <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
-      <LogoutBar username="Juan Pérez" />
       <main className="flex-1 w-full mt-5 px-4 md:px-10 py-10 pt-14 transition-all duration-300">
         <div className="users max-w-7xl mx-auto">
           <h1 className="text-4xl md:text-5xl font-extrabold text-[#00478f] mb-3 drop-shadow-sm text-center">

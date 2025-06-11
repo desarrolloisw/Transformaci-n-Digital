@@ -81,7 +81,7 @@ export const Sidebar = () => {
         </div>
       </aside>
       {/* Espaciador para el contenido */}
-      <div className={`${open ? "w-65 md:w-69" : "w-5"} transition-all duration-300`} />
+      <div className={`${open ? "w-60 md:w-64" : "w-0"} transition-all duration-300`} />
     </>
   );
 };

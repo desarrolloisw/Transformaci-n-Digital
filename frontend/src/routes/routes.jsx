@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { PrincipalLayout } from '../layout/PrincipalLayout';
 import { Dashboard } from '../pages/Dashboard';
 import { Login } from '../pages/Login';
 import { Process } from '../components/chatbotConfig/Process';
@@ -14,25 +15,27 @@ import { Categories } from '../components/chatbotConfig/Category';
 import { CategoryDetails } from '../pages/CategoryDetails';
 
 export const MyRoutes = () => (
-    <BrowserRouter>
-        <Routes>
-            <Route path="/" element={<Dashboard />} >
-                <Route index element={<Navigate to="dashboard/processes"  replace />} />
-                <Route index path="dashboard/processes" element={<DashboardProcess />} />
-                <Route path="dashboard/categories" element={<DashboardCategories />} />
-                <Route path="dashboard/categoriesbyprocess" element={<DashboardCategoriesByProcess />} />
-            </Route>
-            <Route path="/login" element={<Login />} />
-            <Route path='/chatbot-config' element={<ChatbotConfig />} >
-                <Route index element={<Navigate to="processes" replace />} />
-                <Route path='processes' element={<Process />} />
-                <Route path='categories' element={<Categories />} />
-            </Route>
-            <Route path='/process/:id' element={<ProcessDetails />} />
-            <Route path='/category/:id' element={<CategoryDetails />} />
-            <Route path="/users" element={<Users />} />
-            <Route path="/user/:id" element={<UserDetails />} />
-            <Route path="*" element={<Page404 />} />
-        </Routes>
-    </BrowserRouter>
-)
+  <BrowserRouter>
+    <Routes>
+      <Route element={<PrincipalLayout />}>
+        <Route path="/" element={<Dashboard />}>
+          <Route index element={<Navigate to="dashboard/processes" replace />} />
+          <Route path="dashboard/processes" element={<DashboardProcess />} />
+          <Route path="dashboard/categories" element={<DashboardCategories />} />
+          <Route path="dashboard/categoriesbyprocess" element={<DashboardCategoriesByProcess />} />
+        </Route>
+        <Route path="/login" element={<Login />} />
+        <Route path='/chatbot-config' element={<ChatbotConfig />}>
+          <Route index element={<Navigate to="processes" replace />} />
+          <Route path='processes' element={<Process />} />
+          <Route path='categories' element={<Categories />} />
+        </Route>
+        <Route path='/process/:id' element={<ProcessDetails />} />
+        <Route path='/category/:id' element={<CategoryDetails />} />
+        <Route path="/users" element={<Users />} />
+        <Route path="/user/:id" element={<UserDetails />} />
+        <Route path="*" element={<Page404 />} />
+      </Route>
+    </Routes>
+  </BrowserRouter>
+);
