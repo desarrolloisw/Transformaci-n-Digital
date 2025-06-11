@@ -1,6 +1,6 @@
 import { getProcesses, getProcessById, createProcess, updateProcess, disableProcess, enableProcess } from '../../services/chatbot-config/process.service.js';
 import { processSchema, processUpdateSchema } from '../../schemas/chatbot-config/process.schema.js';
-import { processConfirmationSchema } from '../../services/chatbot-config/process.service.js';
+import { processConfirmationSchema } from '../../schemas/chatbot-config/process.schema.js';
 
 export async function getAllProcesses(req, res) {
   try {

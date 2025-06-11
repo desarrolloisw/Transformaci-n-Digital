@@ -1,19 +1,6 @@
 import { prisma } from "../../libs/prisma.lib.js";
 import { toHermosillo } from "../../libs/date.lib.js";
-import { processSchema, processUpdateSchema } from "../../schemas/chatbot-config/process.schema.js";
-import { z } from "zod";
-
-export const processConfirmationSchema = z.object({
-    id: z.number(),
-    name: z.string(),
-    description: z.string(),
-    isActive: z.boolean(),
-    createdAt: z.any(),
-    updatedAt: z.any(),
-    disabledFaqs: z.array(z.number()).optional(),
-    enabledFaqs: z.array(z.number()).optional(),
-    noChanges: z.boolean().optional(),
-});
+import { processSchema, processUpdateSchema, processConfirmationSchema } from "../../schemas/chatbot-config/process.schema.js";
 
 function formatProcessDates(process) {
   return {
@@ -27,7 +14,7 @@ export async function getProcesses({ name } = {}) {
     const where = name ? { name: { contains: name, mode: 'insensitive' } } : {};
     const processes = await prisma.process.findMany({
         where,
-        select: { id: true, name: true, isActive: true, createdAt: true, updatedAt: true },
+        select: { id: true, name: true, description: true, isActive: true, createdAt: true, updatedAt: true },
     });
     return processes.map(formatProcessDates);
 }

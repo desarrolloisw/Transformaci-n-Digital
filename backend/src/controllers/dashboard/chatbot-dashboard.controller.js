@@ -4,6 +4,7 @@ import {
   getCategoryCount,
   getCategoryCountByProcess,
   getTotalQuestions,
+  getTotalQuestionsByProcess,
 } from '../../services/dashboard/chatbot-dashboard.service.js';
 import { dateRangeSchema, processIdSchema } from '../../schemas/dashboard/chatbot-dashboard.schema.js';
 import { ZodError } from 'zod';
@@ -72,6 +73,19 @@ export async function getTotalQuestionsCtrl(req, res, next) {
   try {
     const { from, to } = parseDateRangeQuery(req.query);
     const total = await getTotalQuestions({ from, to });
+    res.json({ total });
+  } catch (err) {
+    if (err instanceof ZodError) {
+      return res.status(400).json({ error: err.errors });
+    }
+    next(err);
+  }
+}
+
+export async function getTotalQuestionsByProcessCtrl(req, res, next) {
+  try {
+    const { from, to, processId } = parseProcessIdQuery(req.query);
+    const total = await getTotalQuestionsByProcess({ from, to, processId });
     res.json({ total });
   } catch (err) {
     if (err instanceof ZodError) {

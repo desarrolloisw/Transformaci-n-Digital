@@ -191,3 +191,35 @@ export async function getTotalQuestions({ from, to }) {
   const count = await prisma.processCategoryLog.count({ where });
   return count;
 }
+
+// API: Obtiene el total de preguntas (consultas) realizadas por proceso
+export async function getTotalQuestionsByProcess({ from, to }) {
+  ({ from, to } = convertRangeToUTC({ from, to }));
+  const consultarId = await getConsultarActionTypeId();
+  // Traer todos los logs agrupados por processCategoryId
+  const where = { ...buildDateWhere({ from, to }), actionTypeId: consultarId };
+  const logs = await prisma.processCategoryLog.groupBy({
+    by: ['processCategoryId'],
+    where,
+    _count: { _all: true },
+  });
+  // Traer los processId de cada processCategory
+  const processCategories = await prisma.processCategory.findMany({
+    where: { id: { in: logs.map(r => r.processCategoryId) } },
+    select: { id: true, processId: true },
+  });
+  const processIdMap = Object.fromEntries(processCategories.map(pc => [pc.id, pc.processId]));
+  // Agrupar por processId
+  const processCounts = {};
+  for (const r of logs) {
+    const processId = processIdMap[r.processCategoryId];
+    if (!processId) continue;
+    if (!processCounts[processId]) processCounts[processId] = 0;
+    processCounts[processId] += r._count._all;
+  }
+  // Armar respuesta con todos los procesos
+  return Object.entries(processCounts).map(([processId, count]) => ({
+    processId: Number(processId),
+    count,
+  }));
+}

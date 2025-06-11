@@ -20,3 +20,15 @@ export const processUpdateSchema = z.object({
   isActive: z.boolean({ required_error: 'El estado activo es requerido.' })
     .optional()
 });
+
+export const processConfirmationSchema = z.object({
+    id: z.number(),
+    name: z.string(),
+    description: z.string(),
+    isActive: z.boolean(),
+    createdAt: z.any(),
+    updatedAt: z.any(),
+    disabledFaqs: z.array(z.number()).optional(),
+    enabledFaqs: z.array(z.number()).optional(),
+    noChanges: z.boolean().optional(),
+});

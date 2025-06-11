@@ -5,6 +5,7 @@ import {
   getCategoryCountCtrl,
   getCategoryCountByProcessCtrl,
   getTotalQuestionsCtrl,
+  getTotalQuestionsByProcessCtrl
 } from '../../controllers/dashboard/chatbot-dashboard.controller.js';
 
 const router = Router();
@@ -19,5 +20,7 @@ router.get('/logs/category-count', getCategoryCountCtrl);
 router.get('/logs/category-count-by-process', getCategoryCountByProcessCtrl);
 // Total de preguntas
 router.get('/logs/total-questions', getTotalQuestionsCtrl);
+// Total de preguntas de un proceso (processId obligatorio)
+router.get('/logs/total-questions-by-process', getTotalQuestionsByProcessCtrl);
 
 export default router;

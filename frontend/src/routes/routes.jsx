@@ -24,18 +24,19 @@ export const MyRoutes = () => (
           <Route path="dashboard/categories" element={<DashboardCategories />} />
           <Route path="dashboard/categoriesbyprocess" element={<DashboardCategoriesByProcess />} />
         </Route>
-        <Route path="/login" element={<Login />} />
-        <Route path='/chatbot-config' element={<ChatbotConfig />}>
+        <Route path="login" element={<Login />} />
+        <Route path='chatbot-config' element={<ChatbotConfig />}>
           <Route index element={<Navigate to="processes" replace />} />
           <Route path='processes' element={<Process />} />
           <Route path='categories' element={<Categories />} />
         </Route>
-        <Route path='/process/:id' element={<ProcessDetails />} />
-        <Route path='/category/:id' element={<CategoryDetails />} />
-        <Route path="/users" element={<Users />} />
-        <Route path="/user/:id" element={<UserDetails />} />
-        <Route path="*" element={<Page404 />} />
+        <Route path='process/:id' element={<ProcessDetails />} />
+        <Route path='category/:id' element={<CategoryDetails />} />
+        <Route path="users" element={<Users />} />
+        <Route path="user/:id" element={<UserDetails />} />
       </Route>
+        <Route path="*" element={<Page404 />} />
+
     </Routes>
   </BrowserRouter>
 );
