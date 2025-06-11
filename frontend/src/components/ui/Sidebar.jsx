@@ -5,7 +5,7 @@ import { HiOutlineHome, HiOutlineUserGroup, HiOutlineClipboardList, HiMenu, HiX 
 const sidebarItems = [
   { title: "Dashboard", to: "/", icon: <HiOutlineHome size={22} /> },
   { title: "Usuarios", to: "/users", icon: <HiOutlineUserGroup size={22} /> },
-  { title: "Procesos", to: "/processes", icon: <HiOutlineClipboardList size={22} /> },
+  { title: "Configuración del Chatbot", to: "/chatbot-config", icon: <HiOutlineClipboardList size={22} /> },
 ];
 
 export const Sidebar = () => {
@@ -44,26 +44,36 @@ export const Sidebar = () => {
         </div>
         {/* Menú */}
         <ul className="flex-1 w-full px-2 space-y-2 mt-4">
-          {sidebarItems.map((item, idx) => (
-            <li key={idx}>
-              <Link
-                to={item.to}
-                className={`flex items-center gap-3 px-4 py-3 rounded-lg font-semibold text-base transition-all duration-200
-                  ${
-                    location.pathname === item.to
-                      ? "bg-white bg-opacity-90 text-[#00478f] shadow"
-                      : "text-white hover:bg-white/20 hover:text-blue-200"
-                  }
-                `}
-                tabIndex={open ? 0 : -1}
-              >
-                <span className="transition-transform duration-300">{item.icon}</span>
-                <span className={`transition-all duration-300 ${open ? "opacity-100" : "opacity-0"} ${open ? "ml-0" : "ml-[-999px]"} whitespace-nowrap`}>
-                  {item.title}
-                </span>
-              </Link>
-            </li>
-          ))}
+          {sidebarItems.map((item, idx) => {
+            const isActive =
+              item.to === "/"
+                ? location.pathname === "/" || location.pathname.startsWith("/dashboard")
+                : location.pathname.startsWith(item.to);
+
+            return (
+              <li key={idx}>
+                <Link
+                  to={item.to}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-lg font-semibold text-base transition-all duration-200
+                    ${
+                      isActive
+                        ? "bg-white bg-opacity-90 text-[#00478f] shadow"
+                        : "text-white hover:bg-white/20 hover:text-blue-200"
+                    }
+                  `}
+                  tabIndex={open ? 0 : -1}
+                >
+                  <span className="transition-transform duration-300">{item.icon}</span>
+                  <span
+                    className={`transition-all duration-300 ${open ? "opacity-100" : "opacity-0"} ${open ? "ml-0" : "ml-[-999px]"} whitespace-nowrap max-w-[8.5rem] md:max-w-[10rem] overflow-hidden text-ellipsis`}
+                    title={item.title}
+                  >
+                    {item.title}
+                  </span>
+                </Link>
+              </li>
+            );
+          })}
         </ul>
         {/* Footer decorativo */}
         <div className="w-full py-4 flex justify-center items-end">
