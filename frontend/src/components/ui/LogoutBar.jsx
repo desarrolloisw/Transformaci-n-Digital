@@ -1,10 +1,13 @@
 import { useState, useRef, useEffect } from "react";
 import { HiChevronDown, HiLogout } from "react-icons/hi";
+import { logout, getUsername } from "../../api/auth.api";
+import { useNavigate } from "react-router-dom";
 import defaultUserImg from "../../assets/img/default_user.png";
 
-export const LogoutBar = ({ username = "Usuario" }) => {
+export const LogoutBar = () => {
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const navigate = useNavigate();
 
   // Cierra el dropdown si se da clic fuera
   useEffect(() => {
@@ -36,7 +39,7 @@ export const LogoutBar = ({ username = "Usuario" }) => {
             draggable={false}
           />
           <span className="hidden sm:inline">Bienvenid@</span>
-          <span className="font-bold hidden sm:inline">{username}</span>
+          <span className="font-bold hidden sm:inline">{getUsername()}</span>
           <HiChevronDown className={`transition-transform ${open ? "rotate-180" : ""}`} size={22} />
         </button>
         {/* Dropdown */}
@@ -45,8 +48,8 @@ export const LogoutBar = ({ username = "Usuario" }) => {
             <button
               className="flex items-center gap-2 w-full px-4 py-2 text-[#00478f] hover:bg-blue-100 font-semibold transition-colors"
               onClick={() => {
-                // Aquí va tu lógica de logout
-                window.location.href = "/login";
+                logout();
+                navigate("/login", { replace: true });
               }}
             >
               <HiLogout size={20} />

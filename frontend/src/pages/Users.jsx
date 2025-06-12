@@ -8,7 +8,7 @@ export function Users() {
 
   return (
     <div className="flex min-h-screen bg-white overflow-x-hidden">
-      <main className="flex-1 w-full mt-5 px-4 md:px-10 py-10 pt-14 transition-all duration-300">
+      <main className="flex-1 w-full mt-5 px-4 md:px-10 py-10 pt-3 transition-all duration-300">
         <div className="users max-w-7xl mx-auto">
           <h1 className="text-4xl md:text-5xl font-extrabold text-[#00478f] mb-3 drop-shadow-sm text-center">
             Usuarios

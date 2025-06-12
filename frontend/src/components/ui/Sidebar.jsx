@@ -1,16 +1,28 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { HiOutlineHome, HiOutlineUserGroup, HiOutlineClipboardList, HiMenu, HiX } from "react-icons/hi";
+import { getUserRole } from "../../api/auth.api";
 
-const sidebarItems = [
+const sidebarItemsPAT = [
   { title: "Dashboard", to: "/", icon: <HiOutlineHome size={22} /> },
   { title: "Usuarios", to: "/users", icon: <HiOutlineUserGroup size={22} /> },
   { title: "Configuración del Chatbot", to: "/chatbot-config", icon: <HiOutlineClipboardList size={22} /> },
+];
+const sidebarItemsCOORD = [
+  { title: "Dashboard", to: "/", icon: <HiOutlineHome size={22} /> },
 ];
 
 export const Sidebar = () => {
   const [open, setOpen] = useState(true);
   const location = useLocation();
+  // Mapear el userTypeId a nombre de rol
+  function mapRole(roleId) {
+    if (roleId === "1") return "PAT";
+    if (roleId === "2") return "COORD";
+    return null;
+  }
+  const role = mapRole(getUserRole());
+  const sidebarItems = role === "PAT" ? sidebarItemsPAT : sidebarItemsCOORD;
 
   return (
     <>

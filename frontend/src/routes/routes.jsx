@@ -13,18 +13,18 @@ import { DashboardCategoriesByProcess } from '../components/dashboard/DashboardC
 import { ChatbotConfig } from '../pages/ChatbotConfigPage';
 import { Categories } from '../components/chatbotConfig/Category';
 import { CategoryDetails } from '../pages/CategoryDetails';
+import { PrivateRoute } from './PrivateRoute';
 
 export const MyRoutes = () => (
   <BrowserRouter>
     <Routes>
-      <Route element={<PrincipalLayout />}>
+      <Route element={<PrivateRoute><PrincipalLayout /></PrivateRoute>}>
         <Route path="/" element={<Dashboard />}>
           <Route index element={<Navigate to="dashboard/processes" replace />} />
           <Route path="dashboard/processes" element={<DashboardProcess />} />
           <Route path="dashboard/categories" element={<DashboardCategories />} />
           <Route path="dashboard/categoriesbyprocess" element={<DashboardCategoriesByProcess />} />
         </Route>
-        <Route path="login" element={<Login />} />
         <Route path='chatbot-config' element={<ChatbotConfig />}>
           <Route index element={<Navigate to="processes" replace />} />
           <Route path='processes' element={<Process />} />
@@ -35,8 +35,8 @@ export const MyRoutes = () => (
         <Route path="users" element={<Users />} />
         <Route path="user/:id" element={<UserDetails />} />
       </Route>
-        <Route path="*" element={<Page404 />} />
-
+      <Route path="login" element={<Login />} />
+      <Route path="*" element={<Page404 />} />
     </Routes>
   </BrowserRouter>
 );

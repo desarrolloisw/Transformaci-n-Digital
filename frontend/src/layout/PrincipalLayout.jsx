@@ -8,8 +8,8 @@ export function PrincipalLayout() {
     <div className="flex min-h-screen bg-white overflow-x-hidden">
       <Sidebar />
       <div className="flex flex-col flex-1">
-        <LogoutBar username="Juan Pérez" />
-        <main className="flex-grow p-4 pt-14 transition-all duration-300">
+        <LogoutBar />
+        <main className="flex-grow pt-14 transition-all duration-300">
           <Outlet />
         </main>
         <Footer />
