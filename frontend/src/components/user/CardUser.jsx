@@ -22,8 +22,11 @@ export const CardUser = ({ user }) => {
       </div>
       <div className="flex-1 flex flex-col justify-between p-4">
         <div>
-          <p className="text-sm text-[#00478f] font-semibold mb-1">{user.userType.name}</p>
-          <h2 className="text-xl font-bold text-[#00478f] mb-1 truncate">
+          <h2
+            className="text-xl font-bold text-[#00478f] mb-1 break-words max-w-full max-h-16 overflow-y-auto"
+            title={`${user.name} ${user.lastName} ${user.secondLastName || ""}`}
+            style={{ wordBreak: "break-word" }}
+          >
             {user.name} {user.lastName} {user.secondLastName || ""}
           </h2>
           <span

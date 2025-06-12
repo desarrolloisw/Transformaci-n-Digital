@@ -87,11 +87,8 @@ export const DashboardCategoriesByProcess = () => {
 
   // Get total questions for the selected process
   let totalQuestions = 0;
-  if (selectedProcess && totalQuestionsByProcess.data && Array.isArray(totalQuestionsByProcess.data.total)) {
-    const found = totalQuestionsByProcess.data.total.find(
-      (item) => String(item.processId) === String(selectedProcess)
-    );
-    totalQuestions = found ? found.count : 0;
+  if (selectedProcess && totalQuestionsByProcess.data && typeof totalQuestionsByProcess.data.total === 'number') {
+    totalQuestions = totalQuestionsByProcess.data.total;
   }
 
   // Si no hay proceso seleccionado, no mostrar nada

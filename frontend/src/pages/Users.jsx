@@ -1,34 +1,10 @@
 import { NotResults } from "../components/notFound/NotResults";
 import { CardUser } from "../components/user/CardUser";
 import { getGridClass } from "../libs/functions.lib.js";
+import { useGetUsers } from "../api/user.api.js";
 
 export function Users() {
-  const users = [
-    {
-      "id": 1,
-      "name": "Juan",
-      "lastName": "Pérez",
-      "secondLastName": "García",
-      "userType": {
-        "name": "Administrador"
-      },
-      "createdAt": "2024-06-09T10:00:00-07:00",
-      "updatedAt": "2024-06-09T12:00:00-07:00",
-      "isActive": true
-    },
-    {
-      "id": 2,
-      "name": "María",
-      "lastName": "López",
-      "secondLastName": null,
-      "userType": {
-        "name": "Usuario"
-      },
-      "createdAt": "2024-06-08T09:30:00-07:00",
-      "updatedAt": "2024-06-09T11:15:00-07:00",
-      "isActive": false
-    }
-  ];
+  const { data: users = [], isLoading, isError } = useGetUsers();
 
   return (
     <div className="flex min-h-screen bg-white overflow-x-hidden">
@@ -43,14 +19,19 @@ export function Users() {
           <section className="mb-10">
             <h2 className="text-2xl font-bold text-[#00478f] mb-4 text-center md:text-left">Listado de Usuarios</h2>
             <div className={`${getGridClass(users)} w-full`}>
-              {
-                users.length === 0 ? (
-                  <NotResults notResultsName={"Users"} />
-                ) :
+              {isLoading ? (
+                <div className="col-span-full flex justify-center items-center h-32">
+                  <span className="text-gray-500 font-semibold">Cargando usuarios...</span>
+                </div>
+              ) : isError ? (
+                <NotResults notResultsName={"Users"} />
+              ) : users.length === 0 ? (
+                <NotResults notResultsName={"Users"} />
+              ) : (
                 users.map((user) => (
                   <CardUser key={user.id} user={user} />
                 ))
-              }
+              )}
             </div>
           </section>
         </div>
