@@ -4,13 +4,13 @@ import { authenticateToken, isPAT } from '../../middlewares/auth.middleware.js';
 
 const router = Router();
 
-router.get('/', getAllCategories);
-router.get('/:id', getCategory);
-router.post('/', createCategoryController);
-router.put('/:id', updateCategoryController);
-router.delete('/:id', deleteCategoryController);
-router.put('/:id/toggle-active', toggleCategoryActiveController);
-router.get('/by-process/:processId', getCategoriesByProcess);
-router.get('/not-in-process/:processId', getCategoriesNotInProcess);
+router.get('/', authenticateToken, isPAT, getAllCategories);
+router.get('/:id', authenticateToken, isPAT, getCategory);
+router.post('/', authenticateToken, isPAT, createCategoryController);
+router.put('/:id', authenticateToken, isPAT, updateCategoryController);
+router.delete('/:id', authenticateToken, isPAT, deleteCategoryController);
+router.put('/:id/toggle-active', authenticateToken, isPAT, toggleCategoryActiveController);
+router.get('/by-process/:processId', authenticateToken, isPAT, getCategoriesByProcess);
+router.get('/not-in-process/:processId', authenticateToken, isPAT, getCategoriesNotInProcess);
 
 export default router;
