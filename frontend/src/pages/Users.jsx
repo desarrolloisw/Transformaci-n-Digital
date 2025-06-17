@@ -4,10 +4,48 @@ import { getGridClass } from "../libs/functions.lib.js";
 import { useGetUsers } from "../api/user.api.js";
 import { Search } from "../components/ui/Search";
 import { useState } from "react";
+import { CreateBtn } from "../components/ui/CreateBtn";
+import { CreateModal } from "../components/ui/CreateModal";
+import { useCreateModal } from "../libs/useCreateModal.js";
+import { useRegister } from "../api/auth.api";
+import { useGetUserTypes } from "../api/user.api";
+import { useQueryClient } from "@tanstack/react-query";
 
 export function Users() {
   const [search, setSearch] = useState("");
   const { data: users = [], isLoading, isError } = useGetUsers(search ? { search } : {});
+  const createModal = useCreateModal();
+  const register = useRegister();
+  const queryClient = useQueryClient();
+  const { data: userTypes = [] } = useGetUserTypes();
+
+  // User creation fields (match backend schema)
+  const userFields = [
+    { name: "username", label: "Usuario", type: "text", required: true, minLength: 5, maxLength: 25, pattern: "^[a-z0-9_]+$", helper: "Solo minúsculas, números y guion bajo." },
+    { name: "name", label: "Nombre", type: "text", required: true, minLength: 1, maxLength: 50 },
+    { name: "lastname", label: "Primer apellido", type: "text", required: true, minLength: 1, maxLength: 50 },
+    { name: "secondlastname", label: "Segundo apellido", type: "text", required: false, maxLength: 50 },
+    { name: "email", label: "Correo institucional", type: "email", required: true, maxLength: 100, pattern: "^[a-zA-Z0-9_.+-]+@unison\\.mx$", helper: "Debe ser @unison.mx" },
+    { name: "password", label: "Contraseña", type: "password", required: true, minLength: 8, maxLength: 72 },
+    { name: "confirmPassword", label: "Confirmar contraseña", type: "password", required: true, minLength: 8, maxLength: 72 },
+    { name: "userTypeId", label: "Tipo de usuario", type: "select", required: true, options: userTypes.map(u => ({ value: u.id, label: u.name })) },
+  ];
+
+  const handleCreateUser = (form) => {
+    // Convert userTypeId to number
+    const payload = { ...form, userTypeId: Number(form.userTypeId) };
+    register.mutate(payload, {
+      onSuccess: () => {
+        queryClient.invalidateQueries(["users"]);
+        createModal.handleClose();
+      },
+      onError: (error) => {
+        let msg = error.response?.data?.message || "Error al crear usuario";
+        if (error.response?.data?.error) msg = error.response.data.error;
+        createModal.setError(msg);
+      },
+    });
+  };
 
   return (
     <div className="flex min-h-screen bg-white overflow-x-hidden">
@@ -21,8 +59,13 @@ export function Users() {
           </p>
           <section className="mb-10">
             <h2 className="text-2xl font-bold text-[#00478f] mb-4 text-center md:text-left">Listado de Usuarios</h2>
-            <div className="mb-6 max-w-md mx-auto">
-              <Search value={search} onChange={setSearch} placeholder="Buscar usuario..." />
+            <div className="mb-6 max-w-2xl mx-auto flex flex-col md:flex-row gap-2 md:gap-4 items-center">
+              <div className="flex-1 w-full">
+                <Search value={search} onChange={setSearch} placeholder="Buscar usuario..." />
+              </div>
+              <div className="w-full md:w-auto">
+                <CreateBtn onClick={createModal.handleOpen} label="Crear usuario" />
+              </div>
             </div>
             <div className={`relative w-full`}>
               {isLoading ? (
@@ -45,6 +88,14 @@ export function Users() {
                 </div>
               )}
             </div>
+            <CreateModal
+              open={createModal.open}
+              onClose={createModal.handleClose}
+              onSubmit={handleCreateUser}
+              fields={userFields}
+              title="Registrar usuario"
+              error={createModal.error}
+            />
           </section>
         </div>
       </main>

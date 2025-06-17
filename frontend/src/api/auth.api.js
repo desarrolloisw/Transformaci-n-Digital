@@ -9,6 +9,7 @@ function extractUserDataFromToken(token) {
     return {
       userTypeId: payload.userTypeId ? String(payload.userTypeId) : null,
       username: payload.username || "",
+      id: payload.id ? String(payload.id) : null
     };
   } catch {
     return { userTypeId: null, username: "" };
@@ -18,9 +19,10 @@ function extractUserDataFromToken(token) {
 // Guardar y obtener el token y rol del localStorage
 export const setAuthToken = (token) => {
   localStorage.setItem("token", token);
-  const { userTypeId, username } = extractUserDataFromToken(token);
+  const { id, userTypeId, username } = extractUserDataFromToken(token);
   if (userTypeId) localStorage.setItem("role", userTypeId);
   if (username) localStorage.setItem("username", username);
+  if (id) localStorage.setItem("userId", id);
 };
 export const getAuthToken = () => {
   return localStorage.getItem("token");

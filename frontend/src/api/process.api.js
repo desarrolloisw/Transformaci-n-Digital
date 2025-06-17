@@ -55,12 +55,46 @@ export const useUpdateProcess = () => {
   });
 };
 
-// PATCH: Habilitar/deshabilitar un proceso
+// PUT: Habilitar/deshabilitar un proceso
 export const useToggleProcessActive = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, isActive }) => {
-      const res = await axios.patch(`${ENV_BACKEND_URL}/api/processes/${id}/toggle-active`, { isActive });
+      const res = await axios.put(`${ENV_BACKEND_URL}/api/processes/${id}/toggle-active`, { isActive });
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["processes"]);
+    },
+  });
+};
+
+// Deshabilitar proceso
+export const useDisableProcess = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, userId }) => {
+      const res = await axios.put(
+        `${ENV_BACKEND_URL}/api/processes/${id}/toggle-active`,
+        { isActive: false, userId }
+      );
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["processes"]);
+    },
+  });
+};
+
+// Habilitar proceso
+export const useEnableProcess = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, userId }) => {
+      const res = await axios.put(
+        `${ENV_BACKEND_URL}/api/processes/${id}/toggle-active`,
+        { isActive: true, userId }
+      );
       return res.data;
     },
     onSuccess: () => {

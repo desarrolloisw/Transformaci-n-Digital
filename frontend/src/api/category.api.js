@@ -83,6 +83,40 @@ export const useToggleCategoryActive = () => {
   });
 };
 
+// 6b. Deshabilitar categoría
+export const useDisableCategory = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, userId }) => {
+      const res = await axios.put(
+        `${ENV_BACKEND_URL}/api/categories/${id}/toggle-active`,
+        { isActive: false, userId }
+      );
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["categories"]);
+    },
+  });
+};
+
+// 6c. Habilitar categoría
+export const useEnableCategory = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, userId }) => {
+      const res = await axios.put(
+        `${ENV_BACKEND_URL}/api/categories/${id}/toggle-active`,
+        { isActive: true, userId }
+      );
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["categories"]);
+    },
+  });
+};
+
 // 7. Obtener categorías por proceso
 export const useGetCategoriesByProcess = (processId, params = {}) => {
   return useQuery({

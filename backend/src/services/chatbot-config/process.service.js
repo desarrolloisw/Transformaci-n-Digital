@@ -53,6 +53,7 @@ export async function createProcess(data) {
                 name: parse.data.name,
                 description: parse.data.description,
                 isActive: parse.data.isActive,
+                userId: parse.data.userId, // Add userId to creation
             },
         });
         return process;

@@ -6,7 +6,10 @@ export const processSchema = z.object({
     .max(100, { message: 'El nombre debe tener máximo 100 caracteres.' }),
   description: z.string({ required_error: 'Descripción es requerida.' })
     .min(2, { message: 'La descripción debe tener al menos 2 caracteres.' }),
-  isActive: z.boolean({ required_error: 'El estado activo es requerido.' })
+  isActive: z.boolean({ required_error: 'El estado activo es requerido.' }),
+  userId: z.number({ required_error: 'El ID del usuario es requerido.' })
+    .int({ message: 'El ID del usuario debe ser un número entero.' })
+    .positive({ message: 'El ID del usuario debe ser un número positivo.' })
 });
 
 export const processUpdateSchema = z.object({
