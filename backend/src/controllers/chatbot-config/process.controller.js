@@ -4,8 +4,8 @@ import { processConfirmationSchema } from '../../schemas/chatbot-config/process.
 
 export async function getAllProcesses(req, res) {
   try {
-    const { name } = req.query;
-    const processes = await getProcesses({ name });
+    const { search } = req.query;
+    const processes = await getProcesses({ search });
     res.status(200).json(processes.map(p => processConfirmationSchema.parse(p)));
   } catch (error) {
     res.status(500).json({ message: 'Error al obtener procesos', error: error.message });

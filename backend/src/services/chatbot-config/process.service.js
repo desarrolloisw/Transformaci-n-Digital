@@ -1,22 +1,25 @@
 import { prisma } from "../../libs/prisma.lib.js";
-import { toHermosillo } from "../../libs/date.lib.js";
 import { processSchema, processUpdateSchema, processConfirmationSchema } from "../../schemas/chatbot-config/process.schema.js";
+import { formatDates } from "../../libs/date.lib.js";
 
-function formatProcessDates(process) {
-  return {
-    ...process,
-    createdAt: toHermosillo(process.createdAt),
-    updatedAt: toHermosillo(process.updatedAt),
-  };
-}
-
-export async function getProcesses({ name } = {}) {
-    const where = name ? { name: { contains: name, mode: 'insensitive' } } : {};
+export async function getProcesses({ search } = {}) {
+    let where = {};
+    if (search && search.trim() !== "") {
+        const words = search.trim().split(/\s+/);
+        where = {
+            AND: words.map(word => ({
+                OR: [
+                    { name: { contains: word } },
+                    { description: { contains: word } }
+                ]
+            }))
+        };
+    }
     const processes = await prisma.process.findMany({
         where,
         select: { id: true, name: true, description: true, isActive: true, createdAt: true, updatedAt: true },
     });
-    return processes.map(formatProcessDates);
+    return processes.map(formatDates);
 }
 
 export async function getProcessById(processId) {
@@ -32,7 +35,7 @@ export async function getProcessById(processId) {
         },
     }).then((process) => {
         if (!process) throw new Error("Proceso no encontrado");
-        return formatProcessDates(process);
+        return formatDates(process);
     });
 }
 
@@ -54,7 +57,7 @@ export async function createProcess(data) {
         });
         return process;
     });
-    return processConfirmationSchema.parse(formatProcessDates(result));
+    return processConfirmationSchema.parse(formatDates(result));
 }
 
 export async function updateProcess(processId, data) {
@@ -72,9 +75,9 @@ export async function updateProcess(processId, data) {
         if (parse.data.name !== undefined && parse.data.name !== current.name) changes.name = parse.data.name;
         if (parse.data.description !== undefined && parse.data.description !== current.description) changes.description = parse.data.description;
         if (parse.data.isActive !== undefined && parse.data.isActive !== current.isActive) changes.isActive = parse.data.isActive;
-        if (Object.keys(changes).length === 0) return processConfirmationSchema.parse({ ...formatProcessDates(current), noChanges: true });
+        if (Object.keys(changes).length === 0) return processConfirmationSchema.parse({ ...formatDates(current), noChanges: true });
         const updated = await tx.process.update({ where: { id: Number(processId) }, data: changes });
-        return processConfirmationSchema.parse(formatProcessDates(updated));
+        return processConfirmationSchema.parse(formatDates(updated));
     });
 }
 
@@ -98,7 +101,7 @@ export async function disableProcess(processId, userId) {
                 },
             });
         }
-        return processConfirmationSchema.parse({ ...formatProcessDates(process), disabledFaqs: faqs.map(f => f.id) });
+        return processConfirmationSchema.parse({ ...formatDates(process), disabledFaqs: faqs.map(f => f.id) });
     });
 }
 
@@ -127,6 +130,6 @@ export async function enableProcess(processId, userId) {
                 });
             }
         }
-        return processConfirmationSchema.parse({ ...formatProcessDates(process), enabledFaqs });
+        return processConfirmationSchema.parse({ ...formatDates(process), enabledFaqs });
     });
 }

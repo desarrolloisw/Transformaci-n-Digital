@@ -6,7 +6,24 @@ import { toHermosillo } from '../libs/date.lib.js';
 
 export const getUsers = async (req, res) => {
     try {
+        const { search } = req.query;
+        // Construir filtro de búsqueda si hay search
+        let where = {};
+        if (search && search.trim() !== "") {
+            const words = search.trim().split(/\s+/);
+            where = {
+                AND: words.map(word => ({
+                    OR: [
+                        { name: { contains: word } },
+                        { lastName: { contains: word } },
+                        { secondLastName: { contains: word } },
+                        { userType: { is: { name: { contains: word } } } },
+                    ]
+                }))
+            };
+        }
         const users = await prisma.user.findMany({
+            where,
             select: {
                 id: true,
                 name: true,

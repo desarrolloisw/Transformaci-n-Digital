@@ -6,11 +6,13 @@ import { formatToDatetimeLocal, toISOStringIfFilled } from "../../libs/functions
 import { useGetCategoryCountByProcess, useGetFirstLogDate, useGetTotalQuestionsByProcess } from "../../api/dashboard.api";
 import { useGetProcesses } from "../../api/process.api";
 import { Toast } from "../ui/Toast";
+import { chartTypes } from "../../libs/chartTypes.lib";
 
 export const DashboardCategoriesByProcess = () => {
   const [dates, setDates] = useState({ from: "", to: "" });
   const [selectedProcess, setSelectedProcess] = useState("");
   const [toast, setToast] = useState({ show: false, message: "", type: "info" });
+  const [chartType, setChartType] = useState(chartTypes[0].id); // default: bar
 
   // Obtener procesos para el select
   const processes = useGetProcesses();
@@ -79,7 +81,6 @@ export const DashboardCategoriesByProcess = () => {
       value: selectedProcess,
       onChange: (val) => {
         setSelectedProcess(val);
-        // Reset dates when process changes
         setDates({ from: "", to: "" });
       },
     },
@@ -105,6 +106,8 @@ export const DashboardCategoriesByProcess = () => {
               onClear={handleClear}
               selectsData={selectsData}
               minDate={minDate}
+              chartType={chartType}
+              onChartTypeChange={setChartType}
             />
           </div>
           <div className="flex items-center justify-center h-32 bg-blue-50 rounded-lg shadow">
@@ -128,6 +131,8 @@ export const DashboardCategoriesByProcess = () => {
             onClear={handleClear}
             selectsData={selectsData}
             minDate={minDate}
+            chartType={chartType}
+            onChartTypeChange={setChartType}
           />
         </div>
         <h2 className="text-lg font-semibold text-[#00478f] mb-4 text-center md:text-left">
@@ -163,6 +168,7 @@ export const DashboardCategoriesByProcess = () => {
               xKey="categoryName"
               barKey="count"
               title=""
+              chartType={chartType}
             />
           ))
         )}

@@ -5,10 +5,12 @@ import { NotResults } from "../notFound/NotResults";
 import { useGetProcessCount, useGetFirstLogDate, useGetTotalQuestions } from "../../api/dashboard.api";
 import { Toast } from "../ui/Toast";
 import { formatToDatetimeLocal, toISOStringIfFilled } from "../../libs/functions.lib";
+import { chartTypes } from "../../libs/chartTypes.lib";
 
 export const DashboardProcess = () => {
   const [dates, setDates] = useState({ from: "", to: "" });
   const [toast, setToast] = useState({ show: false, message: "", type: "info" });
+  const [chartType, setChartType] = useState(chartTypes[0].id); // default: bar
 
   // Solo incluye los params si tienen valor y los convierte a ISO
   const params = {};
@@ -69,6 +71,8 @@ export const DashboardProcess = () => {
             onChange={handleDatesChange}
             onClear={handleClear}
             minDate={minDate}
+            chartType={chartType}
+            onChartTypeChange={setChartType}
           />
         </div>
         <h2 className="text-lg font-semibold text-[#00478f] mb-4 text-center md:text-left">
@@ -104,6 +108,7 @@ export const DashboardProcess = () => {
               xKey="processName"
               barKey="count"
               title=""
+              chartType={chartType}
             />
           )
         )}

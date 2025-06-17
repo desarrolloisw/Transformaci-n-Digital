@@ -1,11 +1,10 @@
 import { getCategories, getCategoryById, createCategory, updateCategory, disableCategory, enableCategory } from '../../services/chatbot-config/category.service.js';
-import { createCategorySchema, updateCategorySchema } from '../../schemas/chatbot-config/category.schema.js';
-import { categoryConfirmationSchema } from '../../services/chatbot-config/category.service.js';
+import { createCategorySchema, updateCategorySchema, categoryConfirmationSchema } from '../../schemas/chatbot-config/category.schema.js';
 
 export async function getAllCategories(req, res) {
   try {
-    const { name } = req.query;
-    const categories = await getCategories({ name });
+    const { search } = req.query;
+    const categories = await getCategories({ search });
     res.status(200).json(categories.map(c => categoryConfirmationSchema.parse(c)));
   } catch (error) {
     res.status(500).json({ message: error.message });

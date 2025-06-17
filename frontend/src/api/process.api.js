@@ -2,7 +2,7 @@ import axios from "axios";
 import { ENV_BACKEND_URL } from "../config/enviroments.config";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
-// GET: Obtener todos los procesos (con filtro opcional por nombre)
+// GET: Obtener todos los procesos (con filtro opcional por nombre o búsqueda)
 export const useGetProcesses = (params = {}) => {
   return useQuery({
     queryKey: ["processes", params],

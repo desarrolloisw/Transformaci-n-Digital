@@ -20,3 +20,16 @@ export const updateCategorySchema = z.object({
     .optional(),
   isActive: z.boolean().optional(),
 });
+
+export const categoryConfirmationSchema = z.object({
+    id: z.number(),
+    name: z.string(),
+    description: z.string(),
+    isActive: z.boolean(),
+    createdAt: z.any(),
+    updatedAt: z.any(),
+    disabledFaqs: z.array(z.number()).optional(),
+    enabledFaqs: z.array(z.number()).optional(),
+    alreadyInactive: z.boolean().optional(),
+    noChanges: z.boolean().optional(),
+});

@@ -2,9 +2,12 @@ import { NotResults } from "../components/notFound/NotResults";
 import { CardUser } from "../components/user/CardUser";
 import { getGridClass } from "../libs/functions.lib.js";
 import { useGetUsers } from "../api/user.api.js";
+import { Search } from "../components/ui/Search";
+import { useState } from "react";
 
 export function Users() {
-  const { data: users = [], isLoading, isError } = useGetUsers();
+  const [search, setSearch] = useState("");
+  const { data: users = [], isLoading, isError } = useGetUsers(search ? { search } : {});
 
   return (
     <div className="flex min-h-screen bg-white overflow-x-hidden">
@@ -18,19 +21,28 @@ export function Users() {
           </p>
           <section className="mb-10">
             <h2 className="text-2xl font-bold text-[#00478f] mb-4 text-center md:text-left">Listado de Usuarios</h2>
-            <div className={`${getGridClass(users)} w-full`}>
+            <div className="mb-6 max-w-md mx-auto">
+              <Search value={search} onChange={setSearch} placeholder="Buscar usuario..." />
+            </div>
+            <div className={`relative w-full`}>
               {isLoading ? (
                 <div className="col-span-full flex justify-center items-center h-32">
                   <span className="text-gray-500 font-semibold">Cargando usuarios...</span>
                 </div>
               ) : isError ? (
-                <NotResults notResultsName={"Users"} />
+                <div className="flex items-center justify-center w-full h-full">
+                  <NotResults notResultsName={"Users"} />
+                </div>
               ) : users.length === 0 ? (
-                <NotResults notResultsName={"Users"} />
+                <div className="flex items-center justify-center w-full h-full place-items-center">
+                  <NotResults notResultsName={"Users"} />
+                </div>
               ) : (
-                users.map((user) => (
-                  <CardUser key={user.id} user={user} />
-                ))
+                <div className={`${getGridClass(users)} w-full`}>
+                  {users.map((user) => (
+                    <CardUser key={user.id} user={user} />
+                  ))}
+                </div>
               )}
             </div>
           </section>

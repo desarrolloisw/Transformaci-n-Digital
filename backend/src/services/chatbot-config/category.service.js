@@ -1,35 +1,24 @@
 import { prisma } from "../../libs/prisma.lib.js";
-import { toHermosillo } from "../../libs/date.lib.js";
-import { createCategorySchema, updateCategorySchema } from "../../schemas/chatbot-config/category.schema.js";
-import { z } from "zod";
+import { createCategorySchema, updateCategorySchema, categoryConfirmationSchema } from "../../schemas/chatbot-config/category.schema.js";
+import { formatDates } from "../../libs/date.lib.js";
 
-export const categoryConfirmationSchema = z.object({
-    id: z.number(),
-    name: z.string(),
-    description: z.string(),
-    isActive: z.boolean(),
-    createdAt: z.any(),
-    updatedAt: z.any(),
-    disabledFaqs: z.array(z.number()).optional(),
-    enabledFaqs: z.array(z.number()).optional(),
-    alreadyInactive: z.boolean().optional(),
-    noChanges: z.boolean().optional(),
-});
-
-function formatCategoryDates(cat) {
-  return {
-    ...cat,
-    createdAt: toHermosillo(cat.createdAt),
-    updatedAt: toHermosillo(cat.updatedAt),
-  };
-}
-
-export async function getCategories({ name } = {}) {
-    const where = name ? { name: { contains: name, mode: 'insensitive' } } : {};
+export async function getCategories({ search } = {}) {
+    let where = {};
+    if (search && search.trim() !== "") {
+        const words = search.trim().split(/\s+/);
+        where = {
+            AND: words.map(word => ({
+                OR: [
+                    { name: { contains: word } },
+                    { description: { contains: word } }
+                ]
+            }))
+        };
+    }
     return prisma.category.findMany({
         where,
         select: { id: true, name: true, description: true, isActive: true, createdAt: true, updatedAt: true },
-    }).then(categories => categories.map(formatCategoryDates));
+    }).then(categories => categories.map(formatDates));
 }
 
 // Obtener todas las categorías de un proceso, con búsqueda opcional por nombre
@@ -44,7 +33,7 @@ export async function getCategoriesByProcess(processId, { name } = {}) {
     const filtered = name
       ? processCategories.filter(pc => pc.category.name.toLowerCase().includes(name.toLowerCase()))
       : processCategories;
-    return filtered.map(pc => formatCategoryDates(pc.category));
+    return filtered.map(pc => formatDates(pc.category));
 }
 
 export async function getCategoryById(categoryId) {
@@ -53,7 +42,7 @@ export async function getCategoryById(categoryId) {
         select: { id: true, name: true, description: true, isActive: true, createdAt: true, updatedAt: true },
     });
     if (!cat) throw new Error("Categoría no encontrada");
-    return formatCategoryDates(cat);
+    return formatDates(cat);
 }
 
 export async function createCategory(data) {
@@ -75,7 +64,7 @@ export async function createCategory(data) {
         });
         return category;
     });
-    return categoryConfirmationSchema.parse(formatCategoryDates(result));
+    return categoryConfirmationSchema.parse(formatDates(result));
 }
 
 export async function updateCategory(categoryId, data) {
@@ -93,9 +82,9 @@ export async function updateCategory(categoryId, data) {
         if (parse.data.name !== undefined && parse.data.name !== current.name) changes.name = parse.data.name;
         if (parse.data.description !== undefined && parse.data.description !== current.description) changes.description = parse.data.description;
         if (parse.data.isActive !== undefined && parse.data.isActive !== current.isActive) changes.isActive = parse.data.isActive;
-        if (Object.keys(changes).length === 0) return categoryConfirmationSchema.parse({ ...formatCategoryDates(current), noChanges: true });
+        if (Object.keys(changes).length === 0) return categoryConfirmationSchema.parse({ ...formatDates(current), noChanges: true });
         const updated = await tx.category.update({ where: { id: Number(categoryId) }, data: changes });
-        return categoryConfirmationSchema.parse(formatCategoryDates(updated));
+        return categoryConfirmationSchema.parse(formatDates(updated));
     });
 }
 
@@ -119,7 +108,7 @@ export async function disableCategory(categoryId, userId) {
                 },
             });
         }
-        return categoryConfirmationSchema.parse({ ...formatCategoryDates(category), disabledFaqs: faqs.map(f => f.id) });
+        return categoryConfirmationSchema.parse({ ...formatDates(category), disabledFaqs: faqs.map(f => f.id) });
     });
 }
 
@@ -148,6 +137,6 @@ export async function enableCategory(categoryId, userId) {
                 });
             }
         }
-        return categoryConfirmationSchema.parse({ ...formatCategoryDates(category), enabledFaqs });
+        return categoryConfirmationSchema.parse({ ...formatDates(category), enabledFaqs });
     });
 }

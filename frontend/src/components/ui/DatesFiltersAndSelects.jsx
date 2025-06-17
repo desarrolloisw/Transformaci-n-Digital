@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { chartTypes } from "../../libs/chartTypes.lib";
 
 // Nuevo componente reutilizable para un select
 function DynamicSelect({ label, options = [], value, onChange }) {
@@ -29,7 +30,9 @@ export function DatesFiltersAndSelects({
   onClear,
   clearSignal,
   minDate,
-  selectsData = [] // [{ label, options: [{id, name}], value, onChange }]
+  selectsData = [],
+  chartType,
+  onChartTypeChange
 }) {
   // Un useState para cada fecha
   const [fromDate, setFromDate] = useState("");
@@ -93,7 +96,7 @@ export function DatesFiltersAndSelects({
   };
 
   return (
-    <div className="flex flex-wrap gap-4 items-stretch w-full max-w-3xl mx-auto bg-white p-6 rounded-2xl shadow-lg border border-blue-100">
+    <div className="flex flex-col md:flex-row gap-4 items-end w-full mb-6">
       <div className="flex flex-col gap-1 w-full md:w-auto min-w-[180px] flex-1">
         <label className="text-[#00478f] text-sm font-semibold">Desde</label>
         <input
@@ -125,6 +128,20 @@ export function DatesFiltersAndSelects({
           />
         </div>
       ))}
+      {onChartTypeChange && (
+        <div className="flex flex-col gap-1 w-full max-w-xs">
+          <label className="text-[#00478f] text-sm font-semibold">Tipo de gráfico</label>
+          <select
+            className="rounded px-3 py-2 bg-blue-50 text-[#00478f] border border-blue-200 focus:outline-none focus:ring-2 focus:ring-[#00478f] transition w-full font-medium"
+            value={chartType}
+            onChange={e => onChartTypeChange(e.target.value)}
+          >
+            {chartTypes.map(opt => (
+              <option key={opt.id} value={opt.id}>{opt.name}</option>
+            ))}
+          </select>
+        </div>
+      )}
       <button
         type="button"
         className="w-full md:w-auto mt-2 md:mt-6 px-4 py-2 rounded bg-[#00478f] text-white font-semibold hover:bg-blue-800 transition"
