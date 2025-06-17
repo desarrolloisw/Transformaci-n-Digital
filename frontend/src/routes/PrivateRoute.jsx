@@ -25,6 +25,19 @@ function mapRole(roleId) {
   return null;
 }
 
+// Decodifica el token y verifica expiración
+function isTokenExpired(token) {
+  if (!token) return true;
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    if (!payload.exp) return false;
+    // exp está en segundos desde epoch
+    return Date.now() / 1000 > payload.exp;
+  } catch {
+    return true;
+  }
+}
+
 export function PrivateRoute({ children }) {
   const token = getAuthToken();
   const roleId = getUserRole();
@@ -32,7 +45,12 @@ export function PrivateRoute({ children }) {
   const location = useLocation();
   const path = location.pathname;
 
-  if (!token) {
+  if (!token || isTokenExpired(token)) {
+    // Limpia el token si está expirado
+    localStorage.removeItem("token");
+    localStorage.removeItem("role");
+    localStorage.removeItem("userId");
+    localStorage.removeItem("username");
     return <Navigate to="/login" replace />;
   }
 
