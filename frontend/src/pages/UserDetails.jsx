@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useGetUser, useUpdateEmail, useUpdateUsername, useUpdateCompleteName, useUpdatePassword, useToggleUserEnabled, useGetUserTypes } from "../api/user.api";
 import { Toast } from "../components/ui/Toast";
