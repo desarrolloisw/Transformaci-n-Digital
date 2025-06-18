@@ -16,6 +16,7 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { HiOutlineHome, HiOutlineUserGroup, HiOutlineClipboardList, HiMenu, HiX } from "react-icons/hi";
 import { getUserRole } from "../../api/auth.api";
+import EscudoUnison from "../../assets/img/Escudo_Unison.png";
 
 const sidebarItemsPAT = [
   { title: "Dashboard", to: "/", icon: <HiOutlineHome size={22} /> },
@@ -62,7 +63,7 @@ export const Sidebar = () => {
         {/* Top logo */}
         <div className="w-full flex justify-center items-center py-6 bg-opacity-80">
           <img
-            src="../src/assets/img/Escudo_Unison.png"
+            src={EscudoUnison}
             alt="Logo Unison"
             className="w-20 h-20 rounded-full shadow-lg border-4 border-white object-cover bg-white"
             draggable={false}
