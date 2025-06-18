@@ -107,18 +107,18 @@ export function DatesFiltersAndSelects({
   };
 
   return (
-    <div className="flex flex-col md:flex-row gap-4 items-end w-full mb-6">
-      <div className="flex flex-col gap-1 w-full md:w-auto min-w-[180px] flex-1">
+    <div className="flex flex-wrap gap-4 items-end w-full mb-6">
+      <div className="flex flex-col gap-1 w-full sm:w-1/2 md:w-auto min-w-[140px] flex-1">
         <label className="text-[#00478f] text-sm font-semibold">Desde</label>
         <input
           type="datetime-local"
           value={fromDate}
           min={minDate || undefined}
           onChange={e => handleChange("from", e.target.value)}
-          className="rounded px-3 py-2 bg-blue-50 text-[#00478f] border border-blue-200 focus:outline-none focus:ring-2 focus:ring-[#00478f] transition w-full font-medium"
+          className="rounded px-3 py-2 bg-blue-50 text-[#00478f] border border-blue-200 focus:outline-none focus:ring-2 focus:ring-[#00478f] transition w-full font-medium min-w-0"
         />
       </div>
-      <div className="flex flex-col gap-1 w-full md:w-auto min-w-[180px] flex-1">
+      <div className="flex flex-col gap-1 w-full sm:w-1/2 md:w-auto min-w-[140px] flex-1">
         <label className="text-[#00478f] text-sm font-semibold">Hasta</label>
         <input
           type="datetime-local"
@@ -126,11 +126,11 @@ export function DatesFiltersAndSelects({
           min={fromDate || minDate || undefined}
           disabled={!fromDate}
           onChange={e => handleChange("to", e.target.value)}
-          className={`rounded px-3 py-2 bg-blue-50 text-[#00478f] border border-blue-200 focus:outline-none focus:ring-2 focus:ring-[#00478f] transition w-full font-medium ${!fromDate ? "opacity-60 cursor-not-allowed" : ""}`}
+          className={`rounded px-3 py-2 bg-blue-50 text-[#00478f] border border-blue-200 focus:outline-none focus:ring-2 focus:ring-[#00478f] transition w-full font-medium min-w-0 ${!fromDate ? "opacity-60 cursor-not-allowed" : ""}`}
         />
       </div>
       {selectsData.map((select, idx) => (
-        <div key={idx} className="w-full md:w-auto min-w-[180px] flex-1">
+        <div key={idx} className="w-full sm:w-1/2 md:w-auto min-w-[140px] flex-1">
           <DynamicSelect
             label={select.label}
             options={select.options}
@@ -140,10 +140,10 @@ export function DatesFiltersAndSelects({
         </div>
       ))}
       {onChartTypeChange && (
-        <div className="flex flex-col gap-1 w-full max-w-xs">
+        <div className="flex flex-col gap-1 w-full sm:w-1/2 md:w-auto max-w-xs min-w-[140px] flex-1">
           <label className="text-[#00478f] text-sm font-semibold">Tipo de gráfico</label>
           <select
-            className="rounded px-3 py-2 bg-blue-50 text-[#00478f] border border-blue-200 focus:outline-none focus:ring-2 focus:ring-[#00478f] transition w-full font-medium"
+            className="rounded px-3 py-2 bg-blue-50 text-[#00478f] border border-blue-200 focus:outline-none focus:ring-2 focus:ring-[#00478f] transition w-full font-medium min-w-0"
             value={chartType}
             onChange={e => onChartTypeChange(e.target.value)}
           >
@@ -153,26 +153,28 @@ export function DatesFiltersAndSelects({
           </select>
         </div>
       )}
-      <button
-        type="button"
-        className="w-full md:w-auto mt-2 md:mt-6 px-4 py-2 rounded bg-[#00478f] text-white font-semibold hover:bg-blue-800 transition"
-        onClick={() => {
-          setFromDate("");
-          setToDate("");
-          const cleared = selectsData.map(() => "");
-          setSelectValues(cleared);
-          // eslint-disable-next-line
-          selectsData.forEach((select, idx) => {
-            if (typeof select.onChange === "function") {
-              select.onChange("");
-            }
-          });
-          onClear?.();
-          onChange?.({ from: "", to: "", selects: cleared });
-        }}
-      >
-        Limpiar
-      </button>
+      <div className="w-full sm:w-auto flex-1">
+        <button
+          type="button"
+          className="w-full mt-2 md:mt-6 px-4 py-2 rounded bg-[#00478f] text-white font-semibold hover:bg-blue-800 transition min-w-0"
+          onClick={() => {
+            setFromDate("");
+            setToDate("");
+            const cleared = selectsData.map(() => "");
+            setSelectValues(cleared);
+            // eslint-disable-next-line
+            selectsData.forEach((select, idx) => {
+              if (typeof select.onChange === "function") {
+                select.onChange("");
+              }
+            });
+            onClear?.();
+            onChange?.({ from: "", to: "", selects: cleared });
+          }}
+        >
+          Limpiar
+        </button>
+      </div>
     </div>
   );
 }

@@ -13,7 +13,6 @@
 
 import { NotResults } from "../notFound/NotResults.jsx";
 import { CardChatbotConfig } from "./CardChatbotConfig.jsx";
-import { getGridClass } from "../../libs/functions.lib.js";
 import { useGetProcesses } from "../../api/process.api";
 import { Search } from "../ui/Search";
 import { useState } from "react";
@@ -69,15 +68,15 @@ export function Process() {
   };
 
   return (
-    <div className="container mx-auto p-4">
-      <section className="mb-10">
-        <h2 className="text-2xl font-bold text-[#00478f] mb-4 text-center md:text-left">Listado de Procesos</h2>
-        <div className="mb-6 max-w-2xl mx-auto flex flex-col md:flex-row gap-2 md:gap-4 items-center">
+    <div className="container mx-auto p-2 sm:p-4">
+      <section className="mb-6 sm:mb-10">
+        <h2 className="text-xl sm:text-2xl font-bold text-[#00478f] mb-3 sm:mb-4 text-center md:text-left">Listado de Procesos</h2>
+        <div className="mb-4 sm:mb-6 max-w-2xl mx-auto flex flex-col sm:flex-row gap-2 sm:gap-4 items-center w-full">
           <div className="flex-1 w-full">
             <Search value={search} onChange={setSearch} placeholder="Buscar proceso..." />
           </div>
-          <div className="w-full md:w-auto">
-            <CreateBtn onClick={createModal.handleOpen} label="Crear proceso" />
+          <div className="w-full sm:w-auto">
+            <CreateBtn onClick={createModal.handleOpen} label="Crear proceso" className="w-full sm:w-auto" />
           </div>
         </div>
         <div className="relative w-full">
@@ -94,7 +93,7 @@ export function Process() {
               <NotResults notResultsName={"Processes"} />
             </div>
           ) : (
-            <div className={`${getGridClass(processes)} w-full`}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 w-full">
               {processes.map((proc) => (
                 <CardChatbotConfig key={proc.id} data={proc} url="process" />
               ))}

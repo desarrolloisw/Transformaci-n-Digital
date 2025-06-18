@@ -1,6 +1,5 @@
 import { NotResults } from "../components/notFound/NotResults";
 import { CardUser } from "../components/user/CardUser";
-import { getGridClass } from "../libs/functions.lib.js";
 import { useGetUsers } from "../api/user.api.js";
 import { Search } from "../components/ui/Search";
 import { useState } from "react";
@@ -86,23 +85,23 @@ export function Users() {
   };
 
   return (
-    <div className="flex min-h-screen bg-white overflow-x-hidden">
-      <main className="flex-1 w-full mt-5 px-4 md:px-10 py-10 pt-3 transition-all duration-300">
+    <div className="flex flex-col min-h-screen bg-white overflow-x-hidden">
+      <main className="flex-1 w-full mt-3 px-2 sm:px-4 md:px-10 py-6 transition-all duration-300">
         <div className="users max-w-7xl mx-auto">
-          <h1 className="text-4xl md:text-5xl font-extrabold text-[#00478f] mb-3 drop-shadow-sm text-center">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-[#00478f] mb-2 sm:mb-3 drop-shadow-sm text-center">
             Usuarios
           </h1>
-          <p className="mb-10 text-lg md:text-xl text-gray-700 text-center font-medium">
+          <p className="mb-6 sm:mb-10 text-base sm:text-lg md:text-xl text-gray-700 text-center font-medium">
             Administra los usuarios que tienen acceso al sistema, puedes ver sus detalles, editar su información y gestionar su estado de actividad.
           </p>
-          <section className="mb-10">
-            <h2 className="text-2xl font-bold text-[#00478f] mb-4 text-center md:text-left">Listado de Usuarios</h2>
-            <div className="mb-6 max-w-2xl mx-auto flex flex-col md:flex-row gap-2 md:gap-4 items-center">
+          <section className="mb-6 sm:mb-10">
+            <h2 className="text-xl sm:text-2xl font-bold text-[#00478f] mb-3 sm:mb-4 text-center md:text-left">Listado de Usuarios</h2>
+            <div className="mb-4 sm:mb-6 max-w-2xl mx-auto flex flex-col sm:flex-row gap-2 sm:gap-4 items-center w-full">
               <div className="flex-1 w-full">
                 <Search value={search} onChange={setSearch} placeholder="Buscar usuario..." />
               </div>
-              <div className="w-full md:w-auto">
-                <CreateBtn onClick={createModal.handleOpen} label="Crear usuario" />
+              <div className="w-full sm:w-auto">
+                <CreateBtn onClick={createModal.handleOpen} label="Crear usuario" className="w-full sm:w-auto" />
               </div>
             </div>
             <div className={`relative w-full`}>
@@ -119,7 +118,7 @@ export function Users() {
                   <NotResults notResultsName={"Users"} />
                 </div>
               ) : (
-                <div className={`${getGridClass(users)} w-full`}>
+                <div className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 w-full`}>
                   {users.map((user) => (
                     <CardUser key={user.id} user={user} />
                   ))}
