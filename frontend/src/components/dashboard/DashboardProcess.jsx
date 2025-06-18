@@ -43,14 +43,6 @@ export const DashboardProcess = () => {
     }
   }, [processCount.data, processCount.error, firstLogDate.error]);
 
-  // Cierra el toast automáticamente después de 3 segundos
-  useEffect(() => {
-    if (toast.show) {
-      const timer = setTimeout(() => setToast(t => ({ ...t, show: false })), 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [toast.show]);
-
   const isLoading = processCount.isLoading || firstLogDate.isLoading;
   const isError = processCount.isError || firstLogDate.isError;
 

@@ -43,14 +43,6 @@ export const DashboardCategories = () => {
     }
   }, [categoryCount.data, categoryCount.error, firstLogDate.error]);
 
-  // Cierra el toast automáticamente después de 3 segundos
-  useEffect(() => {
-    if (toast.show) {
-      const timer = setTimeout(() => setToast(t => ({ ...t, show: false })), 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [toast.show]);
-
   const isLoading = categoryCount.isLoading || firstLogDate.isLoading;
   const isError = categoryCount.isError || firstLogDate.isError;
 

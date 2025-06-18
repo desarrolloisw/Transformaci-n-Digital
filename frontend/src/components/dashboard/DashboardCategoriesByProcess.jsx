@@ -53,14 +53,6 @@ export const DashboardCategoriesByProcess = () => {
     }
   }, [categoryCountByProcess.data, categoryCountByProcess.error, firstLogDate.error]);
 
-  // Cierra el toast automáticamente después de 3 segundos
-  useEffect(() => {
-    if (toast.show) {
-      const timer = setTimeout(() => setToast(t => ({ ...t, show: false })), 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [toast.show]);
-
   const isLoading = categoryCountByProcess.isLoading || firstLogDate.isLoading || processes.isLoading;
   const isError = categoryCountByProcess.isError || firstLogDate.isError || processes.isError;
 

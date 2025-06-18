@@ -1,6 +1,6 @@
-// Toast mejorado y responsivo
-// filepath: c:\Users\fofap\Desktop\Transformacion Digital\frontend\src\components\ui\Toast.jsx
-export function Toast({ message, onClose, type = "info" }) {
+import { useEffect } from "react";
+
+export function Toast({ message, onClose, type = "info", duration = 4000 }) {
   const typeStyles = {
     error: "bg-red-600 text-white",
     success: "bg-green-600 text-white",
@@ -11,6 +11,15 @@ export function Toast({ message, onClose, type = "info" }) {
     success: "Éxito:",
     info: "Info:",
   };
+
+  useEffect(() => {
+    if (!duration) return;
+    const timer = setTimeout(() => {
+      onClose && onClose();
+    }, duration);
+    return () => clearTimeout(timer);
+  }, [duration, onClose]);
+
   return (
     <div
       className={`fixed bottom-4 right-4 left-4 sm:left-auto z-50 max-w-xs w-full sm:max-w-sm px-4 py-3 rounded-lg shadow-lg flex items-center gap-2 animate-fade-in ${typeStyles[type] || typeStyles.info}`}
@@ -18,7 +27,9 @@ export function Toast({ message, onClose, type = "info" }) {
     >
       <span className="font-bold">{typeLabels[type] || typeLabels.info}</span>
       <span className="flex-1 break-words">{message}</span>
-      <button className="ml-2 text-white font-bold" onClick={onClose} aria-label="Cerrar">✕</button>
+      <button className="ml-2 text-white font-bold" onClick={onClose} aria-label="Cerrar">
+        ✕
+      </button>
     </div>
   );
 }
