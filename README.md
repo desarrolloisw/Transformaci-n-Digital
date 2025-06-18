@@ -6,8 +6,10 @@
 - [Objetivo](#objetivo)
 - [Tecnologías y Herramientas](#tecnologías-y-herramientas)
     - [Tecnologías y Herramientas de la Base de Datos](#tecnologías-y-herramientas-de-la-base-de-datos)
-    - [Tecnologías y Herramientas del Backend](#tecnologías-y-herramientas-del-backend)
+    - [Tecnologías y Herramientas del Backend](#tecnologías-y-herramientas-del-backend)    
     - [Tecnologías y Herramientas del Frontend](#tecnologías-y-herramientas-del-frontend)
+
+
 - [Estructura del Proyecto](#estructura-del-proyecto)
     - [Estructura del Backend](#estructura-del-backend)
     - [Explicación de la Estructura del Backend](#explicación-de-la-estructura-del-backend)
@@ -34,10 +36,28 @@ Proyecto de Transformación Digital orientado a digitalizar y centralizar proces
 ## **Tecnologías y Herramientas**
 
 ### Tecnologías y Herramientas de la Base de Datos
+    -**MySQL**: Motor de base de datos relacional utilizado para almacenar y gestionar los datos del proyecto.
+    -**Prisma ORM**: Herramienta de mapeo objeto-relacional que simplifica la interacción con la base de datos.
 
 ### Tecnologías y Herramientas del Backend
-
+          -**Node Js**: Entorno de ejecución para JavaScript en el servidor.
+          -**Express**: Framework utilizado para crear la API REST, manejar rutas, middlewares y configurar el servidor
+          -**Autenticación y privacidad**:
+              -**JWT**: Para autenticación basada en tokens.
+              -**BCrypt**: Utilizado para el hash seguro de contraseñas.
+              -**Crypto**: Para cifrado y descifrado de datos sensibles.
+          -**Cors**: Habilita solicitudes entre dominios.
 ### Tecnologías y Herramientas del Frontend
+          -**React**: Biblioteca principal para la construcción de la interfaz de usuario.
+          -**Vite**: Herramienta de desarrollo y bundler para optimizar el rendimiento.
+          -**Gestión de datos**:
+              -**@tanstack/react-query**: Para gestión eficiente de datos y caché.
+              -**Axios**: Cliente HTTP para consumir la API del backend.
+          -**Estilos**:
+              -**Tailwind CSS**: Framework de utilidades CSS para diseños responsivos.
+          -**Recharts**: Librería de gráficos para visualización de datos.
+          -**Tiptap**: Editor de texto enriquecido.
+          -**Lenguajes**: JavaScript (ES6+) y JSX como base del desarrollo.
 
 
 <br><br>
