@@ -76,7 +76,7 @@ export function CreateModal({ open, onClose, onSubmit, fields, title, error }) {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-25" tabIndex={-1} ref={modalRef}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#00000080]" tabIndex={-1} ref={modalRef}>
       <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 w-full max-w-lg xl:max-w-2xl mx-2 max-h-screen overflow-y-auto focus:outline-none" style={{ outline: "none" }}>
         <h3 className="text-xl font-bold mb-4 text-[#00478f] text-center">{title}</h3>
         <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">

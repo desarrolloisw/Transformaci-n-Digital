@@ -165,7 +165,7 @@ export function CompactTiptap({ initialValue, onChange }) {
             <div className="bg-zinc-800 p-6 rounded-lg shadow-xl flex flex-col gap-4 w-[90vw] max-w-xs">
                 <label className="text-sm text-gray-200">URL del enlace:</label>
                 <input
-                className="rounded px-2 py-1 border border-gray-600 bg-zinc-900 text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className="rounded px-2 py-1 border border-gray-600 bg-zinc-900 text-black focus:outline-none focus:ring-2 focus:ring-blue-400"
                 type="url"
                 value={linkValue}
                 onChange={e => setLinkValue(e.target.value)}
