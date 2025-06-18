@@ -116,7 +116,6 @@ export async function getCategoriesByProcessController(req, res) {
     if (isNaN(processId)) return res.status(400).json({ message: 'processId inválido' });
     const { name } = req.query;
     const categories = await getCategoriesByProcess(processId, { name });
-    console.log("Categories by process:", categories);
     res.status(200).json(categories.map(c => categoryConfirmationSchema.parse(c)));
   } catch (error) {
     res.status(500).json({ message: error.message });

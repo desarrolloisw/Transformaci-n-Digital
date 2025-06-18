@@ -22,7 +22,6 @@ export const useCreateFaq = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (data) => {
-        console.log("Creating FAQ with data:", data);
       const res = await axios.post(`${ENV_BACKEND_URL}/api/faqs`, data);
       return res.data;
     },

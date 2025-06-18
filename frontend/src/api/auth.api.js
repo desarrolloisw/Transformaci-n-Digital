@@ -77,9 +77,7 @@ export const logout = () => {
 export const useRegister = () => {
   return useMutation({
     mutationFn: async (data) => {
-      console.log("Registering user with data:", data);
       const res = await axios.post(`${ENV_BACKEND_URL}/api/auth/register`, data);
-      console.log(res)
       return res.data;
     },
   });

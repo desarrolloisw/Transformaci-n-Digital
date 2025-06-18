@@ -1,5 +1,4 @@
 export default function ProcessCategoryList({ categories, onEdit, onToggleActive }) {
-  console.log("Rendering ProcessCategoryList with categories:", categories);
   return (
     <div className="grid w-full gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 px-1 sm:px-0">
       {categories && categories.length > 0 ? (

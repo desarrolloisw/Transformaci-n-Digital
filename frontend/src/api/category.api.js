@@ -122,7 +122,6 @@ export const useGetCategoriesByProcess = (processId, params = {}) => {
   return useQuery({
     queryKey: ["categoriesByProcess", processId, params],
     queryFn: async () => {
-      console.log("Fetching categories for process:", processId, "with params:", params);
       const res = await axios.get(`${ENV_BACKEND_URL}/api/categories/by-process/${processId}`, { params });
       return res.data;
     },

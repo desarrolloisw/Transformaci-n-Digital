@@ -6,7 +6,6 @@ import HardBreak from '@tiptap/extension-hard-break';
 import { useState } from 'react';
 
 export function CompactTiptap({ initialValue, onChange }) {
-    console.log(initialValue)
   const [showLinkModal, setShowLinkModal] = useState(false);
   const [linkValue, setLinkValue] = useState('');
 
@@ -80,9 +79,7 @@ function splitParagraphsAndBreaks(html) {
     onUpdate: ({ editor }) => {
       // Normaliza el HTML exportado en cada cambio
       const html = editor.getHTML();
-      console.log('html', html)
       const normalized = splitParagraphsAndBreaks(html);
-      console.log('normalized', normalized)
       onChange(addTailwindToLinks(normalized));
     }
   });
