@@ -1,4 +1,14 @@
-// Muestra la cabecera con info básica del usuario
+/**
+ * UserInfoHeader component
+ *
+ * Displays a header section with basic user information:
+ * - User type
+ * - Creation date
+ * - Last update date
+ *
+ * Props:
+ *   - user: Object containing userType, createdAt, and updatedAt fields
+ */
 export default function UserInfoHeader({ user }) {
   return (
     <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 gap-2">

@@ -4,6 +4,11 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Toast } from "../components/ui/Toast";
 
+/**
+ * Login page for the Chatbot Admin Panel.
+ * Handles user authentication, form validation, and displays toast notifications for errors and success.
+ * On successful login, redirects user based on their role.
+ */
 export function Login() {
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm();
   const loginMutation = useLogin();
@@ -11,23 +16,29 @@ export function Login() {
   const [toast, setToast] = useState({ show: false, message: "", type: "info" });
   const navigate = useNavigate();
 
+  // Show toast on login error
   useEffect(() => {
     if (loginError) {
       setToast({ show: true, message: loginError, type: "error" });
     }
   }, [loginError]);
 
+  // Show toast on successful login
   useEffect(() => {
     if (loginMutation.isSuccess) {
       setToast({ show: true, message: "Inicio de sesión exitoso", type: "success" });
     }
   }, [loginMutation.isSuccess]);
 
+  /**
+   * Handles form submission and login logic.
+   * Redirects user based on their role after successful login.
+   */
   const onSubmit = async (data) => {
     setLoginError("");
     try {
       await loginMutation.mutateAsync({ identifier: data.username, password: data.password });
-      // Mapear userTypeId a rol
+      // Map userTypeId to role
       const userTypeId = localStorage.getItem("role");
       let role = null;
       if (userTypeId === "1") role = "PAT";
@@ -42,6 +53,7 @@ export function Login() {
     }
   };
 
+  // Render login form and toast notifications
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 via-white to-blue-200">
       <div className="w-full max-w-sm p-8 bg-white rounded-2xl shadow-2xl border border-blue-100 relative">

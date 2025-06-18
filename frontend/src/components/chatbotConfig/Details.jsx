@@ -7,6 +7,19 @@ import { DetailsHeader } from "./details/DetailsHeader";
 import { DetailsInfo } from "./details/DetailsInfo";
 import { DetailsActions } from "./details/DetailsActions";
 
+/**
+ * Details component
+ *
+ * Displays and manages the details view for a process or category entity.
+ * Supports editing, enabling/disabling, and saving changes, with error and toast feedback.
+ *
+ * Props:
+ *   - data: (object) Entity data (process or category)
+ *   - type: (string) 'process' or 'category'
+ *   - refetch: (function) Optional callback to refetch data after changes
+ *   - setToast: (function) Optional callback to show toast notifications
+ */
+
 export function Details({ data, type, refetch, setToast }) {
   const [editMode, setEditMode] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);

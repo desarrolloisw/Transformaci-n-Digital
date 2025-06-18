@@ -1,3 +1,15 @@
+/**
+ * CompactTiptap component
+ *
+ * Provides a compact rich text editor using Tiptap with support for bold, italic, strike, lists, and links.
+ * Handles normalization of line breaks and paragraphs for clean HTML output.
+ * Includes a modal for editing links and applies Tailwind styles to links.
+ *
+ * Props:
+ *   - initialValue: (string) Initial HTML or plain text content for the editor
+ *   - onChange: (function) Callback called with normalized HTML content on every change
+ */
+
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Link from '@tiptap/extension-link';

@@ -1,3 +1,15 @@
+/**
+ * ProcessCategoriesDetails component
+ *
+ * Manages the assignment and FAQ responses for categories within a process.
+ * Allows adding/removing categories, editing FAQ responses, toggling FAQ active state, and displays toast notifications.
+ * Handles loading, error, and modal states for a responsive and interactive UI.
+ *
+ * Props:
+ *   - processId: (number|string) The ID of the process
+ *   - userId: (number|string, optional) The user ID (falls back to current user if not provided)
+ */
+
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useGetCategoriesByProcess, useGetCategoriesNotInProcess } from "../../api/category.api";

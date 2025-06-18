@@ -1,3 +1,15 @@
+/**
+ * DashboardCategoriesByProcess component
+ *
+ * Displays a dashboard section for viewing question counts by category for a selected process, with date filtering and chart type selection.
+ * Fetches and displays category count data by process, handles loading and error states, and shows toast notifications.
+ *
+ * Features:
+ *   - Process selection, date range filtering, and chart type selection via DatesFiltersAndSelects
+ *   - Displays total questions and a chart (bar, pie, etc.) for category data by process
+ *   - Handles loading, error, and empty states with appropriate UI feedback
+ */
+
 import { useState, useEffect } from "react";
 import { DashboardCharts } from "./DashboardCharts";
 import { DatesFiltersAndSelects } from "../ui/DatesFiltersAndSelects";

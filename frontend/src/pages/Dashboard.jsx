@@ -1,5 +1,10 @@
 import { NavLink, Outlet } from "react-router-dom";
 
+/**
+ * Dashboard page provides the main dashboard interface for visualizing data.
+ * Renders navigation tabs for different chart types and displays the selected chart section using Outlet.
+ * Includes a responsive layout and modern UI for a clean analytics experience.
+ */
 export function Dashboard() {
   return (
     <div className="flex min-h-screen bg-white overflow-x-hidden">
@@ -15,6 +20,7 @@ export function Dashboard() {
             <h3 className="text-2xl font-bold text-[#00478f] mb-6 text-center">
               Selecciona una de las diferentes opciones de gráficos para visualizar los datos:
             </h3>
+            {/* Navigation tabs for dashboard chart types */}
             <nav className="flex flex-wrap justify-center gap-4 mb-10 w-full max-w-2xl">
               <NavLink
                 to="dashboard/processes"
@@ -50,6 +56,7 @@ export function Dashboard() {
                 <span className="w-full text-center">Categorias por procesos</span>
               </NavLink>
             </nav>
+            {/* Section for rendering the selected dashboard chart */}
             <section className="mb-10 w-full">
               <Outlet />
             </section>

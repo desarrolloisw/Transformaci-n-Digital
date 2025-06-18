@@ -1,3 +1,13 @@
+/**
+ * ReturnBtn component
+ *
+ * Renders a styled button for navigation, typically used to return to a previous page.
+ *
+ * Props:
+ *   - to: (string) The route to navigate to (default: '/')
+ *   - className: (string) Additional CSS classes for the button
+ */
+
 import { Link } from "react-router-dom";
 import { HiArrowLeft } from "react-icons/hi";
 

@@ -7,6 +7,11 @@ import UserInfoHeader from "../components/user/userdetails/UserInfoHeader";
 import UserFormSection from "../components/user/userdetails/UserFormSection";
 import UserPasswordFields from "../components/user/userdetails/UserPasswordFields";
 
+/**
+ * UserDetails page displays and allows editing of a single user's information.
+ * Handles user data fetch, form state, validation, update actions, and toast notifications.
+ * Includes sections for user info, password update, and enable/disable user.
+ */
 export function UserDetails() {
   const { id } = useParams();
   const { data: user, isLoading, isError, refetch } = useGetUser(id);
@@ -17,7 +22,7 @@ export function UserDetails() {
   const toggleEnabled = useToggleUserEnabled();
   const [toast, setToast] = useState({ show: false, message: '', type: 'info' });
 
-  // Form states
+  // Form state for user fields
   const [form, setForm] = useState({
     email: "",
     username: "",
@@ -31,11 +36,11 @@ export function UserDetails() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // Error states
+  // Error states for form fields and password
   const [errors, setErrors] = useState({});
   const [passwordError, setPasswordError] = useState("");
 
-  // Sync form with user data
+  // Sync form state with fetched user data
   useEffect(() => {
     if (user) {
       setForm({
@@ -52,7 +57,7 @@ export function UserDetails() {
   if (isLoading) return <div className="text-center py-10 text-gray-500 font-semibold">Cargando usuario...</div>;
   if (isError || !user) return <div className="text-center py-10 text-red-500 font-semibold">No se pudo cargar el usuario.</div>;
 
-  // User fields config (igual que en alta, pero userTypeId solo lectura)
+  // User fields configuration for validation and rendering
   const userFields = [
     { name: "username", label: "Usuario", type: "text", required: true, minLength: 5, maxLength: 25, pattern: "^[a-z0-9_]+$", helper: "Solo minúsculas, números y guion bajo." },
     { name: "name", label: "Nombre", type: "text", required: true, minLength: 1, maxLength: 50 },
@@ -61,7 +66,12 @@ export function UserDetails() {
     { name: "email", label: "Correo institucional", type: "email", required: true, maxLength: 100, pattern: "^[a-zA-Z0-9_.+-]+@unison\\.mx$", helper: "Debe ser @unison.mx" },
   ];
 
-  // Validaciones
+  /**
+   * Validates a single field value based on its config.
+   * @param {object} field - Field config object.
+   * @param {string} value - Value to validate.
+   * @returns {string} - Error message or empty string.
+   */
   const validateField = (field, value) => {
     if (field.required && !value) return "Este campo es obligatorio";
     if (field.minLength && value.length < field.minLength) return `Mínimo ${field.minLength} caracteres`;
@@ -70,13 +80,19 @@ export function UserDetails() {
     return "";
   };
 
+  /**
+   * Handles input changes and field validation.
+   */
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm(f => ({ ...f, [name]: value }));
     setErrors(errs => ({ ...errs, [name]: validateField(userFields.find(fld => fld.name === name), value) }));
   };
 
-  // --- Update actions ---
+  /**
+   * Handles update actions for username, email, and name fields.
+   * Shows toast and error messages as needed.
+   */
   const handleUpdate = (field) => (e) => {
     e.preventDefault();
     let errorMsg = validateField(userFields.find(fld => fld.name === field), form[field]);
@@ -132,7 +148,10 @@ export function UserDetails() {
     }
   };
 
-  // Contraseña
+  /**
+   * Handles password update logic and validation.
+   * Shows toast and error messages as needed.
+   */
   const handlePasswordUpdate = (e) => {
     e.preventDefault();
     setPasswordError("");
@@ -144,7 +163,7 @@ export function UserDetails() {
       setPasswordError("Las contraseñas no coinciden");
       return;
     }
-    // Validación de patrón fuerte
+    // Strong password pattern validation
     const strongPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
     if (!strongPattern.test(password)) {
       setPasswordError("Debe tener mayúscula, minúscula, número y uno de estos caracteres especiales: @$!%*?&");
@@ -163,7 +182,10 @@ export function UserDetails() {
     });
   };
 
-  // Estado
+  /**
+   * Handles enabling/disabling the user account.
+   * Shows toast and error messages as needed.
+   */
   const submitEnabled = (e) => {
     e.preventDefault();
     toggleEnabled.mutate({ id, isEnabled: !isActive }, {

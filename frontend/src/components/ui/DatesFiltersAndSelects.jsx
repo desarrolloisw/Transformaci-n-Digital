@@ -1,6 +1,22 @@
 import { useState, useEffect } from "react";
 import { chartTypes } from "../../libs/chartTypes.lib";
 
+/**
+ * DatesFiltersAndSelects component
+ *
+ * Provides a flexible filter bar with date range pickers, dynamic select dropdowns, and chart type selector.
+ * Notifies parent on changes and supports clearing of all filters.
+ *
+ * Props:
+ *   - onChange: (function) Callback called with filter values on change
+ *   - onClear: (function) Callback called when filters are cleared
+ *   - clearSignal: (any) Triggers clearing of all fields when changed
+ *   - minDate: (string) Minimum date for the date pickers
+ *   - selectsData: (array) Array of select config objects ({ label, options, value, onChange })
+ *   - chartType: (string) Current chart type value
+ *   - onChartTypeChange: (function) Callback for chart type change
+ */
+
 // Nuevo componente reutilizable para un select
 function DynamicSelect({ label, options = [], value, onChange }) {
   const hasOptions = Array.isArray(options) && options.length > 0;
@@ -34,16 +50,13 @@ export function DatesFiltersAndSelects({
   chartType,
   onChartTypeChange
 }) {
-  // Un useState para cada fecha
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
 
-  // Un useState para cada filtro select
   const [selectValues, setSelectValues] = useState(
     selectsData.map(select => select.value || "")
   );
 
-  // Limpia los campos si clearSignal cambia
   useEffect(() => {
     setFromDate("");
     setToDate("");
@@ -58,7 +71,6 @@ export function DatesFiltersAndSelects({
     // eslint-disable-next-line
   }, [clearSignal]);
 
-  // Maneja cambios y notifica al padre
   const handleChange = (type, value) => {
     if (type === "from") {
       setFromDate(value);
@@ -80,7 +92,6 @@ export function DatesFiltersAndSelects({
     }
   };
 
-  // Maneja cambios en los selects
   const handleSelectChange = (idx, value) => {
     const newSelectValues = [...selectValues];
     newSelectValues[idx] = value;

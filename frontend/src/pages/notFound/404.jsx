@@ -1,15 +1,20 @@
 import { Link } from "react-router-dom";
 
+/**
+ * Page404 component renders a custom 404 Not Found page with animated background,
+ * floating astronaut GIF, and a button to return to the home page.
+ * Includes custom CSS animations for a modern, engaging user experience.
+ */
 export function Page404() {
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-gradient-to-br from-[#00478f] via-blue-800 to-blue-900 relative overflow-hidden">
-      {/* Fondo decorativo animado */}
+      {/* Animated decorative background with blurred circles */}
       <div className="absolute inset-0 pointer-events-none z-0">
         <div className="absolute top-10 left-10 w-40 h-40 bg-[#00478f] opacity-30 rounded-full blur-2xl animate-pulse"></div>
         <div className="absolute bottom-20 right-20 w-56 h-56 bg-blue-800 opacity-20 rounded-full blur-3xl animate-ping"></div>
         <div className="absolute top-1/2 left-1/2 w-96 h-96 bg-blue-900 opacity-10 rounded-full blur-3xl animate-spin-slow"></div>
       </div>
-      {/* GIF animado con tonos azules */}
+      {/* Astronaut GIF with floating animation */}
       <img
         src="https://media.giphy.com/media/3o7aD2saalBwwftBIY/giphy.gif"
         alt="Astronauta Unison"
@@ -30,7 +35,7 @@ export function Page404() {
       >
         Volver al inicio
       </Link>
-      {/* Animaciones personalizadas */}
+      {/* Custom CSS animations for floating, spinning, and fading elements */}
       <style>
         {`
           @keyframes float {

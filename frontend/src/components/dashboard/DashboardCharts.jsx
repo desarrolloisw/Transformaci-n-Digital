@@ -1,3 +1,19 @@
+/**
+ * DashboardCharts component
+ *
+ * Renders a responsive chart (bar, pie, line, area, radar) using recharts for dashboard data visualization.
+ * Handles dynamic sizing, chart type selection, and pastel color generation for chart elements.
+ *
+ * Props:
+ *   - processName: (string|null) Optional process name to display in the chart title
+ *   - data: (array) Data array for the chart
+ *   - xKey: (string) Key for x-axis/category (default: 'name')
+ *   - barKey: (string) Key for y-axis/value (default: 'Total')
+ *   - title: (string) Chart title
+ *   - emptyMessage: (string) Message to display if no data
+ *   - chartType: (string) Type of chart to render ('bar', 'pie', 'line', 'area', 'radar')
+ */
+
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend, PieChart, Pie, Cell, LineChart, AreaChart, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from "recharts";
 import { useState, useEffect, useCallback, useRef } from "react";
 

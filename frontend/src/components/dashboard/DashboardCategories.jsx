@@ -1,3 +1,15 @@
+/**
+ * DashboardCategories component
+ *
+ * Displays a dashboard section for viewing question counts by category, with date filtering and chart type selection.
+ * Fetches and displays category count data, handles loading and error states, and shows toast notifications.
+ *
+ * Features:
+ *   - Date range filtering and chart type selection via DatesFiltersAndSelects
+ *   - Displays total questions and a chart (bar, pie, etc.) for category data
+ *   - Handles loading, error, and empty states with appropriate UI feedback
+ */
+
 import { useState, useEffect } from "react";
 import { DashboardCharts } from "./DashboardCharts";
 import { DatesFiltersAndSelects } from "../ui/DatesFiltersAndSelects";

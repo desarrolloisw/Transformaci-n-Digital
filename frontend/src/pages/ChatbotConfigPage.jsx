@@ -1,5 +1,10 @@
 import { NavLink, Outlet } from "react-router-dom";
 
+/**
+ * ChatbotConfig page provides the main configuration interface for chatbot processes and categories.
+ * Renders navigation tabs for processes and categories, and displays the selected section using Outlet.
+ * Includes responsive layout and modern UI for a clean admin experience.
+ */
 export function ChatbotConfig() {
   return (
     <div className="flex min-h-screen bg-white overflow-x-hidden">
@@ -12,6 +17,7 @@ export function ChatbotConfig() {
             Administra los procesos y categorías de tu chatbot. Aquí puedes agregar, editar o deshabilitar procesos y categorías.
           </p>
           <div className="flex flex-col items-center w-full">
+            {/* Navigation tabs for processes and categories */}
             <nav className="flex flex-wrap justify-center gap-4 mb-10 w-full max-w-2xl">
               <NavLink
                 to="processes"
@@ -36,6 +42,7 @@ export function ChatbotConfig() {
                 <span className="w-full text-center">Categorias</span>
               </NavLink>
             </nav>
+            {/* Section for rendering the selected configuration (processes or categories) */}
             <section className="mb-10 w-full">
               <Outlet />
             </section>

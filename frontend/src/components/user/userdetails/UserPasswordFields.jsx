@@ -1,3 +1,21 @@
+/**
+ * UserPasswordFields component
+ *
+ * Renders a password and confirm password input section for user forms.
+ * Includes show/hide toggles, validation, and error display.
+ *
+ * Props:
+ *   - password: (string) Current password value
+ *   - setPassword: (function) Setter for password value
+ *   - confirmPassword: (string) Current confirm password value
+ *   - setConfirmPassword: (function) Setter for confirm password value
+ *   - error: (string) Error message to display
+ *   - showPassword: (boolean) Whether to show password as plain text
+ *   - setShowPassword: (function) Setter for showPassword
+ *   - showConfirmPassword: (boolean) Whether to show confirm password as plain text
+ *   - setShowConfirmPassword: (function) Setter for showConfirmPassword
+ *   - onSubmit: (function) Form submit handler
+ */
 export default function UserPasswordFields({ password, setPassword, confirmPassword, setConfirmPassword, error, showPassword, setShowPassword, showConfirmPassword, setShowConfirmPassword, onSubmit }) {
   const canSave = password.length > 0 || confirmPassword.length > 0;
   return (

@@ -1,3 +1,16 @@
+/**
+ * Process component
+ *
+ * Displays a list of processes with search, creation modal, and toast notifications.
+ * Handles process creation, error/success feedback, and responsive card layout.
+ *
+ * Features:
+ *   - Search/filter processes
+ *   - Create new process via modal form
+ *   - Shows loading, error, and empty states
+ *   - Displays toast notifications for success/error
+ */
+
 import { NotResults } from "../notFound/NotResults.jsx";
 import { CardChatbotConfig } from "./CardChatbotConfig.jsx";
 import { getGridClass } from "../../libs/functions.lib.js";

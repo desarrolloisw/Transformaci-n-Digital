@@ -1,6 +1,12 @@
+/*
+ * Global styles for the application
+ *
+ * Includes Tailwind CSS import and custom styles for buttons and form inputs.
+ * Ensures consistent transitions, focus, and hover effects across UI elements.
+ */
 @import "tailwindcss";
 
-/* Botones globales */
+/* Global button styles */
 button, .btn-primary, .btn-secondary, .bg-blue-600, .bg-green-600, .bg-red-600, .bg-gray-200, .bg-gray-700, .bg-green-700, .bg-blue-700, .bg-red-700 {
   transition: background 0.2s, color 0.2s, box-shadow 0.2s;
   cursor: pointer;
@@ -13,7 +19,7 @@ button:active, .btn-primary:active, .btn-secondary:active {
   filter: brightness(0.85);
 }
 
-/* Inputs globales */
+/* Global input styles */
 input, select, textarea {
   transition: border 0.2s, box-shadow 0.2s;
   outline: none;

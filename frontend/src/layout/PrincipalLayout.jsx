@@ -1,3 +1,14 @@
+/**
+ * PrincipalLayout component
+ *
+ * Provides the main layout structure for the application, including:
+ * - Sidebar navigation
+ * - Top logout bar
+ * - Main content area (renders current route via <Outlet />)
+ * - Footer
+ *
+ * Ensures a responsive, full-height layout with consistent UI across all pages.
+ */
 import { Sidebar } from "../components/ui/Sidebar";
 import { LogoutBar } from "../components/ui/LogoutBar";
 import { Outlet } from "react-router-dom";

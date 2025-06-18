@@ -1,3 +1,15 @@
+/**
+ * Toast component
+ *
+ * Displays a temporary notification message (toast) with type-based styling.
+ * Supports auto-dismissal after a configurable duration and manual close.
+ *
+ * Props:
+ *   - message: (string) The message to display in the toast
+ *   - onClose: (function) Callback to close the toast
+ *   - type: (string) Toast type ('info', 'success', 'error'). Defaults to 'info'
+ *   - duration: (number) Duration in milliseconds before auto-dismissal. Defaults to 4000ms
+ */
 import { useEffect } from "react";
 
 export function Toast({ message, onClose, type = "info", duration = 4000 }) {

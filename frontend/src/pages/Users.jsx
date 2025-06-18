@@ -12,17 +12,33 @@ import { useGetUserTypes } from "../api/user.api";
 import { useQueryClient } from "@tanstack/react-query";
 import { Toast } from "../components/ui/Toast";
 
+/**
+ * Users page component for managing system users.
+ * Provides user listing, search, and user creation via modal.
+ * Handles toast notifications for user creation success/failure.
+ */
 export function Users() {
+  // State for search input value
   const [search, setSearch] = useState("");
+  // Fetches users, filtered by search if provided
   const { data: users = [], isLoading, isError } = useGetUsers(search ? { search } : {});
+  // Modal state and handlers for user creation
   const createModal = useCreateModal();
+  // Mutation for registering a new user
   const register = useRegister();
+  // React Query client for cache invalidation
   const queryClient = useQueryClient();
+  // Fetches available user types for the select field
   const { data: userTypes = [] } = useGetUserTypes();
+  // Key to force remount of CreateModal (resets form)
   const [modalKey, setModalKey] = useState(0);
+  // Toast notification state
   const [toast, setToast] = useState({ show: false, message: '', type: 'info' });
 
-  // User creation fields (match backend schema)
+  /**
+   * Fields for user creation form, matching backend schema.
+   * Includes validation rules and select options for user type.
+   */
   const userFields = [
     { name: "username", label: "Usuario", type: "text", required: true, minLength: 5, maxLength: 25, pattern: "^[a-z0-9_]+$", helper: "Solo minúsculas, números y guion bajo." },
     { name: "name", label: "Nombre", type: "text", required: true, minLength: 1, maxLength: 50 },
@@ -34,14 +50,21 @@ export function Users() {
     { name: "userTypeId", label: "Tipo de usuario", type: "select", required: true, options: userTypes.map(u => ({ value: u.id, label: u.name })) },
   ];
 
-  // Limpia el formulario del modal al cerrar o crear usuario
+  /**
+   * Handles closing the user creation modal and resets its form.
+   */
   const handleCloseModal = () => {
     createModal.handleClose();
-    setModalKey((k) => k + 1); // Cambia la key para forzar remount
+    setModalKey((k) => k + 1); // Force remount to reset form
   };
 
+  /**
+   * Handles user creation form submission.
+   * Calls register mutation and manages toast notifications and modal state.
+   * @param {Object} form - Form values from CreateModal
+   */
   const handleCreateUser = (form) => {
-    // Convert userTypeId to number
+    // Convert userTypeId to number for backend compatibility
     const payload = { ...form, userTypeId: Number(form.userTypeId) };
     register.mutate(payload, {
       onSuccess: () => {
@@ -51,7 +74,7 @@ export function Users() {
       },
       onError: (error) => {
         let msg = error.response?.data?.message || "Error al crear usuario";
-        // Si hay errores de validación de Zod, los mostramos todos
+        // Show all Zod validation errors if present
         if (error.response?.data?.errors && Array.isArray(error.response.data.errors)) {
           msg += ': ' + error.response.data.errors.map(e => e.message).join(' | ');
         }

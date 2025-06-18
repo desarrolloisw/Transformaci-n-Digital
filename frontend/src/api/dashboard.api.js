@@ -1,8 +1,22 @@
+/**
+ * Dashboard API utilities and hooks
+ *
+ * Provides React Query hooks for dashboard analytics and statistics.
+ * Handles fetching process/category counts, total questions, and log dates for dashboard visualizations.
+ *
+ * Exports:
+ *   - useGetProcessCount(params): Fetch process count data
+ *   - useGetCategoryCount(params): Fetch category count data
+ *   - useGetCategoryCountByProcess(params): Fetch category count by process
+ *   - useGetTotalQuestions(params): Fetch total questions
+ *   - useGetFirstLogDate(): Fetch the date of the first log
+ *   - useGetTotalQuestionsByProcess(params): Fetch total questions by process
+ */
 import { ENV_BACKEND_URL } from "../config/enviroments.config";
 import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
 
-// 1. Conteo de procesos
+// 1. Get process count
 export const useGetProcessCount = (params) => {
   return useQuery({
     queryKey: ["processCount", params],
@@ -11,7 +25,7 @@ export const useGetProcessCount = (params) => {
         const res = await axios.get(`${ENV_BACKEND_URL}/api/dashboard/logs/process-count`, { params });
         return res.data.data || [];
       } catch (error) {
-        throw new Error(error?.response?.data?.message || "Error al obtener el conteo de procesos");
+        throw new Error(error?.response?.data?.message || "Error fetching process count");
       }
     },
     refetchOnWindowFocus: false,
@@ -19,7 +33,7 @@ export const useGetProcessCount = (params) => {
   });
 };
 
-// 2. Conteo de categorías
+// 2. Get category count
 export const useGetCategoryCount = (params) => {
   return useQuery({
     queryKey: ["categoryCount", params],
@@ -28,7 +42,7 @@ export const useGetCategoryCount = (params) => {
         const res = await axios.get(`${ENV_BACKEND_URL}/api/dashboard/logs/category-count`, { params });
         return res.data.data || [];
       } catch (error) {
-        throw new Error(error?.response?.data?.message || "Error al obtener el conteo de categorías");
+        throw new Error(error?.response?.data?.message || "Error fetching category count");
       }
     },
     refetchOnWindowFocus: false,
@@ -36,7 +50,7 @@ export const useGetCategoryCount = (params) => {
   });
 };
 
-// 3. Conteo de categorías por proceso
+// 3. Get category count by process
 export const useGetCategoryCountByProcess = (params) => {
   return useQuery({
     queryKey: ["categoryCountByProcess", params],
@@ -45,16 +59,16 @@ export const useGetCategoryCountByProcess = (params) => {
         const res = await axios.get(`${ENV_BACKEND_URL}/api/dashboard/logs/category-count-by-process`, { params });
         return res.data.data || [];
       } catch (error) {
-        throw new Error(error?.response?.data?.message || "Error al obtener el conteo de categorías por proceso");
+        throw new Error(error?.response?.data?.message || "Error fetching category count by process");
       }
     },
-    enabled: !!params?.processId, // Solo requiere processId
+    enabled: !!params?.processId, // Only requires processId
     refetchOnWindowFocus: false,
     retry: 1,
   });
 };
 
-// 4. Total de preguntas (consultas)
+// 4. Get total questions
 export const useGetTotalQuestions = (params) => {
   return useQuery({
     queryKey: ["totalQuestions", params],
@@ -63,7 +77,7 @@ export const useGetTotalQuestions = (params) => {
         const res = await axios.get(`${ENV_BACKEND_URL}/api/dashboard/logs/total-questions`, { params });
         return res.data;
       } catch (error) {
-        throw new Error(error?.response?.data?.message || "Error al obtener el total de preguntas");
+        throw new Error(error?.response?.data?.message || "Error fetching total questions");
       }
     },
     refetchOnWindowFocus: false,
@@ -71,7 +85,7 @@ export const useGetTotalQuestions = (params) => {
   });
 };
 
-// 5. Fecha del primer log
+// 5. Get the date of the first log
 export const useGetFirstLogDate = () => {
   return useQuery({
     queryKey: ["firstLogDate"],
@@ -80,7 +94,7 @@ export const useGetFirstLogDate = () => {
         const res = await axios.get(`${ENV_BACKEND_URL}/api/dashboard/logs/first-log-date`);
         return res.data;
       } catch (error) {
-        throw new Error(error?.response?.data?.message || "Error al obtener la fecha del primer log");
+        throw new Error(error?.response?.data?.message || "Error fetching first log date");
       }
     },
     refetchOnWindowFocus: false,
@@ -88,7 +102,7 @@ export const useGetFirstLogDate = () => {
   });
 };
 
-// 6. Total de preguntas por proceso
+// 6. Get total questions by process
 export const useGetTotalQuestionsByProcess = (params) => {
   return useQuery({
     queryKey: ["totalQuestionsByProcess", params],
@@ -97,7 +111,7 @@ export const useGetTotalQuestionsByProcess = (params) => {
         const res = await axios.get(`${ENV_BACKEND_URL}/api/dashboard/logs/total-questions-by-process`, { params });
         return res.data;
       } catch (error) {
-        throw new Error(error?.response?.data?.message || "Error al obtener el total de preguntas por proceso");
+        throw new Error(error?.response?.data?.message || "Error fetching total questions by process");
       }
     },
     enabled: !!params?.processId,

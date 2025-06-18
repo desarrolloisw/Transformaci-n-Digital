@@ -1,8 +1,23 @@
+/**
+ * Process API utilities and hooks
+ *
+ * Provides React Query hooks for CRUD operations and queries related to processes.
+ * Handles fetching, creating, updating, enabling/disabling, and listing processes.
+ *
+ * Exports:
+ *   - useGetProcesses(params): Fetch all processes (optionally filtered by name or search)
+ *   - useGetProcess(id): Fetch a process by ID
+ *   - useCreateProcess(): Mutation to create a process
+ *   - useUpdateProcess(): Mutation to update a process
+ *   - useToggleProcessActive(): Mutation to enable/disable a process
+ *   - useDisableProcess(): Mutation to disable a process
+ *   - useEnableProcess(): Mutation to enable a process
+ */
 import axios from "axios";
 import { ENV_BACKEND_URL } from "../config/enviroments.config";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
-// GET: Obtener todos los procesos (con filtro opcional por nombre o búsqueda)
+// Get all processes (optionally filtered by name or search)
 export const useGetProcesses = (params = {}) => {
   return useQuery({
     queryKey: ["processes", params],
@@ -14,7 +29,7 @@ export const useGetProcesses = (params = {}) => {
   });
 };
 
-// GET: Obtener un proceso por ID
+// Get a process by ID
 export const useGetProcess = (id) => {
   return useQuery({
     queryKey: ["process", id],
@@ -27,7 +42,7 @@ export const useGetProcess = (id) => {
   });
 };
 
-// POST: Crear un proceso
+// Create a process
 export const useCreateProcess = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -41,7 +56,7 @@ export const useCreateProcess = () => {
   });
 };
 
-// PUT: Actualizar un proceso
+// Update a process
 export const useUpdateProcess = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -55,7 +70,7 @@ export const useUpdateProcess = () => {
   });
 };
 
-// PUT: Habilitar/deshabilitar un proceso
+// Enable/disable a process
 export const useToggleProcessActive = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -69,7 +84,7 @@ export const useToggleProcessActive = () => {
   });
 };
 
-// Deshabilitar proceso
+// Disable a process
 export const useDisableProcess = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -86,7 +101,7 @@ export const useDisableProcess = () => {
   });
 };
 
-// Habilitar proceso
+// Enable a process
 export const useEnableProcess = () => {
   const queryClient = useQueryClient();
   return useMutation({

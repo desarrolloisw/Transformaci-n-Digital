@@ -1,3 +1,12 @@
+/**
+ * CardUser component
+ *
+ * Displays a user profile card with avatar, name, status, creation date, and a link to user details.
+ * Handles missing user data gracefully.
+ *
+ * Props:
+ *   - user: Object containing user information (id, name, lastName, secondLastName, isActive, createdAt)
+ */
 import { Link } from "react-router-dom";
 import DefaultUserImage from "../../assets/img/default_user.png";
 

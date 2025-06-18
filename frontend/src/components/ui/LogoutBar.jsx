@@ -1,3 +1,15 @@
+/**
+ * LogoutBar component
+ *
+ * Displays a fixed top bar with user info and a dropdown for logout.
+ * Handles dropdown open/close, click outside to close, and logout navigation.
+ *
+ * Features:
+ *   - Shows current username and avatar
+ *   - Dropdown menu for logout action
+ *   - Responsive and styled for consistent UI
+ */
+
 import { useState, useRef, useEffect } from "react";
 import { HiChevronDown, HiLogout } from "react-icons/hi";
 import { logout, getUsername } from "../../api/auth.api";
@@ -9,7 +21,6 @@ export const LogoutBar = () => {
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
 
-  // Cierra el dropdown si se da clic fuera
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -23,7 +34,6 @@ export const LogoutBar = () => {
   return (
     <div className="fixed top-0 right-0 z-30 w-full flex justify-end items-center h-14 bg-[#00478f] shadow-md pr-4 md:pr-8"
       style={{ 
-        // Deja espacio si la sidebar está abierta (ajusta si usas un estado global)
         transition: "margin-left 0.3s",
       }}
     >
@@ -42,7 +52,6 @@ export const LogoutBar = () => {
           <span className="font-bold hidden sm:inline">{getUsername()}</span>
           <HiChevronDown className={`transition-transform ${open ? "rotate-180" : ""}`} size={22} />
         </button>
-        {/* Dropdown */}
         {open && (
           <div className="absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg py-2 z-50 animate-fade-in">
             <button
@@ -58,7 +67,6 @@ export const LogoutBar = () => {
           </div>
         )}
       </div>
-      {/* Animación para dropdown */}
       <style>
         {`
           @keyframes fade-in {

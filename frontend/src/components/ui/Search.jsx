@@ -1,3 +1,16 @@
+/**
+ * Search component
+ *
+ * Renders a styled search input with clear button and controlled value.
+ * Calls onChange with the updated value on input or clear.
+ *
+ * Props:
+ *   - value: (string) Initial value for the search input
+ *   - onChange: (function) Callback called with new value on change/clear
+ *   - placeholder: (string) Placeholder text for the input (default: 'Buscar...')
+ *   - className: (string) Additional CSS classes for the container
+ *   - autoFocus: (boolean) Whether to auto-focus the input on mount
+ */
 import { useState } from "react";
 
 export function Search({ value = "", onChange, placeholder = "Buscar...", className = "", autoFocus = false }) {

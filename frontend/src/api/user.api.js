@@ -1,8 +1,24 @@
+/**
+ * User API utilities and hooks
+ *
+ * Provides React Query hooks for CRUD operations and queries related to users.
+ * Handles fetching, updating, enabling/disabling users, and retrieving user types.
+ *
+ * Exports:
+ *   - useGetUsers(params): Fetch all users (optionally filtered)
+ *   - useGetUser(id): Fetch a user by ID
+ *   - useUpdateCompleteName(): Mutation to update user's full name
+ *   - useUpdateEmail(): Mutation to update user's email
+ *   - useUpdateUsername(): Mutation to update user's username
+ *   - useUpdatePassword(): Mutation to update user's password
+ *   - useToggleUserEnabled(): Mutation to enable/disable a user
+ *   - useGetUserTypes(): Fetch available user types
+ */
 import axios from "axios";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ENV_BACKEND_URL } from "../config/enviroments.config";
 
-// 1. Obtener todos los usuarios
+// Get all users
 export const useGetUsers = (params = {}) => {
   return useQuery({
     queryKey: ["users", params],
@@ -14,7 +30,7 @@ export const useGetUsers = (params = {}) => {
   });
 };
 
-// 2. Obtener usuario por ID
+// Get a user by ID
 export const useGetUser = (id) => {
   return useQuery({
     queryKey: ["user", id],
@@ -27,7 +43,7 @@ export const useGetUser = (id) => {
   });
 };
 
-// 3. Actualizar nombre completo
+// Update user's full name
 export const useUpdateCompleteName = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -41,7 +57,7 @@ export const useUpdateCompleteName = () => {
   });
 };
 
-// 4. Actualizar email
+// Update user's email
 export const useUpdateEmail = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -55,7 +71,7 @@ export const useUpdateEmail = () => {
   });
 };
 
-// 5. Actualizar username
+// Update user's username
 export const useUpdateUsername = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -69,7 +85,7 @@ export const useUpdateUsername = () => {
   });
 };
 
-// 6. Actualizar contraseña
+// Update user's password
 export const useUpdatePassword = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -83,7 +99,7 @@ export const useUpdatePassword = () => {
   });
 };
 
-// 7. Habilitar/deshabilitar usuario
+// Enable/disable a user
 export const useToggleUserEnabled = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -97,7 +113,7 @@ export const useToggleUserEnabled = () => {
   });
 };
 
-// 8. Obtener tipos de usuario
+// Get available user types
 export const useGetUserTypes = () => {
   return useQuery({
     queryKey: ["userTypes"],

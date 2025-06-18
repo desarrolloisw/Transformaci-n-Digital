@@ -2,7 +2,25 @@ import axios from "axios";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ENV_BACKEND_URL } from "../config/enviroments.config";
 
-// Decodificar JWT y extraer datos del usuario
+/**
+ * Authentication API utilities and hooks
+ *
+ * Provides functions and React Query hooks for authentication, user info, and token management.
+ * Handles JWT decoding, localStorage management, and axios token injection.
+ *
+ * Exports:
+ *   - setAuthToken(token): Stores token and user info in localStorage
+ *   - getAuthToken(): Retrieves token from localStorage
+ *   - removeAuthToken(): Removes token and role from localStorage
+ *   - getUserRole(): Gets user role from localStorage
+ *   - getUsername(): Gets username from localStorage
+ *   - getUserId(): Gets user ID from localStorage
+ *   - useLogin(): React Query mutation for login
+ *   - logout(): Removes token and user info
+ *   - useRegister(): React Query mutation for registration
+ */
+
+// Decode JWT and extract user data
 function extractUserDataFromToken(token) {
   try {
     const payload = JSON.parse(atob(token.split('.')[1]));
@@ -16,7 +34,7 @@ function extractUserDataFromToken(token) {
   }
 }
 
-// Guardar y obtener el token y rol del localStorage
+// Store and retrieve token and role from localStorage
 export const setAuthToken = (token) => {
   localStorage.setItem("token", token);
   const { id, userTypeId, username } = extractUserDataFromToken(token);
@@ -43,7 +61,7 @@ export const getUserId = () => {
   return Number(localStorage.getItem("userId")) || null;  
 }
 
-// Interceptor para agregar el token a todas las peticiones
+// Interceptor to add the token to all requests
 axios.interceptors.request.use((config) => {
   const token = getAuthToken();
   if (token) {
@@ -58,8 +76,8 @@ export const useLogin = () => {
   return useMutation({
     mutationFn: async (data) => {
       const res = await axios.post(`${ENV_BACKEND_URL}/api/auth/login`, data);
-      // El token está en res.data.user.token
-      if (res.data.user && res.data.user.token) setAuthToken(res.data.user.token); // Guardar token y extraer userTypeId
+      // The token is in res.data.user.token
+      if (res.data.user && res.data.user.token) setAuthToken(res.data.user.token); // Store token and extract userTypeId
       return res.data;
     },
     onSuccess: () => {
@@ -73,7 +91,7 @@ export const logout = () => {
   removeAuthToken();
 };
 
-// 3. Register (opcional, si tienes registro desde frontend)
+// 3. Register (optional, if you have frontend registration)
 export const useRegister = () => {
   return useMutation({
     mutationFn: async (data) => {

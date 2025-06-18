@@ -1,5 +1,13 @@
 import PropTypes from "prop-types";
 
+/**
+ * DetailsInfo component
+ *
+ * Displays detailed information for a process or category entity, including name, description, status, and timestamps.
+ *
+ * Props:
+ *   - data: (object) Entity data (expects name, description, isActive, createdAt, updatedAt)
+ */
 export function DetailsInfo({ data }) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 bg-white rounded-xl border border-blue-200 p-8 shadow-none mb-4 px-4 w-full min-w-0">

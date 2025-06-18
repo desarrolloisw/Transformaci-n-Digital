@@ -1,8 +1,26 @@
+/**
+ * Category API utilities and hooks
+ *
+ * Provides React Query hooks for CRUD operations and queries related to categories.
+ * Handles fetching, creating, updating, enabling/disabling, and listing categories by process.
+ *
+ * Exports:
+ *   - useGetCategories(params): Fetch all categories (optionally filtered by name)
+ *   - useGetCategory(id): Fetch a category by ID
+ *   - useCreateCategory(): Mutation to create a category
+ *   - useUpdateCategory(): Mutation to update a category
+ *   - useDeleteCategory(): Mutation to delete a category
+ *   - useToggleCategoryActive(): Mutation to toggle category active state
+ *   - useDisableCategory(): Mutation to disable a category
+ *   - useEnableCategory(): Mutation to enable a category
+ *   - useGetCategoriesByProcess(processId, params): Fetch categories by process
+ *   - useGetCategoriesNotInProcess(processId, params): Fetch categories not in a process
+ */
 import axios from "axios";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ENV_BACKEND_URL } from "../config/enviroments.config";
 
-// 1. Obtener todas las categorías (opcional: filtro por nombre)
+// 1. Get all categories (optional: filter by name)
 export const useGetCategories = (params = {}) => {
   return useQuery({
     queryKey: ["categories", params],
@@ -14,7 +32,7 @@ export const useGetCategories = (params = {}) => {
   });
 };
 
-// 2. Obtener una categoría por ID
+// 2. Get a category by ID
 export const useGetCategory = (id) => {
   return useQuery({
     queryKey: ["category", id],
@@ -27,7 +45,7 @@ export const useGetCategory = (id) => {
   });
 };
 
-// 3. Crear categoría
+// 3. Create category
 export const useCreateCategory = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -41,7 +59,7 @@ export const useCreateCategory = () => {
   });
 };
 
-// 4. Actualizar categoría
+// 4. Update category
 export const useUpdateCategory = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -55,7 +73,7 @@ export const useUpdateCategory = () => {
   });
 };
 
-// 5. Eliminar categoría
+// 5. Delete category
 export const useDeleteCategory = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -69,7 +87,7 @@ export const useDeleteCategory = () => {
   });
 };
 
-// 6. Activar/desactivar categoría
+// 6. Toggle category active state
 export const useToggleCategoryActive = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -83,7 +101,7 @@ export const useToggleCategoryActive = () => {
   });
 };
 
-// 6b. Deshabilitar categoría
+// 6b. Disable category
 export const useDisableCategory = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -100,7 +118,7 @@ export const useDisableCategory = () => {
   });
 };
 
-// 6c. Habilitar categoría
+// 6c. Enable category
 export const useEnableCategory = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -117,7 +135,7 @@ export const useEnableCategory = () => {
   });
 };
 
-// 7. Obtener categorías por proceso
+// 7. Get categories by process
 export const useGetCategoriesByProcess = (processId, params = {}) => {
   return useQuery({
     queryKey: ["categoriesByProcess", processId, params],
@@ -130,7 +148,7 @@ export const useGetCategoriesByProcess = (processId, params = {}) => {
   });
 };
 
-// 8. Obtener categorías que no están en un proceso (solo id y name)
+// 8. Get categories not in a process (only id and name)
 export const useGetCategoriesNotInProcess = (processId, params = {}) => {
   return useQuery({
     queryKey: ["categoriesNotInProcess", processId, params],

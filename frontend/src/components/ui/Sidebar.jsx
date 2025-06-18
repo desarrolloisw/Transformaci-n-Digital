@@ -1,3 +1,17 @@
+/**
+ * Sidebar component
+ *
+ * Renders the main navigation sidebar for the application, including:
+ * - Role-based navigation items (PAT or COORD)
+ * - Responsive open/close toggle button
+ * - Decorative logo and footer
+ *
+ * Highlights the active route and adapts its width for mobile/desktop.
+ *
+ * Uses:
+ *   - getUserRole() to determine the current user's role
+ *   - React Router's useLocation for active link highlighting
+ */
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { HiOutlineHome, HiOutlineUserGroup, HiOutlineClipboardList, HiMenu, HiX } from "react-icons/hi";
@@ -15,7 +29,7 @@ const sidebarItemsCOORD = [
 export const Sidebar = () => {
   const [open, setOpen] = useState(true);
   const location = useLocation();
-  // Mapear el userTypeId a nombre de rol
+  // Maps userTypeId to role name
   function mapRole(roleId) {
     if (roleId === "1") return "PAT";
     if (roleId === "2") return "COORD";
@@ -26,7 +40,7 @@ export const Sidebar = () => {
 
   return (
     <>
-      {/* Botón flotante para abrir/cerrar */}
+      {/* Floating open/close button */}
       <button
         className="fixed top-6 z-50 p-2 rounded-full bg-[#00478f] text-white shadow-lg transition-all duration-300 hover:cursor-pointer hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
         style={{
@@ -37,7 +51,7 @@ export const Sidebar = () => {
       >
         {open ? <HiX size={28} /> : <HiMenu size={28} />}
       </button>
-      {/* Sidebar */}
+      {/* Sidebar navigation */}
       <aside
         className={`fixed top-0 left-0 h-full z-40 bg-gradient-to-b from-[#00478f] via-blue-800 to-blue-900 shadow-2xl flex flex-col items-center transition-all duration-300
         ${open ? "w-60 md:w-64" : "w-0"} overflow-hidden`}
@@ -45,7 +59,7 @@ export const Sidebar = () => {
           minWidth: open ? "15rem" : "0",
         }}
       >
-        {/* Imagen superior */}
+        {/* Top logo */}
         <div className="w-full flex justify-center items-center py-6 bg-opacity-80">
           <img
             src="../src/assets/img/Escudo_Unison.png"
@@ -54,7 +68,7 @@ export const Sidebar = () => {
             draggable={false}
           />
         </div>
-        {/* Menú */}
+        {/* Navigation menu */}
         <ul className="flex-1 w-full px-2 space-y-2 mt-4">
           {sidebarItems.map((item, idx) => {
             const isActive =
@@ -87,12 +101,12 @@ export const Sidebar = () => {
             );
           })}
         </ul>
-        {/* Footer decorativo */}
+        {/* Decorative footer */}
         <div className="w-full py-4 flex justify-center items-end">
           <span className="text-xs text-white/70 font-mono tracking-widest">UNISON © {new Date().getFullYear()}</span>
         </div>
       </aside>
-      {/* Espaciador para el contenido */}
+      {/* Spacer for main content */}
       <div className={`${open ? "w-60 md:w-64" : "w-0"} transition-all duration-300`} />
     </>
   );

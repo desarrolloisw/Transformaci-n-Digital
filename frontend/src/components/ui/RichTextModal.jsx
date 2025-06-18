@@ -1,3 +1,20 @@
+/**
+ * RichTextModal component
+ *
+ * Modal dialog for editing and previewing rich text content using a rich text editor (CompactTiptap).
+ * Handles scroll lock, keyboard close (Esc), and content reset on open/close or initialHtml change.
+ * Provides a live preview, save/cancel actions, and responsive, modern UI.
+ *
+ * Props:
+ *   - open: (boolean) Whether the modal is open
+ *   - onClose: (function) Callback to close the modal
+ *   - onSave: (function) Callback to save the edited content
+ *   - initialHtml: (string) Initial HTML content for the editor
+ *   - readOnly: (boolean) If true, disables editing and hides save/cancel actions
+ *   - title: (string) Modal title
+ *   - loading: (boolean) If true, disables actions while saving
+ */
+
 import { useEffect, useRef, useState } from "react";
 import { CompactTiptap } from "./RichTextEditor";
 
@@ -7,14 +24,12 @@ export default function RichTextModal({ open, onClose, onSave, initialHtml = "",
   const original = useRef(initialHtml);
   const modalRef = useRef(null);
 
-  // Bloquear scroll fondo
   useEffect(() => {
     if (open) document.body.style.overflow = "hidden";
     else document.body.style.overflow = "";
     return () => { document.body.style.overflow = ""; };
   }, [open]);
 
-  // Cerrar con Esc
   useEffect(() => {
     if (!open) return;
     const handleKey = (e) => {
@@ -27,7 +42,6 @@ export default function RichTextModal({ open, onClose, onSave, initialHtml = "",
     return () => window.removeEventListener("keydown", handleKey);
   }, [open, onClose]);
 
-  // Reset content si cambia initialHtml
   useEffect(() => {
     setContent(initialHtml);
     original.current = initialHtml;
@@ -36,7 +50,6 @@ export default function RichTextModal({ open, onClose, onSave, initialHtml = "",
 
   if (!open) return null;
 
-  // Evita que el click en el fondo cierre el modal accidentalmente
   const handleBackdropClick = (e) => {
     if (e.target === e.currentTarget && onClose) {
       onClose();

@@ -1,5 +1,14 @@
 import PropTypes from "prop-types";
 
+/**
+ * CreateBtn component
+ *
+ * Renders a styled button for triggering creation actions (e.g., opening a modal).
+ *
+ * Props:
+ *   - onClick: (function) Callback to handle button click
+ *   - label: (string) Button label text (default: 'Crear')
+ */
 export function CreateBtn({ onClick, label = "Crear" }) {
   return (
     <button

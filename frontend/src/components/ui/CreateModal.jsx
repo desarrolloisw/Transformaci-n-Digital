@@ -1,12 +1,27 @@
 import PropTypes from "prop-types";
 import { useState, useEffect, useRef } from "react";
 
+/**
+ * CreateModal component
+ *
+ * Modal dialog for creating or editing entities via a dynamic form.
+ * Supports various field types (text, textarea, select, checkbox, password, number), validation, and accessibility.
+ * Handles ESC key to close, focus management, and session expiration error handling.
+ *
+ * Props:
+ *   - open: (boolean) Whether the modal is open
+ *   - onClose: (function) Callback to close the modal
+ *   - onSubmit: (function) Callback with form values on submit
+ *   - fields: (array) Array of field config objects ({ name, label, type, ... })
+ *   - title: (string) Modal title
+ *   - error: (string) Error message to display
+ */
+
 export function CreateModal({ open, onClose, onSubmit, fields, title, error }) {
   const [form, setForm] = useState({});
   const [showPassword, setShowPassword] = useState({});
   const modalRef = useRef(null);
 
-  // Close modal on ESC
   useEffect(() => {
     if (!open) return;
     const handleKeyDown = (e) => {
@@ -16,7 +31,6 @@ export function CreateModal({ open, onClose, onSubmit, fields, title, error }) {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [open, onClose]);
 
-  // Focus modal for accessibility
   useEffect(() => {
     if (open && modalRef.current) {
       modalRef.current.focus();
@@ -28,7 +42,6 @@ export function CreateModal({ open, onClose, onSubmit, fields, title, error }) {
     setForm((f) => ({ ...f, [name]: type === "checkbox" ? checked : value }));
   };
 
-  // Set default value for isActive checkbox
   useEffect(() => {
     if (open) {
       const initialForm = {};
@@ -44,7 +57,6 @@ export function CreateModal({ open, onClose, onSubmit, fields, title, error }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Coerce types: number fields to numbers, checkboxes to booleans
     const coercedForm = {};
     fields.forEach(field => {
       if (field.type === 'number') {
@@ -62,10 +74,8 @@ export function CreateModal({ open, onClose, onSubmit, fields, title, error }) {
     setShowPassword((prev) => ({ ...prev, [name]: !prev[name] }));
   };
 
-  // Show session expired message if error is 'No tienes sesión activa'
   useEffect(() => {
     if (error && error.toLowerCase().includes('no tienes sesión activa')) {
-      // Optionally, you could auto-close the modal after a delay
       const timer = setTimeout(() => {
         onClose();
       }, 2000);

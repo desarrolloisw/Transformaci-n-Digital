@@ -1,6 +1,17 @@
 import PropTypes from "prop-types";
 import { ReturnBtn } from "../../ui/ReturnBtn";
 
+/**
+ * DetailsHeader component
+ *
+ * Renders the header section for process or category details pages.
+ * Includes a return button, title, and optional error message.
+ *
+ * Props:
+ *   - type: (string) 'process' or 'category' (determines title and return path)
+ *   - error: (string) Optional error message to display
+ */
+
 export function DetailsHeader({ type, error }) {
   return (
     <div className="px-4 mb-4">

@@ -1,3 +1,11 @@
+/**
+ * Footer component
+ *
+ * Displays the application footer with UNISON copyright,
+ * repository link, and developer profile links.
+ * Includes branding, gradient background, and responsive layout.
+ */
+
 export const Footer = () => {
   return (
     <footer className="w-full bg-gradient-to-r from-[#b57714] via-[#f7c948] to-[#ffe066] py-6 shadow-inner">

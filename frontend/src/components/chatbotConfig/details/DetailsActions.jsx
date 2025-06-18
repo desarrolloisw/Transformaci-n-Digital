@@ -1,5 +1,18 @@
 import PropTypes from "prop-types";
 
+/**
+ * DetailsActions component
+ *
+ * Renders action buttons for editing, enabling, or disabling a process or category entity.
+ * Disables buttons while an action is loading.
+ *
+ * Props:
+ *   - data: (object) Entity data (expects isActive boolean)
+ *   - actionLoading: (boolean) Whether an action is in progress
+ *   - onEdit: (function) Handler for edit action
+ *   - onDisable: (function) Handler for disable action
+ *   - onEnable: (function) Handler for enable action
+ */
 export function DetailsActions({ data, actionLoading, onEdit, onDisable, onEnable }) {
   return (
     <div className="flex flex-col md:flex-row gap-2 md:gap-4 justify-end mt-4 mb-4 px-4 w-full min-w-0">

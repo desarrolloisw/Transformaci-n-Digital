@@ -1,3 +1,14 @@
+/**
+ * CardChatbotConfig component
+ *
+ * Displays a card for a chatbot configuration entity, including name, status, creation date, and a link to details.
+ * Handles missing or invalid data gracefully.
+ *
+ * Props:
+ *   - data: (object) Chatbot configuration data (expects id, name, isActive, createdAt)
+ *   - url: (string) Base URL for the details link
+ */
+
 import { Link } from "react-router-dom";
 import EscudoUnison from "../../assets/img/Escudo_Unison.png";
 
