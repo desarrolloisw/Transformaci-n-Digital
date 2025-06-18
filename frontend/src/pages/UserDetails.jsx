@@ -1,13 +1,15 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { useGetUser, useUpdateEmail, useUpdateUsername, useUpdateCompleteName, useUpdatePassword, useToggleUserEnabled, useGetUserTypes } from "../api/user.api";
+import { useGetUser, useUpdateEmail, useUpdateUsername, useUpdateCompleteName, useUpdatePassword, useToggleUserEnabled } from "../api/user.api";
 import { Toast } from "../components/ui/Toast";
 import { ReturnBtn } from "../components/ui/ReturnBtn";
+import UserInfoHeader from "../components/user/userdetails/UserInfoHeader";
+import UserFormSection from "../components/user/userdetails/UserFormSection";
+import UserPasswordFields from "../components/user/userdetails/UserPasswordFields";
 
 export function UserDetails() {
   const { id } = useParams();
   const { data: user, isLoading, isError, refetch } = useGetUser(id);
-  const { data: userTypes = [] } = useGetUserTypes();
   const updateEmail = useUpdateEmail();
   const updateUsername = useUpdateUsername();
   const updateName = useUpdateCompleteName();
@@ -22,7 +24,6 @@ export function UserDetails() {
     name: "",
     lastname: "",
     secondlastname: "",
-    userTypeId: "",
   });
   const [isActive, setIsActive] = useState(true);
   const [password, setPassword] = useState("");
@@ -43,7 +44,6 @@ export function UserDetails() {
         name: user.name || "",
         lastname: user.lastName || "",
         secondlastname: user.secondLastName || "",
-        userTypeId: user.userTypeId ? String(user.userTypeId) : "",
       });
       setIsActive(user.isActive);
     }
@@ -59,7 +59,6 @@ export function UserDetails() {
     { name: "lastname", label: "Primer apellido", type: "text", required: true, minLength: 1, maxLength: 50 },
     { name: "secondlastname", label: "Segundo apellido", type: "text", required: false, maxLength: 50 },
     { name: "email", label: "Correo institucional", type: "email", required: true, maxLength: 100, pattern: "^[a-zA-Z0-9_.+-]+@unison\\.mx$", helper: "Debe ser @unison.mx" },
-    { name: "userTypeId", label: "Tipo de usuario", type: "select", required: true, options: userTypes.map(u => ({ value: String(u.id), label: u.name })), readOnly: true },
   ];
 
   // Validaciones
@@ -130,9 +129,6 @@ export function UserDetails() {
           setToast({ show: true, message: err.response?.data?.message || "Error al actualizar nombre", type: "error" });
         }
       });
-    } else if (field === "userTypeId") {
-      // Aquí deberías tener un endpoint para actualizar el tipo de usuario
-      setToast({ show: true, message: "Actualización de tipo de usuario no implementada", type: "info" });
     }
   };
 
@@ -186,157 +182,126 @@ export function UserDetails() {
     <div className="user-details max-w-3xl mx-auto px-2 sm:px-4 py-6">
       <ReturnBtn to="/users"/>
       <h1 className="text-2xl sm:text-3xl font-bold text-[#00478f] mb-2 text-center mt-3">Detalles de Usuario</h1>
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 gap-2">
-        <div className="text-gray-600 text-sm">
-          <span className="font-semibold">Tipo de usuario:</span> {user.userType?.name || "-"}
-        </div>
-        <div className="text-gray-600 text-sm">
-          <span className="font-semibold">Creado:</span> {user.createdAt ? new Date(user.createdAt).toLocaleString("es-MX", { dateStyle: "medium", timeStyle: "short" }) : "-"}
-        </div>
-        <div className="text-gray-600 text-sm">
-          <span className="font-semibold">Actualizado:</span> {user.updatedAt ? new Date(user.updatedAt).toLocaleString("es-MX", { dateStyle: "medium", timeStyle: "short" }) : "-"}
-        </div>
-      </div>
+      <UserInfoHeader user={user} />
       <div className="flex flex-col gap-6">
-        {/* Username */}
-        <form onSubmit={handleUpdate("username")} className="bg-white rounded-xl shadow-md p-4 sm:p-6 flex flex-col gap-3 border border-blue-100">
-          <label className="font-semibold text-base sm:text-lg" htmlFor="username">Usuario</label>
-          <input
-            id="username"
-            type="text"
-            name="username"
-            value={form.username}
-            onChange={handleChange}
-            className="input w-full"
-            required minLength={5} maxLength={25} pattern="^[a-z0-9_]+$"
-            autoComplete="off"
+        <UserFormSection>
+          {/* Usuario */}
+          <div>
+            <label className="font-semibold text-sm mb-1 block">Usuario</label>
+            <input
+              name="username"
+              value={form.username}
+              onChange={handleChange}
+              className="input"
+              minLength={5}
+              maxLength={25}
+              pattern="^[a-z0-9_]+$"
+              required
+            />
+            {errors.username && <span className="text-red-500 text-xs">{errors.username}</span>}
+            <div className="flex justify-end">
+              <button
+                className="btn-primary mt-2"
+                onClick={handleUpdate("username")}
+                disabled={form.username === (user?.username || "")}
+              >
+                Guardar usuario
+              </button>
+            </div>
+          </div>
+          {/* Nombre y apellidos */}
+          <div>
+            <label className="font-semibold text-sm mb-1 block">Nombre y apellidos</label>
+            <div className="flex flex-col sm:flex-row gap-2">
+              <input
+                name="name"
+                value={form.name}
+                onChange={handleChange}
+                className="input"
+                minLength={1}
+                maxLength={50}
+                required
+                placeholder="Nombre"
+              />
+              <input
+                name="lastname"
+                value={form.lastname}
+                onChange={handleChange}
+                className="input"
+                minLength={1}
+                maxLength={50}
+                required
+                placeholder="Primer apellido"
+              />
+              <input
+                name="secondlastname"
+                value={form.secondlastname}
+                onChange={handleChange}
+                className="input"
+                maxLength={50}
+                placeholder="Segundo apellido (opcional)"
+              />
+            </div>
+            {(errors.name || errors.lastname || errors.secondlastname) && (
+              <div className="flex flex-col sm:flex-row gap-2 mt-1">
+                {errors.name && <span className="text-red-500 text-xs">{errors.name}</span>}
+                {errors.lastname && <span className="text-red-500 text-xs">{errors.lastname}</span>}
+                {errors.secondlastname && <span className="text-red-500 text-xs">{errors.secondlastname}</span>}
+              </div>
+            )}
+            <div className="flex justify-end">
+              <button
+                className="btn-primary mt-2"
+                onClick={handleUpdate("name")}
+                disabled={
+                  form.name === (user?.name || "") &&
+                  form.lastname === (user?.lastName || "") &&
+                  (form.secondlastname === (user?.secondLastName || "") || (!form.secondlastname && !user?.secondLastName))
+                }
+              >
+                Guardar nombre y apellidos
+              </button>
+            </div>
+          </div>
+          {/* Correo institucional */}
+          <div>
+            <label className="font-semibold text-sm mb-1 block">Correo institucional</label>
+            <input
+              name="email"
+              value={form.email}
+              onChange={handleChange}
+              className="input"
+              maxLength={100}
+              pattern="^[a-zA-Z0-9_.+-]+@unison\\.mx$"
+              required
+              type="email"
+            />
+            {errors.email && <span className="text-red-500 text-xs">{errors.email}</span>}
+            <div className="flex justify-end">
+              <button
+                className="btn-primary mt-2"
+                onClick={handleUpdate("email")}
+                disabled={form.email === (user?.email || "")}
+              >
+                Guardar correo
+              </button>
+            </div>
+          </div>
+        </UserFormSection>
+        <UserFormSection title="Actualizar contraseña">
+          <UserPasswordFields
+            password={password}
+            confirmPassword={confirmPassword}
+            showPassword={showPassword}
+            showConfirmPassword={showConfirmPassword}
+            setPassword={setPassword}
+            setConfirmPassword={setConfirmPassword}
+            setShowPassword={setShowPassword}
+            setShowConfirmPassword={setShowConfirmPassword}
+            passwordError={passwordError}
+            onSubmit={handlePasswordUpdate}
           />
-          <div className="text-xs text-gray-500 mt-1">Solo minúsculas, números y guion bajo.</div>
-          {errors.username && <div className="text-red-500 text-xs sm:text-sm">{errors.username}</div>}
-          <div className="flex justify-end mt-2">
-            <button type="submit" className="btn-primary" disabled={!!errors.username || form.username === (user && user.username)}>Guardar usuario</button>
-          </div>
-        </form>
-        {/* Nombre completo (name, lastname, secondlastname) */}
-        <form onSubmit={handleUpdate("name")} className="bg-white rounded-xl shadow-md p-4 sm:p-6 flex flex-col gap-3 border border-blue-100">
-          <label className="font-semibold text-base sm:text-lg">Nombre completo</label>
-          <div className="flex flex-col sm:flex-row gap-2">
-            <input
-              id="name"
-              type="text"
-              name="name"
-              value={form.name}
-              onChange={handleChange}
-              className="input flex-1"
-              required minLength={1} maxLength={50} placeholder="Nombre"
-              autoComplete="off"
-            />
-            <input
-              id="lastname"
-              type="text"
-              name="lastname"
-              value={form.lastname}
-              onChange={handleChange}
-              className="input flex-1"
-              required minLength={1} maxLength={50} placeholder="Primer apellido"
-              autoComplete="off"
-            />
-            <input
-              id="secondlastname"
-              type="text"
-              name="secondlastname"
-              value={form.secondlastname}
-              onChange={handleChange}
-              className="input flex-1"
-              maxLength={50} placeholder="Segundo apellido (opcional)"
-              autoComplete="off"
-            />
-          </div>
-          {errors.name && <div className="text-red-500 text-xs sm:text-sm">{errors.name}</div>}
-          <div className="flex justify-end mt-2">
-            <button type="submit" className="btn-primary" disabled={!!errors.name || (form.name === (user && user.name) && form.lastname === (user && user.lastName) && form.secondlastname === (user && user.secondLastName))}>Guardar nombre completo</button>
-          </div>
-        </form>
-        {/* Email */}
-        <form onSubmit={handleUpdate("email")} className="bg-white rounded-xl shadow-md p-4 sm:p-6 flex flex-col gap-3 border border-blue-100">
-          <label className="font-semibold text-base sm:text-lg" htmlFor="email">Correo institucional</label>
-          <input
-            id="email"
-            type="email"
-            name="email"
-            value={form.email}
-            onChange={handleChange}
-            className="input w-full"
-            required maxLength={100} pattern="^[a-zA-Z0-9_.+-]+@unison\\.mx$"
-            autoComplete="off"
-          />
-          <div className="text-xs text-gray-500 mt-1">Debe ser @unison.mx</div>
-          {errors.email && <div className="text-red-500 text-xs sm:text-sm">{errors.email}</div>}
-          <div className="flex justify-end mt-2">
-            <button type="submit" className="btn-primary" disabled={!!errors.email || form.email === (user && user.email)}>Guardar correo</button>
-          </div>
-        </form>
-        {/* Contraseña */}
-        <form onSubmit={handlePasswordUpdate} className="bg-white rounded-xl shadow-md p-4 sm:p-6 flex flex-col gap-3 border border-blue-100">
-          <label className="font-semibold text-base sm:text-lg">Contraseña</label>
-          <div className="relative flex-1">
-            <input
-              type={showPassword ? "text" : "password"}
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              className="input w-full pr-12"
-              minLength={8}
-              maxLength={72}
-              placeholder="Nueva contraseña"
-              autoComplete="new-password"
-              data-testid="new-password-input"
-            />
-            <button
-              type="button"
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-blue-700 font-semibold"
-              onClick={() => setShowPassword(v => !v)}
-              tabIndex={-1}
-              aria-label={showPassword ? "Ocultar contraseña" : "Ver contraseña"}
-            >
-              {showPassword ? "Ocultar" : "Ver"}
-            </button>
-          </div>
-          <div className="relative flex-1">
-            <input
-              type={showConfirmPassword ? "text" : "password"}
-              value={confirmPassword}
-              onChange={e => setConfirmPassword(e.target.value)}
-              className="input w-full pr-12"
-              minLength={8}
-              maxLength={72}
-              placeholder="Confirmar nueva contraseña"
-              autoComplete="new-password"
-              data-testid="confirm-password-input"
-            />
-            <button
-              type="button"
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-blue-700 font-semibold"
-              onClick={() => setShowConfirmPassword(v => !v)}
-              tabIndex={-1}
-              aria-label={showConfirmPassword ? "Ocultar contraseña" : "Ver contraseña"}
-            >
-              {showConfirmPassword ? "Ocultar" : "Ver"}
-            </button>
-          </div>
-          <div className="flex flex-col gap-1">
-            <span className="text-xs text-gray-500">Debe tener mayúscula, minúscula, número y uno de estos caracteres especiales: @$!%*?&</span>
-            {passwordError && <div className="text-red-500 text-xs sm:text-sm">{passwordError}</div>}
-          </div>
-          <div className="flex justify-end mt-2 gap-2">
-            <button
-              type="submit"
-              className="btn-primary"
-              data-testid="save-password-btn"
-            >
-              Guardar contraseña
-            </button>
-          </div>
-        </form>
+        </UserFormSection>
         {/* Estado */}
         <form onSubmit={submitEnabled} className="bg-white rounded-xl shadow-md p-4 sm:p-6 flex flex-col gap-3 border border-blue-100">
           <div className="flex items-center justify-between mb-2">
