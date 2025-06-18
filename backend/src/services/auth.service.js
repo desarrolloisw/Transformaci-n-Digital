@@ -1,9 +1,25 @@
+/**
+ * Authentication service
+ *
+ * Provides business logic for user registration and login, including validation, password hashing, encryption, and token generation.
+ *
+ * Exports:
+ *   - registerUserService: Register a new user
+ *   - loginUserService: Authenticate a user and return user data and token
+ */
+
 import { prisma } from "../libs/prisma.lib.js";
 import { hashPassword, comparePassword } from "../config/bcrypt.config.js";
 import { encrypt, decrypt, deterministicEncrypt } from "../config/crypto.config.js";
 import { registerSchema, loginSchema } from "../schemas/auth.schema.js";
 import { generateToken } from "../libs/jwt.lib.js";
 
+/**
+ * Register a new user with validation, password hashing, and email encryption.
+ * @param {Object} userData - User registration data
+ * @returns {Promise<Object>} The created user (without password)
+ * @throws {Error} If validation fails or user/email already exists
+ */
 export async function registerUserService(userData) {
     try {
         return await prisma.$transaction(async (tx) => {
@@ -20,7 +36,6 @@ export async function registerUserService(userData) {
                 userTypeId
             });
 
-            // Usar los valores transformados por el schema
             const encryptedEmail = deterministicEncrypt(parsedData.email);
             const existingEmail = await prisma.user.findUnique({
                 where: { email: encryptedEmail }
@@ -68,6 +83,12 @@ export async function registerUserService(userData) {
     }
 }
 
+/**
+ * Authenticate a user by identifier (email or username) and password.
+ * @param {Object} param0 - Object with identifier and password
+ * @returns {Promise<Object>} The user data and JWT token
+ * @throws {Error} If validation fails, user not found, inactive, or password incorrect
+ */
 export async function loginUserService({ identifier, password }) {
     try {
         // Validar el esquema de login

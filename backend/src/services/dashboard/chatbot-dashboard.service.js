@@ -1,9 +1,26 @@
+/**
+ * Chatbot Dashboard service
+ *
+ * Provides business logic for analytics and statistics in the chatbot dashboard, including log queries, counts by process/category, and date/time conversion utilities.
+ *
+ * Exports:
+ *   - getFirstLogDate: Get the earliest log date for 'Consultar' action
+ *   - getProcessCount: Get the number of questions per process
+ *   - getCategoryCount: Get the number of questions per category
+ *   - getCategoryCountByProcess: Get the number of questions per category for a specific process
+ *   - getTotalQuestions: Get the total number of questions
+ *   - getTotalQuestionsByProcess: Get the total number of questions for a specific process
+ */
+
 import { prisma } from '../../libs/prisma.lib.js';
 
-// Cache para guardar el id de la acción "Consultar" y evitar consultas repetidas a la base de datos
 let consultarActionTypeIdCache = undefined;
 
-// Obtiene el id de la acción "Consultar" desde la base de datos y lo cachea para futuras consultas
+/**
+ * Get the id of the 'Consultar' action type, using cache for efficiency.
+ * @returns {Promise<number>} The action type id
+ * @throws {Error} If the action type does not exist
+ */
 async function getConsultarActionTypeId() {
   if (consultarActionTypeIdCache !== undefined) return consultarActionTypeIdCache;
   const action = await prisma.actionType.findUnique({
@@ -15,7 +32,11 @@ async function getConsultarActionTypeId() {
   return action.id;
 }
 
-// Construye el filtro de fechas para las consultas a la base de datos, usando los parámetros 'from' y 'to'
+/**
+ * Build a date filter for database queries using 'from' and 'to' parameters.
+ * @param {Object} param0 - Object with from and to fields
+ * @returns {Object} Where clause for Prisma
+ */
 function buildDateWhere({ from, to }) {
   const where = {};
   if (from && to) {
@@ -28,25 +49,27 @@ function buildDateWhere({ from, to }) {
   return where;
 }
 
-// Convierte una fecha/hora local de Hermosillo (YYYY-MM-DDTHH:mm) a UTC para almacenar/consultar en la base de datos
+/**
+ * Convert a Hermosillo local datetime string (YYYY-MM-DDTHH:mm) to UTC Date object.
+ * @param {string} dateStr - Local datetime string
+ * @returns {Date|undefined} UTC Date object or undefined
+ */
 function hermosilloToUTC(dateStr) {
   if (!dateStr) return undefined;
-  // Hermosillo está en UTC-7, sin horario de verano
-  // Entrada: 'YYYY-MM-DDTHH:mm' o cadena ISO en hora local de Hermosillo
-  // Salida: Objeto Date en UTC
-  // Se usa aritmética de fechas para evitar problemas con horario de verano
   const [datePart, timePart] = dateStr.split('T');
   if (!datePart || !timePart) return undefined;
   const [year, month, day] = datePart.split('-').map(Number);
   const [hour, minute] = timePart.split(':').map(Number);
-  // Crea la fecha en hora local de Hermosillo y suma 7 horas para obtener UTC
   const hermosilloDate = new Date(Date.UTC(year, month - 1, day, hour, minute));
-  // Suma 7 horas para convertir de Hermosillo (UTC-7) a UTC
   hermosilloDate.setUTCHours(hermosilloDate.getUTCHours() + 7);
   return hermosilloDate;
 }
 
-// Convierte un rango de fechas de Hermosillo a UTC para usarse en los filtros de la base de datos
+/**
+ * Convert a date range from Hermosillo local time to UTC.
+ * @param {Object} param0 - Object with from and to fields
+ * @returns {Object} Object with from and to as UTC Date objects
+ */
 function convertRangeToUTC({ from, to }) {
   return {
     from: hermosilloToUTC(from),
@@ -54,8 +77,10 @@ function convertRangeToUTC({ from, to }) {
   };
 }
 
-// API: Obtiene la fecha del primer log de tipo "Consultar"
-// Devuelve la fecha del primer registro donde se realizó la acción "Consultar"
+/**
+ * Get the earliest log date for the 'Consultar' action.
+ * @returns {Promise<Date|null>} The earliest log date or null
+ */
 export async function getFirstLogDate() {
   const consultarId = await getConsultarActionTypeId();
   const firstLog = await prisma.processCategoryLog.findFirst({
@@ -66,29 +91,26 @@ export async function getFirstLogDate() {
   return firstLog ? firstLog.createdAt : null;
 }
 
-// API: Obtiene la cantidad de preguntas por proceso
-// Devuelve un arreglo con todos los procesos y la cantidad de preguntas (consultas) asociadas a cada uno, incluyendo los que tienen cero
+/**
+ * Get the number of questions per process.
+ * @param {Object} param0 - Object with from and to fields
+ * @returns {Promise<Array>} Array of process counts
+ */
 export async function getProcessCount({ from, to }) {
   ({ from, to } = convertRangeToUTC({ from, to }));
   const consultarId = await getConsultarActionTypeId();
-  // Traer todos los procesos
-  const processes = await prisma.process.findMany({
-    select: { id: true, name: true },
-  });
-  // Traer todos los logs agrupados por processCategoryId
+  const processes = await prisma.process.findMany({ select: { id: true, name: true } });
   const where = { ...buildDateWhere({ from, to }), actionTypeId: consultarId };
   const logs = await prisma.processCategoryLog.groupBy({
     by: ['processCategoryId'],
     where,
     _count: { _all: true },
   });
-  // Traer los processId de cada processCategory
   const processCategories = await prisma.processCategory.findMany({
     where: { id: { in: logs.map(r => r.processCategoryId) } },
     select: { id: true, processId: true },
   });
   const processIdMap = Object.fromEntries(processCategories.map(pc => [pc.id, pc.processId]));
-  // Agrupar por processId
   const processCounts = {};
   for (const r of logs) {
     const processId = processIdMap[r.processCategoryId];
@@ -96,7 +118,6 @@ export async function getProcessCount({ from, to }) {
     if (!processCounts[processId]) processCounts[processId] = 0;
     processCounts[processId] += r._count._all;
   }
-  // Armar respuesta: todos los procesos, aunque tengan 0
   return processes.map(proc => ({
     processId: proc.id,
     processName: proc.name,
@@ -104,29 +125,26 @@ export async function getProcessCount({ from, to }) {
   }));
 }
 
-// API: Obtiene la cantidad de preguntas por categoría
-// Devuelve un arreglo con todas las categorías y la cantidad de preguntas (consultas) asociadas a cada una, incluyendo las que tienen cero
+/**
+ * Get the number of questions per category.
+ * @param {Object} param0 - Object with from and to fields
+ * @returns {Promise<Array>} Array of category counts
+ */
 export async function getCategoryCount({ from, to }) {
   ({ from, to } = convertRangeToUTC({ from, to }));
   const consultarId = await getConsultarActionTypeId();
-  // Traer todas las categorías
-  const categories = await prisma.category.findMany({
-    select: { id: true, name: true },
-  });
-  // Traer todos los logs agrupados por processCategoryId
+  const categories = await prisma.category.findMany({ select: { id: true, name: true } });
   const where = { ...buildDateWhere({ from, to }), actionTypeId: consultarId };
   const logs = await prisma.processCategoryLog.groupBy({
     by: ['processCategoryId'],
     where,
     _count: { _all: true },
   });
-  // Traer los categoryId de cada processCategory
   const processCategories = await prisma.processCategory.findMany({
     where: { id: { in: logs.map(r => r.processCategoryId) } },
     select: { id: true, categoryId: true },
   });
   const categoryIdMap = Object.fromEntries(processCategories.map(pc => [pc.id, pc.categoryId]));
-  // Agrupar por categoryId
   const categoryCounts = {};
   for (const r of logs) {
     const categoryId = categoryIdMap[r.processCategoryId];
@@ -134,7 +152,6 @@ export async function getCategoryCount({ from, to }) {
     if (!categoryCounts[categoryId]) categoryCounts[categoryId] = 0;
     categoryCounts[categoryId] += r._count._all;
   }
-  // Armar respuesta: todas las categorías, aunque tengan 0
   return categories.map(cat => ({
     categoryId: cat.id,
     categoryName: cat.name,
@@ -142,31 +159,30 @@ export async function getCategoryCount({ from, to }) {
   }));
 }
 
-// API: Obtiene la cantidad de preguntas por categoría de un proceso específico
-// Devuelve un arreglo con todas las categorías de un proceso y la cantidad de preguntas asociadas a cada una, incluyendo las que tienen cero
+/**
+ * Get the number of questions per category for a specific process.
+ * @param {Object} param0 - Object with from, to, and processId fields
+ * @returns {Promise<Array>} Array of category counts for the process
+ */
 export async function getCategoryCountByProcess({ from, to, processId }) {
   ({ from, to } = convertRangeToUTC({ from, to }));
   const consultarId = await getConsultarActionTypeId();
-  // Buscar processCategoryIds de ese proceso y sus categorías
   const processCategories = await prisma.processCategory.findMany({
     where: { processId: Number(processId) },
     select: { id: true, categoryId: true },
   });
   const processCategoryIds = processCategories.map(pc => pc.id);
   const categoryIdMap = Object.fromEntries(processCategories.map(pc => [pc.id, pc.categoryId]));
-  // Traer todas las categorías de ese proceso
   const categories = await prisma.category.findMany({
     where: { id: { in: processCategories.map(pc => pc.categoryId) } },
     select: { id: true, name: true },
   });
-  // Traer logs agrupados por processCategoryId
   const where = { ...buildDateWhere({ from, to }), actionTypeId: consultarId, processCategoryId: { in: processCategoryIds } };
   const logs = await prisma.processCategoryLog.groupBy({
     by: ['processCategoryId'],
     where,
     _count: { _all: true },
   });
-  // Agrupar por categoryId
   const categoryCounts = {};
   for (const r of logs) {
     const categoryId = categoryIdMap[r.processCategoryId];
@@ -174,7 +190,6 @@ export async function getCategoryCountByProcess({ from, to, processId }) {
     if (!categoryCounts[categoryId]) categoryCounts[categoryId] = 0;
     categoryCounts[categoryId] += r._count._all;
   }
-  // Armar respuesta: todas las categorías del proceso, aunque tengan 0
   return categories.map(cat => ({
     categoryId: cat.id,
     categoryName: cat.name,
@@ -182,8 +197,11 @@ export async function getCategoryCountByProcess({ from, to, processId }) {
   }));
 }
 
-// API: Obtiene el total de preguntas (consultas) realizadas
-// Devuelve el número total de preguntas (consultas) realizadas en el rango de fechas especificado
+/**
+ * Get the total number of questions (consultas) in the specified date range.
+ * @param {Object} param0 - Object with from and to fields
+ * @returns {Promise<number>} Total number of questions
+ */
 export async function getTotalQuestions({ from, to }) {
   ({ from, to } = convertRangeToUTC({ from, to }));
   const consultarId = await getConsultarActionTypeId();
@@ -192,7 +210,11 @@ export async function getTotalQuestions({ from, to }) {
   return count;
 }
 
-// API: Obtiene el total de preguntas (consultas) realizadas por proceso
+/**
+ * Get the total number of questions (consultas) for a specific process in the specified date range.
+ * @param {Object} param0 - Object with from, to, and processId fields
+ * @returns {Promise<number>} Total number of questions for the process
+ */
 export async function getTotalQuestionsByProcess({ from, to, processId }) {
   ({ from, to } = convertRangeToUTC({ from, to }));
   const consultarId = await getConsultarActionTypeId();

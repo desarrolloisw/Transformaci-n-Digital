@@ -1,3 +1,14 @@
+/**
+ * Process validation schemas
+ *
+ * Provides Zod schemas for validating process creation, update, and confirmation data for chatbot configuration.
+ *
+ * Exports:
+ *   - processSchema: Validates data for creating a new process
+ *   - processUpdateSchema: Validates data for updating a process
+ *   - processConfirmationSchema: Validates process confirmation and status data
+ */
+
 import { z } from 'zod';
 
 export const processSchema = z.object({

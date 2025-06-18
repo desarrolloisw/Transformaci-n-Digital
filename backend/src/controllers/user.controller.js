@@ -1,3 +1,19 @@
+/**
+ * User controller
+ *
+ * Handles user management requests, including retrieval, updates, enabling/disabling, and user type queries. Delegates business logic to the user service layer.
+ *
+ * Exports:
+ *   - getAllUsers: Retrieve all users
+ *   - getUser: Retrieve a user by ID
+ *   - updateEmailController: Update a user's email
+ *   - updateUsernameController: Update a user's username
+ *   - updateCompleteNameController: Update a user's full name
+ *   - updatePasswordController: Update a user's password
+ *   - disabledEnabledUserController: Enable or disable a user
+ *   - getUserTypesController: Retrieve all user types
+ */
+
 import {
     getUsers,
     getUserById,
@@ -9,7 +25,11 @@ import {
     getUserTypes
 } from "../services/user.service.js";
 
-// Obtener todos los usuarios
+/**
+ * Retrieve all users.
+ * @param {Request} req
+ * @param {Response} res
+ */
 export async function getAllUsers(req, res) {
     try {
         await getUsers(req, res);
@@ -22,7 +42,11 @@ export async function getAllUsers(req, res) {
     }
 }
 
-// Obtener usuario por ID
+/**
+ * Retrieve a user by ID.
+ * @param {Request} req
+ * @param {Response} res
+ */
 export async function getUser(req, res) {
     try {
         await getUserById(req, res);
@@ -35,7 +59,11 @@ export async function getUser(req, res) {
     }
 }
 
-// Actualizar email
+/**
+ * Update a user's email.
+ * @param {Request} req
+ * @param {Response} res
+ */
 export async function updateEmailController(req, res) {
     try {
         await updateEmail(req, res);
@@ -48,7 +76,11 @@ export async function updateEmailController(req, res) {
     }
 }
 
-// Actualizar username
+/**
+ * Update a user's username.
+ * @param {Request} req
+ * @param {Response} res
+ */
 export async function updateUsernameController(req, res) {
     try {
         await updateUsername(req, res);
@@ -61,7 +93,11 @@ export async function updateUsernameController(req, res) {
     }
 }
 
-// Actualizar nombre completo
+/**
+ * Update a user's full name.
+ * @param {Request} req
+ * @param {Response} res
+ */
 export async function updateCompleteNameController(req, res) {
     try {
         await updateCompleteName(req, res);
@@ -74,7 +110,11 @@ export async function updateCompleteNameController(req, res) {
     }
 }
 
-// Actualizar contraseña
+/**
+ * Update a user's password.
+ * @param {Request} req
+ * @param {Response} res
+ */
 export async function updatePasswordController(req, res) {
     try {
         await updatePassword(req, res);
@@ -87,7 +127,11 @@ export async function updatePasswordController(req, res) {
     }
 }
 
-// Habilitar/deshabilitar usuario
+/**
+ * Enable or disable a user.
+ * @param {Request} req
+ * @param {Response} res
+ */
 export async function disabledEnabledUserController(req, res) {
     try {
         await disabledEnabledUser(req, res);
@@ -100,7 +144,11 @@ export async function disabledEnabledUserController(req, res) {
     }
 }
 
-// Obtener todos los tipos de usuario
+/**
+ * Retrieve all user types.
+ * @param {Request} req
+ * @param {Response} res
+ */
 export async function getUserTypesController(req, res) {
     try {
         const userTypes = await getUserTypes();

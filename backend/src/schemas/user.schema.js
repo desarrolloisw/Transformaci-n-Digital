@@ -1,3 +1,16 @@
+/**
+ * User validation schemas
+ *
+ * Provides Zod schemas for validating user update operations, including email, username, name, password, and enabled/disabled state.
+ *
+ * Exports:
+ *   - updateEmailSchema: Validates email updates
+ *   - updateUsernameSchema: Validates username updates
+ *   - updateCompleteNameSchema: Validates name and lastname updates
+ *   - updatePasswordSchema: Validates password updates and confirmation
+ *   - disabledEnabledUserSchema: Validates enabled/disabled state
+ */
+
 import { z } from 'zod';
 
 export const updateEmailSchema = z.object({

@@ -1,7 +1,25 @@
+/**
+ * Process controller
+ *
+ * Handles process management requests for the chatbot configuration, including retrieval, creation, update, and activation. Delegates business logic to the process service layer.
+ *
+ * Exports:
+ *   - getAllProcesses: Retrieve all processes (with optional search)
+ *   - getProcess: Retrieve a process by ID
+ *   - createProcessController: Create a new process
+ *   - updateProcessController: Update a process by ID
+ *   - toggleProcessActiveController: Enable or disable a process
+ */
+
 import { getProcesses, getProcessById, createProcess, updateProcess, disableProcess, enableProcess } from '../../services/chatbot-config/process.service.js';
 import { processSchema, processUpdateSchema } from '../../schemas/chatbot-config/process.schema.js';
 import { processConfirmationSchema } from '../../schemas/chatbot-config/process.schema.js';
 
+/**
+ * Retrieve all processes, optionally filtered by search query.
+ * @param {Request} req
+ * @param {Response} res
+ */
 export async function getAllProcesses(req, res) {
   try {
     const { search } = req.query;
@@ -12,6 +30,11 @@ export async function getAllProcesses(req, res) {
   }
 }
 
+/**
+ * Retrieve a process by ID.
+ * @param {Request} req
+ * @param {Response} res
+ */
 export async function getProcess(req, res) {
   try {
     const process = await getProcessById(req.params.id);
@@ -21,11 +44,15 @@ export async function getProcess(req, res) {
   }
 }
 
+/**
+ * Create a new process.
+ * @param {Request} req
+ * @param {Response} res
+ */
 export async function createProcessController(req, res) {
   try {
     const parse = processSchema.safeParse(req.body);
     if (!parse.success) {
-      // Si la validación falla aquí, devolver todos los issues
       return res.status(400).json({
         message: "Datos de proceso inválidos",
         errors: parse.error.issues
@@ -34,7 +61,6 @@ export async function createProcessController(req, res) {
     const process = await createProcess(parse.data);
     res.status(201).json(processConfirmationSchema.parse(process));
   } catch (error) {
-    // Si el error tiene detalles de validación, devolverlos igual que en login
     if (error.validation) {
       return res.status(400).json({
         message: "Datos de proceso inválidos",
@@ -54,6 +80,11 @@ export async function createProcessController(req, res) {
   }
 }
 
+/**
+ * Update a process by ID.
+ * @param {Request} req
+ * @param {Response} res
+ */
 export async function updateProcessController(req, res) {
   const parse = processUpdateSchema.safeParse(req.body);
   if (!parse.success) {
@@ -62,7 +93,6 @@ export async function updateProcessController(req, res) {
   try {
     const processId = req.params.id;
     const current = await getProcessById(processId);
-    // Solo comparar y actualizar si hay cambios
     let hasChanges = false;
     if (parse.data.name !== undefined && parse.data.name !== current.name) hasChanges = true;
     if (parse.data.description !== undefined && parse.data.description !== current.description) hasChanges = true;
@@ -77,6 +107,11 @@ export async function updateProcessController(req, res) {
   }
 }
 
+/**
+ * Enable or disable a process and its FAQs.
+ * @param {Request} req
+ * @param {Response} res
+ */
 export async function toggleProcessActiveController(req, res) {
   try {
     const userId = req.user?.id;

@@ -1,3 +1,14 @@
+/**
+ * Category validation schemas
+ *
+ * Provides Zod schemas for validating category creation, update, and confirmation data for chatbot configuration.
+ *
+ * Exports:
+ *   - createCategorySchema: Validates data for creating a new category
+ *   - updateCategorySchema: Validates data for updating a category
+ *   - categoryConfirmationSchema: Validates category confirmation and status data
+ */
+
 import { optional, z } from 'zod';
 
 export const createCategorySchema = z.object({

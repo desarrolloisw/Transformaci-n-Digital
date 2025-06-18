@@ -1,3 +1,16 @@
+/**
+ * Process management routes
+ *
+ * This file defines the API endpoints for managing chatbot processes, including CRUD operations and toggling active state.
+ *
+ * Routes:
+ *   GET    /                - Get all processes (admin or any authorized user)
+ *   GET    /:id             - Get a process by ID (admin only)
+ *   POST   /                - Create a new process (admin only)
+ *   PUT    /:id             - Update a process by ID (admin only)
+ *   PUT    /:id/toggle-active - Toggle active state of a process (admin only)
+ */
+
 import { Router } from 'express';
 import { getAllProcesses, getProcess, createProcessController, updateProcessController, toggleProcessActiveController } from '../../controllers/chatbot-config/process.controller.js';
 import { authenticateToken, isAny, isPAT } from '../../middlewares/auth.middleware.js';

@@ -1,3 +1,18 @@
+/**
+ * Express application setup
+ *
+ * This file configures the Express backend server, including middleware, static file serving, and API routes.
+ *
+ * Features:
+ * - Sets up logging, CORS, cookie parsing, and body parsing middleware
+ * - Serves static files from the public directory
+ * - Registers all API routes for authentication, chatbot, users, categories, FAQs, and dashboard
+ * - Serves the frontend app for all unmatched routes
+ *
+ * Exports:
+ *   - app: The configured Express application instance
+ */
+
 import express from 'express';
 import morgan from 'morgan';
 import cors from 'cors';
@@ -14,66 +29,52 @@ import faqRoutes from '../routes/chatbot-config/faq.routes.js';
 import dashboardRoutes from '../routes/dashboard/chatbot-dashboard.routes.js';
 import { fileURLToPath } from 'url';
 
-// Configuración del servidor Express
 const app = express();
 
-// Configurando Morgan para el logging de peticiones HTTP
+// HTTP request logging middleware
 app.use(morgan('dev'));
 
-// Configurando cookie parser para manejar cookies
+// Cookie parsing middleware
 app.use(cookieParser());
 
-// Configurando CORS para permitir solicitudes desde cualquier origen
+// CORS configuration to allow all origins and credentials
 const corsOptions = {
-    origin: '*', // Permitir cualquier origen
+    origin: '*',
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     optionSucessStatus: 200
 };
-
-// Middleware para manejar CORS
 app.use(cors(corsOptions));
 
-// Configurando body parser para manejar datos JSON y URL-encoded
+// Parse incoming JSON requests
 app.use(bodyParser.json());
-
-// Middleware para manejar datos URL-encoded
+// Parse URL-encoded data
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Sirve archivos estáticos desde el directorio 'public'
+// Serve static files from the public directory (for assets, images, etc.)
 app.use(express.static(path.resolve(import.meta.dirname, '..', '..', 'public')));
 
-// Configurando las rutas de autenticación
+// Register API routes
 app.use('/api/auth', authRoutes);
-// Configurando las rutas del chatbot estático
 app.use('/api/chatbot', staticChatbotRoutes);
-// Configurando las rutas del chatbot dinámico
 app.use('/api/chatbot', dinamicChatbotRoutes);
-// Configurando las rutas de usuario
 app.use('/api/users', userRoutes);
-// Configurando las rutas de procesos del chatbot
 app.use('/api/processes', processRoutes);
-// Configurando las rutas de categorías
 app.use('/api/categories', categoryRoutes);
-// Configurando las rutas de FAQs
 app.use('/api/faqs', faqRoutes);
-// Rutas del dashboard de logs de consultas
 app.use('/api/dashboard', dashboardRoutes);
 
-// Obtener el nombre del archivo actual
+// Get current file and directory name (for static file serving)
 const __filename = fileURLToPath(import.meta.url);
-
-// Obtener el directorio del archivo actual
 const __dirname = path.dirname(__filename);
 
-// Configurando la carpeta estática para servir archivos estáticos
+// Serve static files from the public directory (for frontend build)
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Configurando para que cualquier ruta redirija al archivo HTML principal
+// Fallback route: serve frontend index.html for all unmatched routes
 app.get(/.*/, (req, res) => {
    return res.sendFile(path.join(path.resolve(), "public", "index.html"));
 });
 
-// Exportar la aplicación para su uso en otros módulos
 export default app;

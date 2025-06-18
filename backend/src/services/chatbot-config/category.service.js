@@ -1,7 +1,29 @@
+/**
+ * Category Service
+ *
+ * Provides business logic for managing chatbot categories, including retrieval, creation, update, enabling/disabling, and process-category relationships. Handles validation and date formatting.
+ *
+ * Exports:
+ *   - getCategories: Retrieve all categories (with optional search)
+ *   - getCategoriesByProcess: Retrieve all categories for a process (with optional name filter)
+ *   - getCategoriesNotInProcess: Retrieve all categories not associated with a process
+ *   - getCategoryById: Retrieve a category by ID
+ *   - createCategory: Create a new category
+ *   - updateCategory: Update an existing category
+ *   - disableCategory: Disable a category and its related FAQs
+ *   - enableCategory: Enable a category and its related FAQs (if process is active)
+ */
+
 import { prisma } from "../../libs/prisma.lib.js";
 import { createCategorySchema, updateCategorySchema, categoryConfirmationSchema } from "../../schemas/chatbot-config/category.schema.js";
 import { formatDates } from "../../libs/date.lib.js";
 
+/**
+ * Retrieve all categories, optionally filtered by search query.
+ * @param {Object} [options] - Optional search parameters.
+ * @param {string} [options.search] - Search string to filter categories by name or description.
+ * @returns {Promise<Array>} List of categories with formatted dates.
+ */
 export async function getCategories({ search } = {}) {
     let where = {};
     if (search && search.trim() !== "") {
@@ -21,22 +43,33 @@ export async function getCategories({ search } = {}) {
     }).then(categories => categories.map(formatDates));
 }
 
-// Obtener todas las categorías de un proceso, con búsqueda opcional por nombre
+/**
+ * Retrieve all categories associated with a process, with optional name filtering.
+ * Returns the active/inactive state of the process-category relationship.
+ * @param {number|string} processId - The process ID.
+ * @param {Object} [options] - Optional filter parameters.
+ * @param {string} [options.name] - Name filter for categories.
+ * @returns {Promise<Array>} List of categories with isActive state.
+ */
 export async function getCategoriesByProcess(processId, { name } = {}) {
     const where = { processId: Number(processId) };
     const processCategories = await prisma.processCategory.findMany({
         where,
         select: { category: { select: { id: true, name: true, description: true } }, isActive: true },
     });
-    // Filter by name if provided
     const filtered = name
       ? processCategories.filter(pc => pc.category.name.toLowerCase().includes(name.toLowerCase()))
       : processCategories;
-    // Devuelve el estado activo/inactivo de la relación processCategory
     return filtered.map(pc => ({ ...pc.category, isActive: pc.isActive }));
 }
 
-// Obtener todas las categorias que no tiene un proceso
+/**
+ * Retrieve all categories that are not associated with a given process.
+ * @param {number|string} processId - The process ID.
+ * @param {Object} [options] - Optional filter parameters.
+ * @param {string} [options.name] - Name filter for categories.
+ * @returns {Promise<Array>} List of categories not in the process.
+ */
 export async function getCategoriesNotInProcess(processId, { name } = {}) {
     const where = { isActive: true };
     if (name && name.trim() !== "") {
@@ -46,16 +79,20 @@ export async function getCategoriesNotInProcess(processId, { name } = {}) {
         where,
         select: { id: true, name: true },
     });
-    // Filtrar categorías que no están en el proceso
     const processCategories = await prisma.processCategory.findMany({
         where: { processId: Number(processId) },
         select: { categoryId: true }
     });
-
     const excludedCategoryIds = new Set(processCategories.map(pc => pc.categoryId));
     return categories.filter(cat => !excludedCategoryIds.has(cat.id));
 }
 
+/**
+ * Retrieve a single category by its ID.
+ * @param {number|string} categoryId - The category ID.
+ * @returns {Promise<Object>} The category object with formatted dates.
+ * @throws {Error} If the category is not found (message in Spanish).
+ */
 export async function getCategoryById(categoryId) {
     const cat = await prisma.category.findUnique({
         where: { id: Number(categoryId) },
@@ -65,6 +102,12 @@ export async function getCategoryById(categoryId) {
     return formatDates(cat);
 }
 
+/**
+ * Create a new category. Validates input using Zod schema.
+ * @param {Object} data - Category data.
+ * @returns {Promise<Object>} The created category, validated and formatted.
+ * @throws {Error} If validation fails (message in Spanish).
+ */
 export async function createCategory(data) {
     const parse = createCategorySchema.safeParse(data);
     if (!parse.success) {
@@ -72,7 +115,6 @@ export async function createCategory(data) {
         error.validation = parse.error.flatten().fieldErrors;
         throw error;
     }
-    // Usar transacción para crear categoría
     const result = await prisma.$transaction(async (tx) => {
         const category = await tx.category.create({
             data: {
@@ -87,6 +129,13 @@ export async function createCategory(data) {
     return categoryConfirmationSchema.parse(formatDates(result));
 }
 
+/**
+ * Update an existing category. Validates input and only updates changed fields.
+ * @param {number|string} categoryId - The category ID.
+ * @param {Object} data - Updated category data.
+ * @returns {Promise<Object>} The updated category, validated and formatted.
+ * @throws {Error} If validation fails or category not found (messages in Spanish).
+ */
 export async function updateCategory(categoryId, data) {
     const parse = updateCategorySchema.safeParse(data);
     if (!parse.success) {
@@ -94,7 +143,6 @@ export async function updateCategory(categoryId, data) {
         error.validation = parse.error.flatten().fieldErrors;
         throw error;
     }
-    // Usar transacción para actualizar categoría
     return await prisma.$transaction(async (tx) => {
         const current = await tx.category.findUnique({ where: { id: Number(categoryId) } });
         if (!current) throw new Error("Categoría no encontrada");
@@ -108,6 +156,12 @@ export async function updateCategory(categoryId, data) {
     });
 }
 
+/**
+ * Disable a category and all its active process-category relationships. Logs the action.
+ * @param {number|string} categoryId - The category ID.
+ * @param {number|string} userId - The user performing the action.
+ * @returns {Promise<Object>} The disabled category and affected FAQ IDs.
+ */
 export async function disableCategory(categoryId, userId) {
     return await prisma.$transaction(async (tx) => {
         const category = await tx.category.update({
@@ -132,6 +186,12 @@ export async function disableCategory(categoryId, userId) {
     });
 }
 
+/**
+ * Enable a category and all its inactive process-category relationships, only if the process is active. Logs the action.
+ * @param {number|string} categoryId - The category ID.
+ * @param {number|string} userId - The user performing the action.
+ * @returns {Promise<Object>} The enabled category and affected FAQ IDs.
+ */
 export async function enableCategory(categoryId, userId) {
     return await prisma.$transaction(async (tx) => {
         const category = await tx.category.update({

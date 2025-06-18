@@ -1,3 +1,17 @@
+/**
+ * Chatbot Dashboard controller
+ *
+ * Handles analytics and statistics requests for the chatbot dashboard. Validates query parameters and delegates business logic to the dashboard service layer.
+ *
+ * Exports:
+ *   - getFirstLogDateCtrl: Get the earliest log date
+ *   - getProcessCountCtrl: Get the number of questions per process
+ *   - getCategoryCountCtrl: Get the number of questions per category
+ *   - getCategoryCountByProcessCtrl: Get the number of questions per category for a specific process
+ *   - getTotalQuestionsCtrl: Get the total number of questions
+ *   - getTotalQuestionsByProcessCtrl: Get the total number of questions for a specific process
+ */
+
 import {
   getFirstLogDate,
   getProcessCount,
@@ -9,14 +23,23 @@ import {
 import { dateRangeSchema, processIdSchema } from '../../schemas/dashboard/chatbot-dashboard.schema.js';
 import { ZodError } from 'zod';
 
+/**
+ * Parse date range from query parameters using Zod schema.
+ * @param {Object} query
+ * @returns {Object} Parsed date range
+ */
 function parseDateRangeQuery(query) {
-  // Permite recibir from/to por querystring (opcional)
   return dateRangeSchema.parse({
     from: query.from,
     to: query.to,
   });
 }
 
+/**
+ * Parse process ID and date range from query parameters using Zod schema.
+ * @param {Object} query
+ * @returns {Object} Parsed processId and date range
+ */
 function parseProcessIdQuery(query) {
   return processIdSchema.parse({
     from: query.from,
@@ -25,11 +48,22 @@ function parseProcessIdQuery(query) {
   });
 }
 
+/**
+ * Get the earliest log date for the dashboard.
+ * @param {Request} req
+ * @param {Response} res
+ */
 export async function getFirstLogDateCtrl(req, res) {
   const date = await getFirstLogDate();
   res.json({ firstLogDate: date });
 }
 
+/**
+ * Get the number of questions per process.
+ * @param {Request} req
+ * @param {Response} res
+ * @param {Function} next
+ */
 export async function getProcessCountCtrl(req, res, next) {
   try {
     const { from, to } = parseDateRangeQuery(req.query);
@@ -43,6 +77,12 @@ export async function getProcessCountCtrl(req, res, next) {
   }
 }
 
+/**
+ * Get the number of questions per category.
+ * @param {Request} req
+ * @param {Response} res
+ * @param {Function} next
+ */
 export async function getCategoryCountCtrl(req, res, next) {
   try {
     const { from, to } = parseDateRangeQuery(req.query);
@@ -56,6 +96,12 @@ export async function getCategoryCountCtrl(req, res, next) {
   }
 }
 
+/**
+ * Get the number of questions per category for a specific process.
+ * @param {Request} req
+ * @param {Response} res
+ * @param {Function} next
+ */
 export async function getCategoryCountByProcessCtrl(req, res, next) {
   try {
     const { from, to, processId } = parseProcessIdQuery(req.query);
@@ -69,6 +115,12 @@ export async function getCategoryCountByProcessCtrl(req, res, next) {
   }
 }
 
+/**
+ * Get the total number of questions.
+ * @param {Request} req
+ * @param {Response} res
+ * @param {Function} next
+ */
 export async function getTotalQuestionsCtrl(req, res, next) {
   try {
     const { from, to } = parseDateRangeQuery(req.query);
@@ -82,6 +134,12 @@ export async function getTotalQuestionsCtrl(req, res, next) {
   }
 }
 
+/**
+ * Get the total number of questions for a specific process.
+ * @param {Request} req
+ * @param {Response} res
+ * @param {Function} next
+ */
 export async function getTotalQuestionsByProcessCtrl(req, res, next) {
   try {
     const { from, to, processId } = parseProcessIdQuery(req.query);

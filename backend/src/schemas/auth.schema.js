@@ -1,5 +1,20 @@
+/**
+ * Authentication validation schemas
+ *
+ * Provides Zod schemas for validating registration and login data, including custom validation rules for user fields.
+ *
+ * Exports:
+ *   - registerSchema: Validates registration data for new users
+ *   - loginSchema: Validates login data for user authentication
+ */
+
 import { z } from 'zod';
 
+/**
+ * Schema for user registration validation.
+ * Validates username, name, lastname, secondlastname, email, password, confirmPassword, and userTypeId fields.
+ * Ensures passwords match and email/username are in correct format.
+ */
 export const registerSchema = z.object({
   username: z.string({ required_error: 'Nombre de Usuario es requerido.' })
     .min(5, "El nombre de usuario debe tener al menos 5 caracteres.")
@@ -38,6 +53,11 @@ export const registerSchema = z.object({
   }
 });
 
+/**
+ * Schema for user login validation.
+ * Validates identifier (email or username) and password fields.
+ * Includes custom rules for UNISON email and username format.
+ */
 export const loginSchema = z.object({
   identifier: z.string({ required_error: 'Email o username es requerido.' })
     .min(3, "El email o username debe tener al menos 3 caracteres.")
@@ -47,7 +67,7 @@ export const loginSchema = z.object({
     .max(72, "La contraseña no debe sobrepasar los 72 caracteres."),
 }).superRefine((data, ctx) => {
   if (data.identifier.includes('@')) {
-    // Es correo: debe ser válido de la UNISON y máximo 100 caracteres
+    // Email: must be a valid UNISON email and max 100 characters
     if (!/^([a-zA-Z0-9_.+-])+@unison\.mx$/.test(data.identifier)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
@@ -64,7 +84,7 @@ export const loginSchema = z.object({
       });
     }
   } else {
-    // Es username: solo minúsculas, números y guion bajo, y máximo 25 caracteres
+    // Username: only lowercase, numbers, underscore, max 25 characters
     if (!/^[a-z0-9_]+$/.test(data.identifier)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,

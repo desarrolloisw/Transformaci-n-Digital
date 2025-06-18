@@ -1,3 +1,12 @@
+/**
+ * Dynamic Chatbot message validation schema
+ *
+ * Provides a Zod schema for validating messages sent to the dynamic chatbot endpoint.
+ *
+ * Exports:
+ *   - dinamicChatbotMessageSchema: Validates message and optional history for dynamic chatbot requests
+ */
+
 import { z } from 'zod';
 
 export const dinamicChatbotMessageSchema = z.object({

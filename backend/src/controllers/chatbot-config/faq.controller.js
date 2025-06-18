@@ -1,3 +1,15 @@
+/**
+ * FAQ controller
+ *
+ * Handles FAQ management requests for the chatbot configuration, including creation, retrieval, response update, and active state toggling. Delegates business logic to the FAQ service layer.
+ *
+ * Exports:
+ *   - createFaqController: Create a new FAQ
+ *   - getFaqByProcessAndCategoryController: Retrieve FAQ by process and category
+ *   - updateFaqResponseController: Update FAQ response
+ *   - toggleFaqActiveController: Enable or disable a FAQ
+ */
+
 import {
   createFaq,
   getFaqByProcessAndCategory,
@@ -11,7 +23,11 @@ import {
   faqConfirmationSchema
 } from '../../schemas/chatbot-config/faq.schema.js';
 
-// Crear FAQ
+/**
+ * Create a new FAQ.
+ * @param {Request} req
+ * @param {Response} res
+ */
 export async function createFaqController(req, res) {
   try {
     const parse = createFaqSchema.safeParse(req.body);
@@ -34,7 +50,11 @@ export async function createFaqController(req, res) {
   }
 }
 
-// Obtener FAQ por proceso y categoría
+/**
+ * Retrieve FAQ by process and category.
+ * @param {Request} req
+ * @param {Response} res
+ */
 export async function getFaqByProcessAndCategoryController(req, res) {
   try {
     const processId = Number(req.query.processId);
@@ -53,7 +73,11 @@ export async function getFaqByProcessAndCategoryController(req, res) {
   }
 }
 
-// Modificar respuesta de FAQ
+/**
+ * Update FAQ response.
+ * @param {Request} req
+ * @param {Response} res
+ */
 export async function updateFaqResponseController(req, res) {
   try {
     const parse = updateFaqResponseSchema.safeParse(req.body);
@@ -79,7 +103,11 @@ export async function updateFaqResponseController(req, res) {
   }
 }
 
-// Toogle FAQ activa/inactiva
+/**
+ * Enable or disable a FAQ.
+ * @param {Request} req
+ * @param {Response} res
+ */
 export async function toggleFaqActiveController(req, res) {
   try {
     const parse = toggleFaqActiveSchema.safeParse(req.body);

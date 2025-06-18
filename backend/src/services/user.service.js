@@ -1,13 +1,33 @@
+/**
+ * User service
+ *
+ * Provides business logic for user management, including retrieval, updates, enabling/disabling, and user type queries. Handles validation, encryption, and date formatting.
+ *
+ * Exports:
+ *   - getUsers: Retrieve all users (with optional search)
+ *   - getUserById: Retrieve a user by ID
+ *   - updateEmail: Update a user's email
+ *   - updateUsername: Update a user's username
+ *   - updateCompleteName: Update a user's full name
+ *   - updatePassword: Update a user's password
+ *   - disabledEnabledUser: Enable or disable a user
+ *   - getUserTypes: Retrieve all user types
+ */
+
 import { prisma } from '../libs/prisma.lib.js';
 import { hashPassword } from '../config/bcrypt.config.js';
 import { decrypt, deterministicEncrypt } from '../config/crypto.config.js';
 import { updateEmailSchema, updateUsernameSchema, updatePasswordSchema, updateCompleteNameSchema, disabledEnabledUserSchema } from '../schemas/user.schema.js';
 import { toHermosillo } from '../libs/date.lib.js';
 
+/**
+ * Retrieve all users, optionally filtered by search query.
+ * @param {Request} req
+ * @param {Response} res
+ */
 export const getUsers = async (req, res) => {
     try {
         const { search } = req.query;
-        // Construir filtro de búsqueda si hay search
         let where = {};
         if (search && search.trim() !== "") {
             const words = search.trim().split(/\s+/);
@@ -39,7 +59,6 @@ export const getUsers = async (req, res) => {
                 isActive: true,
             }
         });
-        // Convertir fechas a Hermosillo
         const usersWithLocalTime = users.map(u => ({
             ...u,
             createdAt: toHermosillo(u.createdAt),
@@ -52,6 +71,11 @@ export const getUsers = async (req, res) => {
     }
 }
 
+/**
+ * Retrieve a user by ID.
+ * @param {Request} req
+ * @param {Response} res
+ */
 export async function getUserById(req, res) {
     const { id } = req.params;
     if (!id) {
@@ -87,7 +111,6 @@ export async function getUserById(req, res) {
         if (!user) {
             return res.status(404).json({ message: 'Usuario no encontrado' });
         }
-        // Convertir fechas a Hermosillo
         user.createdAt = toHermosillo(user.createdAt);
         user.updatedAt = toHermosillo(user.updatedAt);
         return res.status(200).json(user);
@@ -97,6 +120,11 @@ export async function getUserById(req, res) {
     }
 }
 
+/**
+ * Update a user's email.
+ * @param {Request} req
+ * @param {Response} res
+ */
 export const updateEmail = async (req, res) => {
     const { id } = req.params;
     const userId = parseInt(id, 10);
@@ -110,7 +138,6 @@ export const updateEmail = async (req, res) => {
     }
     const { email } = parse.data;
     try {
-        // Verificar si el email ya es igual al actual
         const user = await prisma.user.findUnique({ where: { id: userId } });
         if (!user) throw new Error('Usuario no encontrado');
         const encryptedEmail = deterministicEncrypt(email);
@@ -123,7 +150,6 @@ export const updateEmail = async (req, res) => {
             const updatedUser = await tx.user.update({ where: { id: userId }, data: { email: encryptedEmail } });
             return updatedUser;
         });
-        // Si el usuario edita su propio email, hacer logout
         let logout = false;
         if (currentUserId === userId) {
             logout = true;
@@ -145,6 +171,11 @@ export const updateEmail = async (req, res) => {
     }
 };
 
+/**
+ * Update a user's username.
+ * @param {Request} req
+ * @param {Response} res
+ */
 export const updateUsername = async (req, res) => {
     const { id } = req.params;
     const userId = parseInt(id, 10);
@@ -158,7 +189,6 @@ export const updateUsername = async (req, res) => {
     }
     const { username } = parse.data;
     try {
-        // Verificar si el username ya es igual al actual
         const user = await prisma.user.findUnique({ where: { id: userId } });
         if (!user) throw new Error('Usuario no encontrado');
         if (user.username === username) {
@@ -170,7 +200,6 @@ export const updateUsername = async (req, res) => {
             const updatedUser = await tx.user.update({ where: { id: userId }, data: { username } });
             return updatedUser;
         });
-        // Si el usuario edita su propio username, hacer logout
         let logout = false;
         if (currentUserId === userId) {
             logout = true;
@@ -192,6 +221,11 @@ export const updateUsername = async (req, res) => {
     }
 };
 
+/**
+ * Update a user's full name.
+ * @param {Request} req
+ * @param {Response} res
+ */
 export const updateCompleteName = async (req, res) => {
     const { id } = req.params;
     const userId = parseInt(id, 10);
@@ -214,7 +248,6 @@ export const updateCompleteName = async (req, res) => {
         if (allEqual) {
             return res.status(200).json({ message: 'El nombre completo ya es el mismo que el actual.' });
         }
-        // Solo actualizar los campos enviados
         const updateData = {};
         if (name !== undefined) updateData.name = name;
         if (lastName !== undefined) updateData.lastName = lastName;
@@ -239,6 +272,11 @@ export const updateCompleteName = async (req, res) => {
     }
 };
 
+/**
+ * Update a user's password.
+ * @param {Request} req
+ * @param {Response} res
+ */
 export const updatePassword = async (req, res) => {
     const { id } = req.params;
     const userId = parseInt(id, 10);
@@ -252,7 +290,6 @@ export const updatePassword = async (req, res) => {
     }
     const { newPassword } = parse.data;
     try {
-        // Ya no se verifica si la contraseña es igual a la anterior
         const user = await prisma.user.findUnique({ where: { id: userId } });
         if (!user) throw new Error('Usuario no encontrado');
         const result = await prisma.$transaction(async (tx) => {
@@ -260,7 +297,6 @@ export const updatePassword = async (req, res) => {
             const updatedUser = await tx.user.update({ where: { id: userId }, data: { password: hashedPassword } });
             return updatedUser;
         });
-        // Si el usuario edita su propio password, hacer logout
         let logout = false;
         if (currentUserId === userId) {
             logout = true;
@@ -282,6 +318,11 @@ export const updatePassword = async (req, res) => {
     }
 };
 
+/**
+ * Enable or disable a user.
+ * @param {Request} req
+ * @param {Response} res
+ */
 export const disabledEnabledUser = async (req, res) => {
     const { id } = req.params;
     const userId = parseInt(id, 10);
@@ -289,7 +330,6 @@ export const disabledEnabledUser = async (req, res) => {
     if (!id || isNaN(userId) || userId <= 0) {
         return res.status(400).json({ message: 'ID de usuario inválido' });
     }
-    // No permitir que un usuario se deshabilite a sí mismo
     if (currentUserId === userId) {
         return res.status(403).json({ message: 'No puedes deshabilitar tu propia cuenta.' });
     }
@@ -299,7 +339,6 @@ export const disabledEnabledUser = async (req, res) => {
     }
     const { isEnabled } = parse.data;
     try {
-        // Verificar si el estado ya es igual al actual
         const user = await prisma.user.findUnique({ where: { id: userId } });
         if (!user) throw new Error('Usuario no encontrado');
         if (user.isActive === isEnabled) {
@@ -326,6 +365,10 @@ export const disabledEnabledUser = async (req, res) => {
     }
 };
 
+/**
+ * Retrieve all user types.
+ * @returns {Promise<Array>} List of user types
+ */
 export async function getUserTypes() {
     try {
         const userTypes = await prisma.userType.findMany({

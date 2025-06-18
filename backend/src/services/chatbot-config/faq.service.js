@@ -1,3 +1,15 @@
+/**
+ * FAQ Service
+ *
+ * Provides business logic for managing FAQs (ProcessCategory) in the chatbot configuration, including creation, retrieval, update, and activation/deactivation. Handles validation and date formatting.
+ *
+ * Exports:
+ *   - createFaq: Create a new FAQ for a process and category
+ *   - getFaqByProcessAndCategory: Retrieve a FAQ by process and category
+ *   - updateFaqResponse: Update the response of a FAQ
+ *   - toggleFaqActive: Enable or disable a FAQ
+ */
+
 import { prisma } from "../../libs/prisma.lib.js";
 import { toHermosillo } from "../../libs/date.lib.js";
 import {
@@ -7,6 +19,11 @@ import {
   faqConfirmationSchema
 } from "../../schemas/chatbot-config/faq.schema.js";
 
+/**
+ * Format FAQ date fields to Hermosillo timezone.
+ * @param {Object} faq - The FAQ object.
+ * @returns {Object} FAQ object with formatted dates.
+ */
 function formatFaqDates(faq) {
   return {
     ...faq,
@@ -15,9 +32,18 @@ function formatFaqDates(faq) {
   };
 }
 
-// Crear una FAQ (ProcessCategory)
+/**
+ * Create a new FAQ (ProcessCategory).
+ * Validates input, checks for existence, and logs the creation action.
+ * @param {Object} params - FAQ creation parameters.
+ * @param {number|string} params.processId - Process ID.
+ * @param {number|string} params.categoryId - Category ID.
+ * @param {number|string} params.userId - User ID.
+ * @param {string} params.response - FAQ response text.
+ * @returns {Promise<Object>} The created FAQ, validated and formatted.
+ * @throws {Error} If validation fails or FAQ already exists (messages in Spanish).
+ */
 export async function createFaq({ processId, categoryId, userId, response }) {
-    // Doble validación
     const parse = createFaqSchema.safeParse({ processId, categoryId, response });
     if (!parse.success) {
         const error = new Error('Datos inválidos para crear FAQ');
@@ -25,11 +51,9 @@ export async function createFaq({ processId, categoryId, userId, response }) {
         throw error;
     }
     if (!userId) throw new Error('userId es requerido');
-    // Validaciones básicas
     if (!processId || !categoryId || !userId || typeof response !== 'string' || !response.trim()) {
         throw new Error('Todos los campos son obligatorios y response debe ser texto.');
     }
-    // Usar transacción para crear y loguear
     return await prisma.$transaction(async (tx) => {
         const process = await tx.process.findUnique({ where: { id: Number(processId), isActive: true } });
         if (!process) throw new Error('Proceso no encontrado o inactivo');
@@ -60,7 +84,13 @@ export async function createFaq({ processId, categoryId, userId, response }) {
     });
 }
 
-// Obtener una FAQ por proceso y categoría
+/**
+ * Retrieve a FAQ by process and category IDs.
+ * @param {number|string} processId - Process ID.
+ * @param {number|string} categoryId - Category ID.
+ * @returns {Promise<Object>} The FAQ object, validated and formatted.
+ * @throws {Error} If not found (message in Spanish).
+ */
 export async function getFaqByProcessAndCategory(processId, categoryId) {
     if (!processId || !categoryId) throw new Error('processId y categoryId requeridos');
     const faq = await prisma.processCategory.findUnique({
@@ -71,9 +101,18 @@ export async function getFaqByProcessAndCategory(processId, categoryId) {
     return faqConfirmationSchema.parse(formatFaqDates(faq));
 }
 
-// Modificar la respuesta de una FAQ
+/**
+ * Update the response text of a FAQ.
+ * Validates input, checks for changes, and logs the update action.
+ * @param {Object} params - FAQ update parameters.
+ * @param {number|string} params.processId - Process ID.
+ * @param {number|string} params.categoryId - Category ID.
+ * @param {number|string} params.userId - User ID.
+ * @param {string} params.response - New response text.
+ * @returns {Promise<Object>} The updated FAQ, validated and formatted.
+ * @throws {Error} If validation fails or FAQ not found (messages in Spanish).
+ */
 export async function updateFaqResponse({ processId, categoryId, userId, response }) {
-    // Doble validación
     const parse = updateFaqResponseSchema.safeParse({ processId, categoryId, response });
     if (!parse.success) {
         const error = new Error('Datos inválidos para actualizar FAQ');
@@ -106,9 +145,18 @@ export async function updateFaqResponse({ processId, categoryId, userId, respons
     });
 }
 
-// Toogle FAQ (activar/desactivar)
+/**
+ * Enable or disable a FAQ (activate/deactivate).
+ * Validates input, checks for state, and logs the action.
+ * @param {Object} params - Toggle parameters.
+ * @param {number|string} params.processId - Process ID.
+ * @param {number|string} params.categoryId - Category ID.
+ * @param {number|string} params.userId - User ID.
+ * @param {boolean} params.isActive - Desired active state.
+ * @returns {Promise<Object>} The updated FAQ, validated and formatted.
+ * @throws {Error} If validation fails or FAQ not found (messages in Spanish).
+ */
 export async function toggleFaqActive({ processId, categoryId, userId, isActive }) {
-    // Doble validación
     const parse = toggleFaqActiveSchema.safeParse({ processId, categoryId, isActive });
     if (!parse.success) {
         const error = new Error('Datos inválidos para toogle FAQ');

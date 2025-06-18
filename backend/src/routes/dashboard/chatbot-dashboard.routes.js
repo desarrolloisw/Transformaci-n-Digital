@@ -1,3 +1,17 @@
+/**
+ * Chatbot Dashboard routes
+ *
+ * This file defines the API endpoints for retrieving chatbot dashboard analytics and statistics.
+ *
+ * Routes:
+ *   GET /logs/first-log-date            - Get the earliest log date (for filtering)
+ *   GET /logs/process-count             - Get the number of questions per process
+ *   GET /logs/category-count            - Get the number of questions per category
+ *   GET /logs/category-count-by-process - Get the number of questions per category for a specific process (requires processId)
+ *   GET /logs/total-questions           - Get the total number of questions
+ *   GET /logs/total-questions-by-process- Get the total number of questions for a specific process (requires processId)
+ */
+
 import { Router } from "express";
 import {
   getFirstLogDateCtrl,
@@ -11,17 +25,11 @@ import { authenticateToken, isAny } from '../../middlewares/auth.middleware.js';
 
 const router = Router();
 
-// Fecha mínima del filtro
 router.get('/logs/first-log-date', authenticateToken, isAny, getFirstLogDateCtrl);
-// Cantidad de preguntas por proceso
 router.get('/logs/process-count', authenticateToken, isAny, getProcessCountCtrl);
-// Cantidad de preguntas por categoría
 router.get('/logs/category-count', authenticateToken, isAny, getCategoryCountCtrl);
-// Cantidad de preguntas por categoría de un proceso (processId obligatorio)
 router.get('/logs/category-count-by-process', authenticateToken, isAny, getCategoryCountByProcessCtrl);
-// Total de preguntas
 router.get('/logs/total-questions', authenticateToken, isAny, getTotalQuestionsCtrl);
-// Total de preguntas de un proceso (processId obligatorio)
 router.get('/logs/total-questions-by-process', authenticateToken, isAny, getTotalQuestionsByProcessCtrl);
 
 export default router;

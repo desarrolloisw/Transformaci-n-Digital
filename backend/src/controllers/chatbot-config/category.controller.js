@@ -1,6 +1,27 @@
+/**
+ * Category controller
+ *
+ * Handles category management requests for the chatbot configuration, including retrieval, creation, update, deletion, activation, and process-based queries. Delegates business logic to the category service layer.
+ *
+ * Exports:
+ *   - getAllCategories: Retrieve all categories (with optional search)
+ *   - getCategory: Retrieve a category by ID
+ *   - createCategoryController: Create a new category
+ *   - updateCategoryController: Update a category by ID
+ *   - deleteCategoryController: Delete a category by ID
+ *   - toggleCategoryActiveController: Enable or disable a category
+ *   - getCategoriesByProcessController: Retrieve categories for a process
+ *   - getCategoriesNotInProcessController: Retrieve categories not in a process
+ */
+
 import { getCategories, getCategoryById, createCategory, updateCategory, disableCategory, enableCategory, getCategoriesByProcess, getCategoriesNotInProcess } from '../../services/chatbot-config/category.service.js';
 import { createCategorySchema, updateCategorySchema, categoryConfirmationSchema } from '../../schemas/chatbot-config/category.schema.js';
 
+/**
+ * Retrieve all categories, optionally filtered by search query.
+ * @param {Request} req
+ * @param {Response} res
+ */
 export async function getAllCategories(req, res) {
   try {
     const { search } = req.query;
@@ -11,6 +32,11 @@ export async function getAllCategories(req, res) {
   }
 }
 
+/**
+ * Retrieve a category by ID.
+ * @param {Request} req
+ * @param {Response} res
+ */
 export async function getCategory(req, res) {
   try {
     const category = await getCategoryById(req.params.id);
@@ -20,6 +46,11 @@ export async function getCategory(req, res) {
   }
 }
 
+/**
+ * Create a new category.
+ * @param {Request} req
+ * @param {Response} res
+ */
 export async function createCategoryController(req, res) {
   try {
     const parse = createCategorySchema.safeParse(req.body);
@@ -48,6 +79,11 @@ export async function createCategoryController(req, res) {
   }
 }
 
+/**
+ * Update a category by ID.
+ * @param {Request} req
+ * @param {Response} res
+ */
 export async function updateCategoryController(req, res) {
   try {
     const parse = updateCategorySchema.safeParse(req.body);
@@ -79,6 +115,11 @@ export async function updateCategoryController(req, res) {
   }
 }
 
+/**
+ * Delete a category by ID.
+ * @param {Request} req
+ * @param {Response} res
+ */
 export async function deleteCategoryController(req, res) {
   try {
     const deleted = await deleteCategory(req.params.id);
@@ -88,6 +129,11 @@ export async function deleteCategoryController(req, res) {
   }
 }
 
+/**
+ * Enable or disable a category and its FAQs.
+ * @param {Request} req
+ * @param {Response} res
+ */
 export async function toggleCategoryActiveController(req, res) {
   try {
     const userId = req.user?.id;
@@ -109,7 +155,11 @@ export async function toggleCategoryActiveController(req, res) {
   }
 }
 
-// Obtener todas las categorías de un proceso
+/**
+ * Retrieve all categories for a process.
+ * @param {Request} req
+ * @param {Response} res
+ */
 export async function getCategoriesByProcessController(req, res) {
   try {
     const processId = Number(req.params.processId);
@@ -122,7 +172,11 @@ export async function getCategoriesByProcessController(req, res) {
   }
 }
 
-// Obtener todas las categorías que NO tiene un proceso
+/**
+ * Retrieve all categories not in a process.
+ * @param {Request} req
+ * @param {Response} res
+ */
 export async function getCategoriesNotInProcessController(req, res) {
   try {
     const processId = Number(req.params.processId);

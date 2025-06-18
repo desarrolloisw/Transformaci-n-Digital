@@ -1,3 +1,15 @@
+/**
+ * FAQ validation schemas
+ *
+ * Provides Zod schemas for validating FAQ creation, response update, active state toggling, and confirmation data for chatbot configuration.
+ *
+ * Exports:
+ *   - createFaqSchema: Validates data for creating a new FAQ
+ *   - updateFaqResponseSchema: Validates data for updating FAQ response
+ *   - toggleFaqActiveSchema: Validates data for toggling FAQ active state
+ *   - faqConfirmationSchema: Validates FAQ confirmation and status data
+ */
+
 import { z } from "zod";
 
 export const createFaqSchema = z.object({
