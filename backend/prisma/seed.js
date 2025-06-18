@@ -3,9 +3,16 @@ import { deterministicEncrypt } from '../src/config/crypto.config.js';
 import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
+/**
+ * Seed the database with initial data for user types, admin user, processes, categories, action types, and FAQs.
+ * This script uses upsert to ensure idempotency.
+ * User-facing messages remain in Spanish.
+ */
 async function main() {
     await prisma.$transaction(async (tx) => {
-        // Upsert tipos de usuario
+        /**
+         * Upsert user types
+         */
         const [patType, coordType] = await Promise.all([
             tx.userType.upsert({
                 where: { name: 'Personal Académico Tecnico' },
@@ -19,7 +26,9 @@ async function main() {
             })
         ]);
 
-        // Upsert usuario admin
+        /**
+         * Upsert admin user
+         */
         const adminUser = await tx.user.upsert({
             where: { username: 'admin' },
             update: {},
@@ -34,7 +43,9 @@ async function main() {
             }
         });
 
-        // Upsert procesos
+        /**
+         * Upsert processes
+         */
         const [servicioSocial, practicas] = await Promise.all([
             tx.process.upsert({
                 where: { name: 'Servicio Social' },
@@ -56,7 +67,9 @@ async function main() {
             })
         ]);
 
-        // Upsert categorías
+        /**
+         * Upsert categories
+         */
         const categoriesData = [
             { name: 'Información general', description: 'Descripción del proceso.' },
             { name: 'Requisitos', description: 'Requisitos necesarios.' },
@@ -79,7 +92,9 @@ async function main() {
             );
         }
 
-        // Upsert tipos de acción
+        /**
+         * Upsert action types
+         */
         const actionTypes = [
             { name: 'Crear' },
             { name: 'Actualizar' },
@@ -97,7 +112,9 @@ async function main() {
             });
         }
 
-        // Respuestas para Servicio Social y Prácticas Profesionales
+        /**
+         * FAQ responses for each process and category
+         */
         const servicioSocialRespuestas = {
             'Información general': `<p><b>Descripción:</b><br>El Servicio Social Universitario (SSU) es un espacio educativo de vinculación insertado en los planes de estudio, de carácter obligatorio y temporal, que realizan los estudiantes de la Universidad de Sonora como parte de su formación profesional en beneficio de la comunidad y en estrecha relación con la problemática que plantea el desarrollo social. Este servicio forma parte de las funciones de extensión universitaria, permitiendo al estudiante vincular su formación teórico-práctica a una problemática social concreta, con el fin de coadyuvar en su atención y solución.</p>`,
             'Requisitos': `<b>Requisitos para iniciar el Servicio Social Universitario:</b><ol><li>Cubrir el 70% de los créditos previstos en el plan de estudios correspondiente.</li><li>Asistir a la plática de inducción organizada en su programa académico o división respectiva, como requisito para su inscripción al servicio social.</li><li>Elegir un programa permanente o proyecto de servicio social previamente aprobado por el Comité Institucional de Servicio Social Universitario (CISSU) y solicitar su registro con el responsable del programa o proyecto.</li><li>Iniciar el servicio social a partir de la fecha establecida en el programa o proyecto, además de realizar los trámites correspondientes ante el Coordinador Divisional o Responsable de Servicio Social del programa educativo.</li></ol>`,
@@ -116,7 +133,9 @@ async function main() {
             'Contacto con coordinador': `<b>Contacto con coordinador:</b><br>M.A.P.E. María Julia León Bazán<br>Coordinadora de prácticas profesionales del programa educativo<br>Licenciatura de Cultura Física y Deporte<br><a href="mailto:julia.leon@unison.mx">julia.leon@unison.mx</a><br>Ext. 4646`
         };
 
-        // Upsert FAQs (ProcessCategory)
+        /**
+         * Upsert FAQs (ProcessCategory) for each process and category
+         */
         for (const category of categories) {
             await tx.processCategory.upsert({
                 where: {
