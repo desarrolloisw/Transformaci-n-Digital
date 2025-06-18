@@ -15,9 +15,14 @@ export function CompactTiptap({ initialValue, onChange }) {
   const formattedContent = isPlainText
     ? initialValue
         .split(/\n{2,}/)
-        .map(paragraph =>
-          `<p>${paragraph.replace(/\n/g, '<br>')}</p>`
-        )
+        .map(paragraph => {
+          // Si termina con salto de línea, genera <p> vacía después del último <br>
+          if (/\n$/.test(paragraph)) {
+            const trimmed = paragraph.replace(/\n+$/, '');
+            return `<p>${trimmed.replace(/\n/g, '<br>')}</p><p></p>`;
+          }
+          return `<p>${paragraph.replace(/\n/g, '<br>')}</p>`;
+        })
         .join('')
     : initialValue || '';
 

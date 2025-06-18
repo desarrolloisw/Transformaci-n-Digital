@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { optional, z } from 'zod';
 
 export const createCategorySchema = z.object({
   userId: z.number({ required_error: 'userId is required', invalid_type_error: 'userId must be a number' }),
@@ -25,9 +25,9 @@ export const categoryConfirmationSchema = z.object({
     id: z.number(),
     name: z.string(),
     description: z.string(),
-    isActive: z.boolean(),
-    createdAt: z.any(),
-    updatedAt: z.any(),
+    isActive: z.boolean().optional(),
+    createdAt: z.any().optional(),
+    updatedAt: z.any().optional(),
     disabledFaqs: z.array(z.number()).optional(),
     enabledFaqs: z.array(z.number()).optional(),
     alreadyInactive: z.boolean().optional(),

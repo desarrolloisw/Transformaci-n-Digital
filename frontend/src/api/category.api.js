@@ -122,6 +122,7 @@ export const useGetCategoriesByProcess = (processId, params = {}) => {
   return useQuery({
     queryKey: ["categoriesByProcess", processId, params],
     queryFn: async () => {
+      console.log("Fetching categories for process:", processId, "with params:", params);
       const res = await axios.get(`${ENV_BACKEND_URL}/api/categories/by-process/${processId}`, { params });
       return res.data;
     },
@@ -130,12 +131,12 @@ export const useGetCategoriesByProcess = (processId, params = {}) => {
   });
 };
 
-// 8. Obtener categorías que no están en un proceso
-export const useGetCategoriesNotInProcess = (processId) => {
+// 8. Obtener categorías que no están en un proceso (solo id y name)
+export const useGetCategoriesNotInProcess = (processId, params = {}) => {
   return useQuery({
-    queryKey: ["categoriesNotInProcess", processId],
+    queryKey: ["categoriesNotInProcess", processId, params],
     queryFn: async () => {
-      const res = await axios.get(`${ENV_BACKEND_URL}/api/categories/not-in-process/${processId}`);
+      const res = await axios.get(`${ENV_BACKEND_URL}/api/categories/not-in-process/${processId}`, { params });
       return res.data;
     },
     enabled: !!processId,

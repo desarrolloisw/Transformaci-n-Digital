@@ -1,4 +1,4 @@
-import { getCategories, getCategoryById, createCategory, updateCategory, disableCategory, enableCategory } from '../../services/chatbot-config/category.service.js';
+import { getCategories, getCategoryById, createCategory, updateCategory, disableCategory, enableCategory, getCategoriesByProcess, getCategoriesNotInProcess } from '../../services/chatbot-config/category.service.js';
 import { createCategorySchema, updateCategorySchema, categoryConfirmationSchema } from '../../schemas/chatbot-config/category.schema.js';
 
 export async function getAllCategories(req, res) {
@@ -110,12 +110,13 @@ export async function toggleCategoryActiveController(req, res) {
 }
 
 // Obtener todas las categorías de un proceso
-export async function getCategoriesByProcess(req, res) {
+export async function getCategoriesByProcessController(req, res) {
   try {
     const processId = Number(req.params.processId);
     if (isNaN(processId)) return res.status(400).json({ message: 'processId inválido' });
     const { name } = req.query;
     const categories = await getCategoriesByProcess(processId, { name });
+    console.log("Categories by process:", categories);
     res.status(200).json(categories.map(c => categoryConfirmationSchema.parse(c)));
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -123,21 +124,12 @@ export async function getCategoriesByProcess(req, res) {
 }
 
 // Obtener todas las categorías que NO tiene un proceso
-export async function getCategoriesNotInProcess(req, res) {
+export async function getCategoriesNotInProcessController(req, res) {
   try {
     const processId = Number(req.params.processId);
     if (isNaN(processId)) return res.status(400).json({ message: 'processId inválido' });
-    // Buscar IDs de categorías ya asociadas al proceso
-    const processCategories = await prisma.processCategory.findMany({
-      where: { processId },
-      select: { categoryId: true }
-    });
-    const usedCategoryIds = processCategories.map(pc => pc.categoryId);
-    // Buscar todas las categorías que NO están en usedCategoryIds
-    const categories = await prisma.category.findMany({
-      where: { id: { notIn: usedCategoryIds } },
-      select: { id: true, name: true, description: true, isActive: true, createdAt: true, updatedAt: true }
-    });
+    const { name } = req.query;
+    const categories = await getCategoriesNotInProcess(processId, { name });
     res.status(200).json(categories);
   } catch (error) {
     res.status(500).json({ message: error.message });

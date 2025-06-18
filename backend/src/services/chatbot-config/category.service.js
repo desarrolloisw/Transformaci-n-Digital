@@ -24,16 +24,36 @@ export async function getCategories({ search } = {}) {
 // Obtener todas las categorías de un proceso, con búsqueda opcional por nombre
 export async function getCategoriesByProcess(processId, { name } = {}) {
     const where = { processId: Number(processId) };
-    const categoryWhere = name ? { name: { contains: name, mode: 'insensitive' } } : {};
     const processCategories = await prisma.processCategory.findMany({
         where,
-        select: { category: true }
+        select: { category: { select: { id: true, name: true, description: true } }, isActive: true },
     });
     // Filter by name if provided
     const filtered = name
       ? processCategories.filter(pc => pc.category.name.toLowerCase().includes(name.toLowerCase()))
       : processCategories;
-    return filtered.map(pc => formatDates(pc.category));
+    // Devuelve el estado activo/inactivo de la relación processCategory
+    return filtered.map(pc => ({ ...pc.category, isActive: pc.isActive }));
+}
+
+// Obtener todas las categorias que no tiene un proceso
+export async function getCategoriesNotInProcess(processId, { name } = {}) {
+    const where = { isActive: true };
+    if (name && name.trim() !== "") {
+        where.name = { contains: name, mode: 'insensitive' };
+    }
+    const categories = await prisma.category.findMany({
+        where,
+        select: { id: true, name: true },
+    });
+    // Filtrar categorías que no están en el proceso
+    const processCategories = await prisma.processCategory.findMany({
+        where: { processId: Number(processId) },
+        select: { categoryId: true }
+    });
+
+    const excludedCategoryIds = new Set(processCategories.map(pc => pc.categoryId));
+    return categories.filter(cat => !excludedCategoryIds.has(cat.id));
 }
 
 export async function getCategoryById(categoryId) {

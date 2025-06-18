@@ -121,10 +121,15 @@ export async function toggleFaqActive({ processId, categoryId, userId, isActive 
     }
     return await prisma.$transaction(async (tx) => {
         const faq = await tx.processCategory.findUnique({
-            where: { processId_categoryId: { processId: Number(processId), categoryId: Number(categoryId) } }
+            where: { processId_categoryId: { processId: Number(processId), categoryId: Number(categoryId) } },
+            include: { process: true, category: true }
         });
         if (!faq) throw new Error('FAQ no encontrada');
         if (faq.isActive === isActive) return faqConfirmationSchema.parse({ ...formatFaqDates(faq), noChanges: true });
+        if (isActive) {
+            if (!faq.process.isActive) throw new Error('No se puede activar: el proceso está inactivo');
+            if (!faq.category.isActive) throw new Error('No se puede activar: la categoría está inactiva');
+        }
         const updated = await tx.processCategory.update({
             where: { id: faq.id },
             data: { isActive }
