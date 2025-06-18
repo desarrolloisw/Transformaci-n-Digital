@@ -9,6 +9,8 @@ import { CreateModal } from "../ui/CreateModal";
 import { useCreateModal } from "../../libs/useCreateModal.js";
 import { useCreateCategory } from "../../api/category.api";
 import { useQueryClient } from "@tanstack/react-query";
+import { getUserId } from "../../api/auth.api.js";
+import { Toast } from "../ui/Toast";
 
 export function Categories() {
   const [search, setSearch] = useState("");
@@ -17,18 +19,23 @@ export function Categories() {
   const queryClient = useQueryClient();
   const createCategory = useCreateCategory();
 
-  // Get userId from localStorage (must be set at login)
-  const userId = Number(localStorage.getItem("userId"));
+  const userId =  getUserId();
+
+  const [modalKey, setModalKey] = useState(0);
+  const [toast, setToast] = useState({ show: false, message: '', type: 'info' });
 
   const categoryFields = [
     { name: "name", label: "Nombre", type: "text", required: true, minLength: 2, maxLength: 100 },
     { name: "description", label: "Descripción", type: "textarea", required: true, minLength: 2 },
     { name: "isActive", label: "Activo", type: "checkbox", required: false },
-    // Hide userId from UI, but always send it
   ];
 
+  const handleCloseModal = () => {
+    createModal.handleClose();
+    setModalKey((k) => k + 1);
+  };
+
   const handleCreateCategory = (form) => {
-    // Ensure userId is a number and isActive is boolean (default true)
     const payload = {
       ...form,
       userId,
@@ -37,10 +44,13 @@ export function Categories() {
     createCategory.mutate(payload, {
       onSuccess: () => {
         queryClient.invalidateQueries(["categories"]);
-        createModal.handleClose();
+        setToast({ show: true, message: "Categoría creada exitosamente", type: "success" });
+        handleCloseModal();
       },
       onError: (error) => {
-        createModal.setError(error.response?.data?.message || "Error al crear categoría");
+        const msg = error.response?.data?.message || "Error al crear categoría";
+        setToast({ show: true, message: msg, type: "error" });
+        createModal.setError(msg);
       },
     });
   };
@@ -79,13 +89,21 @@ export function Categories() {
           )}
         </div>
         <CreateModal
+          key={modalKey}
           open={createModal.open}
-          onClose={createModal.handleClose}
+          onClose={handleCloseModal}
           onSubmit={handleCreateCategory}
           fields={categoryFields}
           title="Crear categoría"
           error={createModal.error}
         />
+        {toast.show && (
+          <Toast
+            message={toast.message}
+            onClose={() => setToast(t => ({ ...t, show: false }))}
+            type={toast.type}
+          />
+        )}
       </section>
     </div>
   );

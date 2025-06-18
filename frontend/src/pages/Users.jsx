@@ -10,6 +10,7 @@ import { useCreateModal } from "../libs/useCreateModal.js";
 import { useRegister } from "../api/auth.api";
 import { useGetUserTypes } from "../api/user.api";
 import { useQueryClient } from "@tanstack/react-query";
+import { Toast } from "../components/ui/Toast";
 
 export function Users() {
   const [search, setSearch] = useState("");
@@ -18,6 +19,8 @@ export function Users() {
   const register = useRegister();
   const queryClient = useQueryClient();
   const { data: userTypes = [] } = useGetUserTypes();
+  const [modalKey, setModalKey] = useState(0);
+  const [toast, setToast] = useState({ show: false, message: '', type: 'info' });
 
   // User creation fields (match backend schema)
   const userFields = [
@@ -25,11 +28,17 @@ export function Users() {
     { name: "name", label: "Nombre", type: "text", required: true, minLength: 1, maxLength: 50 },
     { name: "lastname", label: "Primer apellido", type: "text", required: true, minLength: 1, maxLength: 50 },
     { name: "secondlastname", label: "Segundo apellido", type: "text", required: false, maxLength: 50 },
-    { name: "email", label: "Correo institucional", type: "email", required: true, maxLength: 100, pattern: "^[a-zA-Z0-9_.+-]+@unison\\.mx$", helper: "Debe ser @unison.mx" },
-    { name: "password", label: "Contraseña", type: "password", required: true, minLength: 8, maxLength: 72 },
+    { name: "email", label: "Correo institucional", type: "email", required: true, maxLength: 100, pattern: "^[a-zA-Z0-9_.+\\-]+@unison\\.mx$", helper: "Debe ser @unison.mx" },
+    { name: "password", label: "Contraseña", type: "password", required: true, minLength: 8, maxLength: 72, pattern: "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$", helper: "Debe tener mayúscula, minúscula, número y uno de estos caracteres especiales: @$!%*?&" },
     { name: "confirmPassword", label: "Confirmar contraseña", type: "password", required: true, minLength: 8, maxLength: 72 },
     { name: "userTypeId", label: "Tipo de usuario", type: "select", required: true, options: userTypes.map(u => ({ value: u.id, label: u.name })) },
   ];
+
+  // Limpia el formulario del modal al cerrar o crear usuario
+  const handleCloseModal = () => {
+    createModal.handleClose();
+    setModalKey((k) => k + 1); // Cambia la key para forzar remount
+  };
 
   const handleCreateUser = (form) => {
     // Convert userTypeId to number
@@ -37,11 +46,17 @@ export function Users() {
     register.mutate(payload, {
       onSuccess: () => {
         queryClient.invalidateQueries(["users"]);
-        createModal.handleClose();
+        setToast({ show: true, message: "Usuario creado exitosamente", type: "success" });
+        handleCloseModal();
       },
       onError: (error) => {
         let msg = error.response?.data?.message || "Error al crear usuario";
+        // Si hay errores de validación de Zod, los mostramos todos
+        if (error.response?.data?.errors && Array.isArray(error.response.data.errors)) {
+          msg += ': ' + error.response.data.errors.map(e => e.message).join(' | ');
+        }
         if (error.response?.data?.error) msg = error.response.data.error;
+        setToast({ show: true, message: msg, type: "error" });
         createModal.setError(msg);
       },
     });
@@ -89,13 +104,21 @@ export function Users() {
               )}
             </div>
             <CreateModal
+              key={modalKey}
               open={createModal.open}
-              onClose={createModal.handleClose}
+              onClose={handleCloseModal}
               onSubmit={handleCreateUser}
               fields={userFields}
               title="Registrar usuario"
               error={createModal.error}
             />
+            {toast.show && (
+              <Toast
+                message={toast.message}
+                onClose={() => setToast(t => ({ ...t, show: false }))}
+                type={toast.type}
+              />
+            )}
           </section>
         </div>
       </main>

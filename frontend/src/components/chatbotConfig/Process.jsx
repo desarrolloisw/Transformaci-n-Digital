@@ -9,6 +9,8 @@ import { CreateModal } from "../ui/CreateModal";
 import { useCreateModal } from "../../libs/useCreateModal.js";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCreateProcess } from "../../api/process.api";
+import { getUserId } from "../../api/auth.api";
+import { Toast } from "../ui/Toast";
 
 export function Process() {
   const [search, setSearch] = useState("");
@@ -17,18 +19,23 @@ export function Process() {
   const queryClient = useQueryClient();
   const createProcess = useCreateProcess();
 
-  // Get userId from localStorage (must be set at login)
-  const userId = Number(localStorage.getItem("userId"));
+  const userId =  getUserId();
+
+  const [modalKey, setModalKey] = useState(0);
+  const [toast, setToast] = useState({ show: false, message: '', type: 'info' });
 
   const processFields = [
     { name: "name", label: "Nombre", type: "text", required: true, minLength: 2, maxLength: 100 },
     { name: "description", label: "Descripción", type: "textarea", required: true, minLength: 2 },
     { name: "isActive", label: "Activo", type: "checkbox", required: false },
-    // Hide userId from UI, but always send it
   ];
 
+  const handleCloseModal = () => {
+    createModal.handleClose();
+    setModalKey((k) => k + 1);
+  };
+
   const handleCreateProcess = (form) => {
-    // Ensure isActive is always boolean and present, and userId is sent
     const payload = {
       ...form,
       isActive: typeof form.isActive === 'boolean' ? form.isActive : true,
@@ -37,10 +44,13 @@ export function Process() {
     createProcess.mutate(payload, {
       onSuccess: () => {
         queryClient.invalidateQueries(["processes"]);
-        createModal.handleClose();
+        setToast({ show: true, message: "Proceso creado exitosamente", type: "success" });
+        handleCloseModal();
       },
       onError: (error) => {
-        createModal.setError(error.response?.data?.message || "Error al crear proceso");
+        const msg = error.response?.data?.message || "Error al crear proceso";
+        setToast({ show: true, message: msg, type: "error" });
+        createModal.setError(msg);
       },
     });
   };
@@ -79,13 +89,21 @@ export function Process() {
           )}
         </div>
         <CreateModal
+          key={modalKey}
           open={createModal.open}
-          onClose={createModal.handleClose}
+          onClose={handleCloseModal}
           onSubmit={handleCreateProcess}
           fields={processFields}
           title="Crear proceso"
           error={createModal.error}
         />
+        {toast.show && (
+          <Toast
+            message={toast.message}
+            onClose={() => setToast(t => ({ ...t, show: false }))}
+            type={toast.type}
+          />
+        )}
       </section>
     </div>
   );

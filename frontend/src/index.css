@@ -1,1 +1,29 @@
 @import "tailwindcss";
+
+/* Botones globales */
+button, .btn-primary, .btn-secondary, .bg-blue-600, .bg-green-600, .bg-red-600, .bg-gray-200, .bg-gray-700, .bg-green-700, .bg-blue-700, .bg-red-700 {
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+}
+button:hover, .btn-primary:hover, .btn-secondary:hover, .bg-blue-600:hover, .bg-green-600:hover, .bg-red-600:hover, .bg-gray-200:hover, .bg-gray-700:hover, .bg-green-700:hover, .bg-blue-700:hover, .bg-red-700:hover {
+  filter: brightness(0.92);
+  box-shadow: 0 2px 8px 0 rgba(0,0,0,0.08);
+}
+button:active, .btn-primary:active, .btn-secondary:active {
+  filter: brightness(0.85);
+}
+
+/* Inputs globales */
+input, select, textarea {
+  transition: border 0.2s, box-shadow 0.2s;
+  outline: none;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px #2563eb22;
+  background: #fff;
+}
+input:hover, select:hover, textarea:hover {
+  border-color: #60a5fa;
+  background: #f1f5f9;
+}

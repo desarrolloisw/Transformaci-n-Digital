@@ -39,6 +39,10 @@ export const getUsername = () => {
   return localStorage.getItem("username");
 }
 
+export const getUserId = () => {
+  return Number(localStorage.getItem("userId")) || null;  
+}
+
 // Interceptor para agregar el token a todas las peticiones
 axios.interceptors.request.use((config) => {
   const token = getAuthToken();
@@ -73,7 +77,9 @@ export const logout = () => {
 export const useRegister = () => {
   return useMutation({
     mutationFn: async (data) => {
+      console.log("Registering user with data:", data);
       const res = await axios.post(`${ENV_BACKEND_URL}/api/auth/register`, data);
+      console.log(res)
       return res.data;
     },
   });

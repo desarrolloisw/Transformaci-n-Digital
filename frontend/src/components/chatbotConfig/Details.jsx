@@ -7,7 +7,7 @@ import { DetailsHeader } from "./details/DetailsHeader";
 import { DetailsInfo } from "./details/DetailsInfo";
 import { DetailsActions } from "./details/DetailsActions";
 
-export function Details({ data, type, refetch }) {
+export function Details({ data, type, refetch, setToast }) {
   const [editMode, setEditMode] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -36,20 +36,27 @@ export function Details({ data, type, refetch }) {
     setActionLoading(true);
     setError(null);
     try {
+      let result;
       if (type === "category") {
-        await updateCategory.mutateAsync({ id: data.id, ...form });
+        result = await updateCategory.mutateAsync({ id: data.id, ...form });
       } else {
-        await updateProcess.mutateAsync({ id: data.id, data: form });
+        result = await updateProcess.mutateAsync({ id: data.id, data: form });
       }
       setEditMode(false);
       refetch?.();
+      if (result && result.noChanges) {
+        if (setToast) setToast({ show: true, message: "No hubo cambios para guardar", type: "info" });
+      } else {
+        if (setToast) setToast({ show: true, message: "Guardado exitosamente", type: "success" });
+      }
     } catch (e) {
-      setError(e?.response?.data?.message || "Error al guardar cambios");
+      const msg = e?.response?.data?.message || "Error al guardar cambios";
+      setError(msg);
+      if (setToast) setToast({ show: true, message: msg, type: "error" });
     } finally {
       setActionLoading(false);
     }
   };
-
   const handleDisable = async () => {
     setActionLoading(true);
     setError(null);
@@ -60,13 +67,15 @@ export function Details({ data, type, refetch }) {
         await disableProcess.mutateAsync({ id: data.id, userId: data.userId });
       }
       refetch?.();
+      if (setToast) setToast({ show: true, message: "Deshabilitado exitosamente", type: "success" });
     } catch (e) {
-      setError(e?.response?.data?.message || "Error al deshabilitar");
+      const msg = e?.response?.data?.message || "Error al deshabilitar";
+      setError(msg);
+      if (setToast) setToast({ show: true, message: msg, type: "error" });
     } finally {
       setActionLoading(false);
     }
   };
-
   const handleEnable = async () => {
     setActionLoading(true);
     setError(null);
@@ -77,8 +86,11 @@ export function Details({ data, type, refetch }) {
         await enableProcess.mutateAsync({ id: data.id, userId: data.userId });
       }
       refetch?.();
+      if (setToast) setToast({ show: true, message: "Habilitado exitosamente", type: "success" });
     } catch (e) {
-      setError(e?.response?.data?.message || "Error al habilitar");
+      const msg = e?.response?.data?.message || "Error al habilitar";
+      setError(msg);
+      if (setToast) setToast({ show: true, message: msg, type: "error" });
     } finally {
       setActionLoading(false);
     }
@@ -117,4 +129,5 @@ Details.propTypes = {
   }),
   type: PropTypes.oneOf(["process", "category"]).isRequired,
   refetch: PropTypes.func,
+  setToast: PropTypes.func,
 };

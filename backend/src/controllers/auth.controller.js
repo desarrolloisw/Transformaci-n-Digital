@@ -2,6 +2,7 @@ import { registerUserService, loginUserService } from "../services/auth.service.
 
 export async function register(req, res) {
     try {
+        console.log('auth.controller.js - register');
         const userData = req.body;
         const newUser = await registerUserService(userData);
         res.status(201).json({
@@ -10,6 +11,7 @@ export async function register(req, res) {
         });
     }catch (error) {
         console.error("Error en el registro:", error);
+        console.log(error)
         res.status(400).json({
             message: "Error al registrar el usuario",
             error: error.message

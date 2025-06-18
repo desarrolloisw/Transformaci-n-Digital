@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from "react";
 
 export function CreateModal({ open, onClose, onSubmit, fields, title, error }) {
   const [form, setForm] = useState({});
+  const [showPassword, setShowPassword] = useState({});
   const modalRef = useRef(null);
 
   // Close modal on ESC
@@ -55,6 +56,10 @@ export function CreateModal({ open, onClose, onSubmit, fields, title, error }) {
       }
     });
     onSubmit(coercedForm);
+  };
+
+  const handleShowPasswordToggle = (name) => {
+    setShowPassword((prev) => ({ ...prev, [name]: !prev[name] }));
   };
 
   // Show session expired message if error is 'No tienes sesión activa'
@@ -129,6 +134,33 @@ export function CreateModal({ open, onClose, onSubmit, fields, title, error }) {
                       <option key={opt.value} value={opt.value}>{opt.label}</option>
                     ))}
                   </select>
+                </>
+              ) : field.type === "password" ? (
+                <>
+                  <label className="block text-sm font-semibold mb-1 text-gray-700" htmlFor={field.name}>{field.label}</label>
+                  <div className="relative">
+                    <input
+                      id={field.name}
+                      type={showPassword[field.name] ? "text" : "password"}
+                      name={field.name}
+                      value={form[field.name] || ""}
+                      onChange={handleChange}
+                      className="w-full border rounded px-3 py-2 bg-blue-50 pr-12"
+                      required={field.required}
+                      minLength={field.minLength}
+                      maxLength={field.maxLength}
+                      pattern={field.pattern}
+                    />
+                    <button
+                      type="button"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-blue-700 font-semibold"
+                      onClick={() => handleShowPasswordToggle(field.name)}
+                      tabIndex={-1}
+                      aria-label={showPassword[field.name] ? "Ocultar contraseña" : "Ver contraseña"}
+                    >
+                      {showPassword[field.name] ? "Ocultar" : "Ver"}
+                    </button>
+                  </div>
                 </>
               ) : (
                 <>
