@@ -27,6 +27,7 @@ import userRoutes from '../routes/user.routes.js';
 import categoryRoutes from '../routes/chatbot-config/category.routes.js';
 import faqRoutes from '../routes/chatbot-config/faq.routes.js';
 import dashboardRoutes from '../routes/dashboard/chatbot-dashboard.routes.js';
+import dinamicChatbotAiRoutes from '../routes/dinamic-chatbot-ai.routes.js';
 import { fileURLToPath } from 'url';
 
 const app = express();
@@ -59,6 +60,7 @@ app.use(express.static(path.resolve(import.meta.dirname, '..', '..', 'public')))
 app.use('/api/auth', authRoutes);
 app.use('/api/chatbot', staticChatbotRoutes);
 app.use('/api/chatbot', dinamicChatbotRoutes);
+app.use('/api/chatbot', dinamicChatbotAiRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/processes', processRoutes);
 app.use('/api/categories', categoryRoutes);
