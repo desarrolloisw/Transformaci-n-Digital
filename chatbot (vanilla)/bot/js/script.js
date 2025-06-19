@@ -334,7 +334,9 @@ document.addEventListener("DOMContentLoaded", function () {
     staticIcon.innerHTML = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="10" rx="4"/><circle cx="8" cy="12" r="1.5" fill="#fff"/><circle cx="16" cy="12" r="1.5" fill="#fff"/></svg>`;
     const dinamicIcon = document.createElement('span');
     dinamicIcon.innerHTML = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2Zm0 0v4m0 12v4m8-8h-4m-8 0H4"/><circle cx="12" cy="12" r="3" fill="#fff"/></svg>`;
-    let currentBot = 'static'; // 'static' o 'dinamic'
+    const aiIcon = document.createElement('span');
+    aiIcon.innerHTML = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 15h8M9 9h.01M15 9h.01"/><rect x="10" y="11" width="4" height="2" rx="1" fill="#fff"/></svg>`;
+    let currentBot = 'static'; // 'static', 'dinamic', 'ai'
     botSwitchBtn.appendChild(staticIcon);
     header.appendChild(botSwitchBtn); // Botón switch después del título
     // Botón de cerrar
@@ -486,7 +488,8 @@ document.addEventListener("DOMContentLoaded", function () {
                     startChatbotFlow();
                 }
                 removeDinamicInput();
-            } else {
+                removeAiInput();
+            } else if (currentBot === 'dinamic') {
                 currentSessionId = dinamicSessionId;
                 if (dinamicHistory.length > 0) {
                     clearChat();
@@ -497,6 +500,19 @@ document.addEventListener("DOMContentLoaded", function () {
                     startDinamicBot(true);
                 }
                 renderDinamicInput();
+                removeAiInput();
+            } else if (currentBot === 'ai') {
+                currentSessionId = aiSessionId;
+                if (aiHistory.length > 0) {
+                    clearChat();
+                    for (const msg of aiHistory) {
+                        renderMessage(msg.message, msg.role === 'user');
+                    }
+                } else {
+                    startAiBot(true);
+                }
+                renderAiInput();
+                removeDinamicInput();
             }
         }, 250);
     }
@@ -1008,18 +1024,6 @@ document.addEventListener("DOMContentLoaded", function () {
         dinamicHistory.push({ role: 'bot', message: '¡Hola! Soy el bot dinámico. Escribe tu pregunta.' });
         renderDinamicInput();
     }
-    function startStaticBot(force = false) {
-        // --- NUEVO: Cambia sessionId para cancelar animaciones previas ---
-        staticSessionId++;
-        currentSessionId = staticSessionId;
-        if (!force && staticHistory.length > 0) {
-            messageHistory = [...staticHistory];
-            renderHistory();
-            return;
-        }
-        staticHistory = [];
-        startChatbotFlow(true);
-    }
     // --- GUARDAR HISTORIAL AL CAMBIAR DE BOT ---
     function saveCurrentHistory() {
         if (currentBot === 'static') {
@@ -1028,27 +1032,243 @@ document.addEventListener("DOMContentLoaded", function () {
             // dinamicHistory ya se actualiza en sendDinamicMessage
         }
     }
-    // --- CAMBIO DE BOT ---
+    // --- CAMBIO DE BOT (3 MODOS) ---
+    // --- AL ABRIR/MINIMIZAR, RESTAURAR EL HISTORIAL DEL BOT ACTUAL ---
+    function openChatWindow() {
+        bubble.style.animation = "chatbot-bubble-out 0.3s cubic-bezier(.68,-0.55,.27,1.55)";
+        setTimeout(() => {
+            bubble.style.display = 'none';
+            chatWindow.style.display = 'flex';
+            chatWindow.style.animation = "chatbot-fade-in 0.3s cubic-bezier(.68,-0.55,.27,1.55)";
+            if (currentBot === 'static') {
+                currentSessionId = staticSessionId;
+                if (staticHistory.length > 0) {
+                    messageHistory = [...staticHistory];
+                    renderHistory();
+                } else {
+                    startChatbotFlow();
+                }
+                removeDinamicInput();
+                removeAiInput();
+            } else if (currentBot === 'dinamic') {
+                currentSessionId = dinamicSessionId;
+                if (dinamicHistory.length > 0) {
+                    clearChat();
+                    for (const msg of dinamicHistory) {
+                        renderMessage(msg.message, msg.role === 'user');
+                    }
+                } else {
+                    startDinamicBot(true);
+                }
+                renderDinamicInput();
+                removeAiInput();
+            } else if (currentBot === 'ai') {
+                currentSessionId = aiSessionId;
+                if (aiHistory.length > 0) {
+                    clearChat();
+                    for (const msg of aiHistory) {
+                        renderMessage(msg.message, msg.role === 'user');
+                    }
+                } else {
+                    startAiBot(true);
+                }
+                renderAiInput();
+                removeDinamicInput();
+            }
+        }, 250);
+    }
+    // --- CIERRE CON ESCAPE Y BOTÓN ---
+    closeBtn.addEventListener('click', closeChatWindow);
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && chatWindow.style.display === 'flex') {
+            closeChatWindow();
+        }
+    });
+
+    // --- INPUT PARA BOT AI EN FOOTER ---
+    let aiInputDiv = null;
+    let aiHistory = [];
+    function renderAiInput() {
+        if (aiInputDiv) return;
+        aiInputDiv = document.createElement('div');
+        aiInputDiv.className = 'ai-input-footer';
+        aiInputDiv.style.display = 'flex';
+        aiInputDiv.style.flexDirection = 'column';
+        aiInputDiv.style.alignItems = 'stretch';
+        aiInputDiv.style.width = 'auto';
+        aiInputDiv.style.background = 'linear-gradient(90deg, #fafdff 80%, #e3f2fd 100%)';
+        aiInputDiv.style.borderTop = '1.5px solid #e3f2fd';
+        aiInputDiv.style.boxShadow = '0 -2px 10px #00c6fb11';
+        aiInputDiv.style.position = 'relative';
+        aiInputDiv.style.padding = '0 12px 8px 12px';
+
+        const inputRow = document.createElement('div');
+        inputRow.style.display = 'flex';
+        inputRow.style.alignItems = 'center';
+        inputRow.style.gap = '8px';
+        inputRow.style.width = '100%';
+        inputRow.style.marginTop = '8px';
+
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.style.width = '90%';
+        input.placeholder = 'Pregunta sobre procesos universitarios...';
+        input.style.flex = '1';
+        input.style.padding = '10px 14px';
+        input.style.borderRadius = '8px';
+        input.style.border = '1.5px solid #b3e0fc';
+        input.style.fontSize = '1.07rem';
+        input.style.outline = 'none';
+        input.style.background = '#fff';
+        input.style.boxShadow = '0 1px 4px #0078d41a';
+
+        const sendBtn = document.createElement('button');
+        sendBtn.title = 'Send';
+        sendBtn.innerHTML = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>`;
+        sendBtn.style.background = 'linear-gradient(90deg, #0078d4 70%, #00c6fb 100%)';
+        sendBtn.style.color = '#fff';
+        sendBtn.style.border = 'none';
+        sendBtn.style.borderRadius = '8px';
+        sendBtn.style.padding = '8px 14px';
+        sendBtn.style.cursor = 'pointer';
+        sendBtn.style.fontSize = '1.07rem';
+        sendBtn.style.display = 'flex';
+        sendBtn.style.alignItems = 'center';
+        sendBtn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.09)';
+        sendBtn.style.transition = 'background 0.16s, color 0.16s, transform 0.13s';
+        sendBtn.addEventListener('click', () => {
+            sendAiMessage(input.value);
+        });
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                sendAiMessage(input.value);
+            }
+        });
+        inputRow.appendChild(input);
+        inputRow.appendChild(sendBtn);
+
+        const resetAiBtn = document.createElement('button');
+        resetAiBtn.textContent = 'Reiniciar chat';
+        resetAiBtn.style.background = 'linear-gradient(90deg, #0078d4 70%, #00c6fb 100%)';
+        resetAiBtn.style.color = '#fff';
+        resetAiBtn.style.border = 'none';
+        resetAiBtn.style.borderRadius = '7px';
+        resetAiBtn.style.padding = '10px 24px';
+        resetAiBtn.style.cursor = 'pointer';
+        resetAiBtn.style.fontSize = '1.05rem';
+        resetAiBtn.style.fontWeight = '500';
+        resetAiBtn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.07)';
+        resetAiBtn.style.margin = '10px auto 0 auto';
+        resetAiBtn.style.display = 'block';
+        resetAiBtn.addEventListener('click', () => {
+            aiSessionId++;
+            currentSessionId = aiSessionId;
+            aiHistory = [];
+            clearChat();
+            renderMessage('¡Hola! Soy el bot potenciado por IA. Pregúntame lo que quieras sobre procesos universitarios.', false);
+            aiHistory.push({ role: 'bot', message: '¡Hola! Soy el bot potenciado por IA. Pregúntame lo que quieras sobre procesos universitarios.' });
+        });
+
+        aiInputDiv.appendChild(inputRow);
+        aiInputDiv.appendChild(resetAiBtn);
+        footer.style.display = 'none';
+        chatWindow.appendChild(aiInputDiv);
+        input.focus();
+        body.style.paddingBottom = '10px';
+    }
+    function removeAiInput() {
+        if (aiInputDiv) {
+            aiInputDiv.remove();
+            aiInputDiv = null;
+        }
+        footer.style.display = 'flex';
+        body.style.paddingBottom = '70px';
+    }
+    let aiSessionId = 0;
+    async function sendAiMessage(text) {
+        if (!text || !aiInputDiv) return;
+        const input = aiInputDiv.querySelector('input');
+        input.value = '';
+        renderMessage(text, true);
+        aiHistory.push({ role: 'user', message: text });
+        const sessionId = currentSessionId;
+        await showTyping(600, sessionId);
+        try {
+            const res = await fetch(`${BACKEND_URL}/api/chatbot/dinamic/ai`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: text, history: aiHistory })
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                renderMessage(`<span style='color:#d32f2f'><b>${data.error || 'AI bot error'}</b></span>`, false);
+                aiHistory.push({ role: 'bot', message: data.error || 'AI bot error' });
+                return;
+            }
+            // La respuesta ya viene en HTML seguro
+            renderMessage(data.response, false);
+            aiHistory.push({ role: 'bot', message: data.response });
+        } catch (err) {
+            renderMessage('<span style="color:#d32f2f"><b>Connection or data format error</b></span>', false);
+            aiHistory.push({ role: 'bot', message: 'Connection or data format error' });
+        }
+    }
+    function startAiBot(force = false) {
+        aiSessionId++;
+        currentSessionId = aiSessionId;
+        if (!force && aiHistory.length > 0) {
+            clearChat();
+            for (const msg of aiHistory) {
+                renderMessage(msg.message, msg.role === 'user');
+            }
+            renderAiInput();
+            return;
+        }
+        aiHistory = [];
+        clearChat();
+        renderMessage('¡Hola! Soy el bot potenciado por IA. Pregúntame lo que quieras sobre procesos universitarios.', false);
+        aiHistory.push({ role: 'bot', message: '¡Hola! Soy el bot potenciado por IA. Pregúntame lo que quieras sobre procesos universitarios.' });
+        renderAiInput();
+    }
+    // --- GUARDAR HISTORIAL AL CAMBIAR DE BOT ---
+    function saveCurrentHistory() {
+        if (currentBot === 'static') {
+            staticHistory = [...messageHistory];
+        } else if (currentBot === 'dinamic') {
+            // dinamicHistory ya se actualiza en sendDinamicMessage
+        } else if (currentBot === 'ai') {
+            // aiHistory ya se actualiza en sendAiMessage
+        }
+    }
+    // --- CAMBIO DE BOT (3 MODOS) ---
+    let botModes = ['static', 'dinamic', 'ai'];
     botSwitchBtn.addEventListener('click', () => {
         saveCurrentHistory();
+        let idx = botModes.indexOf(currentBot);
+        idx = (idx + 1) % botModes.length;
+        currentBot = botModes[idx];
+        botSwitchBtn.innerHTML = '';
         if (currentBot === 'static') {
-            // Cambiar a dinámico
-            botSwitchBtn.innerHTML = '';
-            botSwitchBtn.appendChild(dinamicIcon);
-            currentBot = 'dinamic';
-            dinamicSessionId++;
-            currentSessionId = dinamicSessionId;
-            removeDinamicInput();
-            startDinamicBot(true);
-        } else {
-            // Cambiar a estático
-            botSwitchBtn.innerHTML = '';
             botSwitchBtn.appendChild(staticIcon);
-            currentBot = 'static';
             staticSessionId++;
             currentSessionId = staticSessionId;
             removeDinamicInput();
+            removeAiInput();
             startStaticBot(true);
+        } else if (currentBot === 'dinamic') {
+            botSwitchBtn.appendChild(dinamicIcon);
+            dinamicSessionId++;
+            currentSessionId = dinamicSessionId;
+            removeAiInput();
+            removeDinamicInput();
+            startDinamicBot(true);
+        } else if (currentBot === 'ai') {
+            botSwitchBtn.appendChild(aiIcon);
+            aiSessionId++;
+            currentSessionId = aiSessionId;
+            removeDinamicInput();
+            removeAiInput();
+            startAiBot(true);
         }
     });
     // --- AL ABRIR/MINIMIZAR, RESTAURAR EL HISTORIAL DEL BOT ACTUAL ---
@@ -1067,7 +1287,8 @@ document.addEventListener("DOMContentLoaded", function () {
                     startChatbotFlow();
                 }
                 removeDinamicInput();
-            } else {
+                removeAiInput();
+            } else if (currentBot === 'dinamic') {
                 currentSessionId = dinamicSessionId;
                 if (dinamicHistory.length > 0) {
                     clearChat();
@@ -1078,14 +1299,20 @@ document.addEventListener("DOMContentLoaded", function () {
                     startDinamicBot(true);
                 }
                 renderDinamicInput();
+                removeAiInput();
+            } else if (currentBot === 'ai') {
+                currentSessionId = aiSessionId;
+                if (aiHistory.length > 0) {
+                    clearChat();
+                    for (const msg of aiHistory) {
+                        renderMessage(msg.message, msg.role === 'user');
+                    }
+                } else {
+                    startAiBot(true);
+                }
+                renderAiInput();
+                removeDinamicInput();
             }
         }, 250);
     }
-    // --- CIERRE CON ESCAPE Y BOTÓN ---
-    closeBtn.addEventListener('click', closeChatWindow);
-    document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape' && chatWindow.style.display === 'flex') {
-            closeChatWindow();
-        }
-    });
 });
