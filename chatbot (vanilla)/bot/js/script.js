@@ -1185,14 +1185,35 @@ document.addEventListener("DOMContentLoaded", function () {
         body.style.paddingBottom = '70px';
     }
     let aiSessionId = 0;
+    // Indicador de escribiendo para AI
+    function showAiTypingIndicator() {
+        let typingDiv = document.getElementById('ai-typing-indicator');
+        if (!typingDiv) {
+            typingDiv = document.createElement('div');
+            typingDiv.id = 'ai-typing-indicator';
+            typingDiv.className = 'chatbot-message';
+            typingDiv.style.alignSelf = 'flex-start';
+            typingDiv.innerHTML = '<span style="font-size:1.5em;letter-spacing:2px;">...</span>';
+            body.appendChild(typingDiv);
+            body.scrollTop = body.scrollHeight;
+        }
+    }
+    function removeAiTypingIndicator() {
+        const typingDiv = document.getElementById('ai-typing-indicator');
+        if (typingDiv) typingDiv.remove();
+    }
+
     async function sendAiMessage(text) {
         if (!text || !aiInputDiv) return;
         const input = aiInputDiv.querySelector('input');
+        const sendBtn = aiInputDiv.querySelector('button');
         input.value = '';
+        input.disabled = true;
+        sendBtn.disabled = true;
         renderMessage(text, true);
         aiHistory.push({ role: 'user', message: text });
         const sessionId = currentSessionId;
-        await showTyping(600, sessionId);
+        showAiTypingIndicator();
         try {
             const res = await fetch(`${BACKEND_URL}/api/chatbot/dinamic/ai`, {
                 method: 'POST',
@@ -1200,17 +1221,25 @@ document.addEventListener("DOMContentLoaded", function () {
                 body: JSON.stringify({ message: text, history: aiHistory })
             });
             const data = await res.json();
+            removeAiTypingIndicator();
             if (!res.ok) {
                 renderMessage(`<span style='color:#d32f2f'><b>${data.error || 'AI bot error'}</b></span>`, false);
                 aiHistory.push({ role: 'bot', message: data.error || 'AI bot error' });
+                input.disabled = false;
+                sendBtn.disabled = false;
+                input.focus();
                 return;
             }
-            // La respuesta ya viene en HTML seguro
             renderMessage(data.response, false);
             aiHistory.push({ role: 'bot', message: data.response });
         } catch (err) {
+            removeAiTypingIndicator();
             renderMessage('<span style="color:#d32f2f"><b>Connection or data format error</b></span>', false);
             aiHistory.push({ role: 'bot', message: 'Connection or data format error' });
+        } finally {
+            input.disabled = false;
+            sendBtn.disabled = false;
+            input.focus();
         }
     }
     function startAiBot(force = false) {
@@ -1248,13 +1277,18 @@ document.addEventListener("DOMContentLoaded", function () {
         idx = (idx + 1) % botModes.length;
         currentBot = botModes[idx];
         botSwitchBtn.innerHTML = '';
+        // Eliminar indicador de escribiendo del bot AI si existe
+        const aiTypingDiv = document.getElementById('ai-typing-indicator');
+        if (aiTypingDiv) aiTypingDiv.remove();
+        // Limpiar mensajes del chat al cambiar de bot
+        if (body) body.innerHTML = '';
         if (currentBot === 'static') {
             botSwitchBtn.appendChild(staticIcon);
             staticSessionId++;
             currentSessionId = staticSessionId;
             removeDinamicInput();
             removeAiInput();
-            startStaticBot(true);
+            startChatbotFlow(true); // Forzar inicio del flujo estático
         } else if (currentBot === 'dinamic') {
             botSwitchBtn.appendChild(dinamicIcon);
             dinamicSessionId++;
