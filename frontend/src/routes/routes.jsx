@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { PrincipalLayout } from '../layout/PrincipalLayout';
-import { Dashboard } from '../pages/Dashboard';
 import { Login } from '../pages/Login';
+import VanillaChatbot from '../vanilla-chatbot/VanillaChatbot';
 import { Process } from '../components/chatbotConfig/Process';
 import { ProcessDetails } from '../pages/ProcessDetails';
 import { UserDetails } from '../pages/UserDetails';
@@ -25,15 +25,16 @@ import { PrivateRoute } from './PrivateRoute';
 export const MyRoutes = () => (
   <BrowserRouter>
     <Routes>
+      {/* Chatbot vanilla en la raíz */}
+      <Route path="/" element={<VanillaChatbot />} />
+      {/* Login solo en /admin */}
+      <Route path="admin" element={<Login />} />
       {/* Protected routes with main layout */}
       <Route element={<PrivateRoute><PrincipalLayout /></PrivateRoute>}>
         {/* Dashboard routes (default redirect to processes) */}
-        <Route path="/" element={<Dashboard />}>
-          <Route index element={<Navigate to="dashboard/processes" replace />} />
-          <Route path="dashboard/processes" element={<DashboardProcess />} />
-          <Route path="dashboard/categories" element={<DashboardCategories />} />
-          <Route path="dashboard/categoriesbyprocess" element={<DashboardCategoriesByProcess />} />
-        </Route>
+        <Route path="dashboard/processes" element={<DashboardProcess />} />
+        <Route path="dashboard/categories" element={<DashboardCategories />} />
+        <Route path="dashboard/categoriesbyprocess" element={<DashboardCategoriesByProcess />} />
         {/* Chatbot config section */}
         <Route path='chatbot-config' element={<ChatbotConfig />}>
           <Route index element={<Navigate to="processes" replace />} />
@@ -46,8 +47,7 @@ export const MyRoutes = () => (
         <Route path="users" element={<Users />} />
         <Route path="user/:id" element={<UserDetails />} />
       </Route>
-      {/* Public routes */}
-      <Route path="login" element={<Login />} />
+      {/* 404 */}
       <Route path="*" element={<Page404 />} />
     </Routes>
   </BrowserRouter>

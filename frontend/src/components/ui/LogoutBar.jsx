@@ -58,7 +58,7 @@ export const LogoutBar = () => {
               className="flex items-center gap-2 w-full px-4 py-2 text-[#00478f] hover:bg-blue-100 font-semibold transition-colors"
               onClick={() => {
                 logout();
-                navigate("/login", { replace: true });
+                navigate("/admin", { replace: true });
               }}
             >
               <HiLogout size={20} />

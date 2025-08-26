@@ -68,12 +68,12 @@ export function PrivateRoute({ children }) {
     localStorage.removeItem("role");
     localStorage.removeItem("userId");
     localStorage.removeItem("username");
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/admin" replace />;
   }
 
   // If role is not recognized, redirect to login
   if (!role) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/admin" replace />;
   }
 
   // Check if the current path is allowed for the user's role
