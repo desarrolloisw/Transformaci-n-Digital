@@ -19,7 +19,7 @@ import { getUserRole } from "../../api/auth.api";
 import EscudoUnison from "../../assets/img/Escudo_Unison.png";
 
 const sidebarItemsPAT = [
-  { title: "Dashboard", to: "/", icon: <HiOutlineHome size={22} /> },
+  { title: "Dashboard", to: "/admin", icon: <HiOutlineHome size={22} /> },
   { title: "Usuarios", to: "/users", icon: <HiOutlineUserGroup size={22} /> },
   { title: "Configuración del Chatbot", to: "/chatbot-config", icon: <HiOutlineClipboardList size={22} /> },
 ];
