@@ -19,12 +19,12 @@ import { getUserRole } from "../../api/auth.api";
 import EscudoUnison from "../../assets/img/Escudo_Unison.png";
 
 const sidebarItemsPAT = [
-  { title: "Dashboard", to: "/admin", icon: <HiOutlineHome size={22} /> },
+  { title: "Dashboard", to: "/dashboard/processes", icon: <HiOutlineHome size={22} /> },
   { title: "Usuarios", to: "/users", icon: <HiOutlineUserGroup size={22} /> },
   { title: "Configuración del Chatbot", to: "/chatbot-config", icon: <HiOutlineClipboardList size={22} /> },
 ];
 const sidebarItemsCOORD = [
-  { title: "Dashboard", to: "/", icon: <HiOutlineHome size={22} /> },
+  { title: "Dashboard", to: "/dashboard/processes", icon: <HiOutlineHome size={22} /> },
 ];
 
 export const Sidebar = () => {
@@ -73,8 +73,8 @@ export const Sidebar = () => {
         <ul className="flex-1 w-full px-2 space-y-2 mt-4">
           {sidebarItems.map((item, idx) => {
             const isActive =
-              item.to === "/"
-                ? location.pathname === "/" || location.pathname.startsWith("/dashboard")
+              item.to === "/dashboard/processes"
+                ? location.pathname === "/dashboard/processes" || location.pathname.startsWith("/dashboard")
                 : location.pathname.startsWith(item.to);
 
             return (
